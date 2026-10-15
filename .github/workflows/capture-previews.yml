@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/capture-previews.yml
+      - scripts/capture-previews.mjs
 
 permissions:
   contents: write
