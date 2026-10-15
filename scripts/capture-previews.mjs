@@ -1,5 +1,4 @@
 import { chromium } from 'playwright';
-import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 
 const sites = [
@@ -8,16 +7,10 @@ const sites = [
   ['human', 'https://human-topology.vercel.app/'],
   ['vr', 'https://unityroom.com/games/stick_catch'],
   ['mindscape', 'https://mindscapeai.streamlit.app/'],
+  ['english', 'https://english-as-code-indol.vercel.app/'],
 ];
 
 mkdirSync('assets/previews', { recursive: true });
-const clone = spawnSync('git', ['clone', '--depth', '1', 'https://github.com/ryouy/English_as_Code.git', '/tmp/eac-site'], { stdio: 'inherit' });
-let localServer = null;
-if (clone.status === 0) {
-  localServer = spawn('python3', ['-m', 'http.server', '4399', '--directory', '/tmp/eac-site/ui'], { stdio: 'ignore' });
-  sites.push(['english', 'http://127.0.0.1:4399/']);
-}
-
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
 let failures = 0;
 try {
@@ -38,7 +31,6 @@ try {
   }
 } finally {
   await browser.close();
-  if (localServer) localServer.kill();
 }
 console.log('Screenshots complete: ' + (sites.length - failures) + '/' + sites.length);
 if (failures === sites.length) process.exitCode = 1;
