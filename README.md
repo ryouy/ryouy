@@ -6,10 +6,10 @@
 
 I build small, thoughtful systems at the intersection of art, data, research, and the web.
 
-**Affiliation** &nbsp; University of Aizu<br>
-**Location** &nbsp; Aizuwakamatsu, Fukushima<br>
-**Future base** &nbsp; Azumino, Nagano<br>
-**Role** &nbsp; CS Student / Artist / Hiker
+<strong>Affiliation</strong> &nbsp; University of Aizu<br>
+<strong>Location</strong> &nbsp; Aizuwakamatsu, Fukushima<br>
+<strong>Future base</strong> &nbsp; Azumino, Nagano<br>
+<strong>Role</strong> &nbsp; CS Student / Artist / Hiker
 
 </td>
 <td width="34%" align="right" valign="middle">
