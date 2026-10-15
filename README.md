@@ -1,74 +1,71 @@
-### About me
-
 <table>
 <tr>
-<td width="66%" valign="middle">
-
-I build small, thoughtful systems at the intersection of art, data, research, and the web.
-
-<strong>Affiliation</strong> &nbsp; University of Aizu<br>
-<strong>Location</strong> &nbsp; Aizuwakamatsu, Fukushima<br>
-<strong>Future base</strong> &nbsp; Azumino, Nagano<br>
-<strong>Role</strong> &nbsp; CS Student / Artist / Hiker
-
+<td width="63%" valign="middle">
+<h3>About</h3>
+<strong>University of Aizu</strong> · Aizuwakamatsu, Japan<br>
+CS Student / Artist / Hiker<br>
+Next base: Azumino, Nagano<br><br>
+<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/youtube.svg" width="124" height="34" alt="YouTube channel"></a>
 </td>
-<td width="34%" align="right" valign="middle">
-<img src="./assets/IMG_2137.JPG" width="260" alt="Mountain landscape above the clouds">
+<td width="37%" align="right" valign="middle">
+<img src="./assets/IMG_2137.JPG" width="280" alt="Mountain view above the clouds">
 </td>
 </tr>
 </table>
 
-**Skills** &nbsp; Data Analysis · Data Visualization · LLMs · Machine Learning · Python · TypeScript · React · Next.js · English · German
+**Focus** &nbsp; LLMs · Data visualization · Web development · Robotics
 
-**Interests** &nbsp; Computational Social Science · Data Science · Hardware / Robotics · Art / Philosophy · Economics / Political Science · Hiking · Kendo
+**Interests** &nbsp; Art · Philosophy · Economics · Hiking · Kendo
 
-### Selected projects
+**Tools** &nbsp; Python · TypeScript · React · Next.js · PyTorch
+
+### Work
 
 <table>
 <tr>
 <td width="50%" valign="middle">
-<a href="https://yomiuri-election-2026.web.app"><img src="./assets/previews/election.svg" width="112" height="64" align="right" alt="Election 2026 preview"></a>
+<a href="https://yomiuri-election-2026.web.app/"><img src="./assets/previews/election.jpg" align="right" width="136" alt="Election 2026 app screenshot"></a>
 <strong>Election 2026</strong><br>
-Election survey in 3D<br>
-<a href="https://github.com/ryouy/election2026"><img src="./assets/previews/code.svg" width="72" height="24" alt="Code"></a> &nbsp;<a href="https://yomiuri-election-2026.web.app"><img src="./assets/previews/live.svg" width="69" height="24" alt="Live"></a>
+Election data in 3D<br>
+<a href="https://github.com/ryouy/election2026"><img src="./assets/previews/code.svg" width="90" height="30" alt="Source code"></a> &nbsp;<a href="https://yomiuri-election-2026.web.app/"><img src="./assets/previews/live.svg" width="86" height="30" alt="Live app"></a>
 </td>
 <td width="50%" valign="middle">
-<a href="https://gfca-aizu.web.app"><img src="./assets/previews/gformgen.svg" width="112" height="64" align="right" alt="gformgen preview"></a>
+<a href="https://gfca-aizu.web.app/"><img src="./assets/previews/gformgen.jpg" align="right" width="136" alt="gformgen app screenshot"></a>
 <strong>gformgen</strong><br>
-Google Forms dashboard<br>
-<a href="https://github.com/ryouy/gformgen"><img src="./assets/previews/code.svg" width="72" height="24" alt="Code"></a> &nbsp;<a href="https://gfca-aizu.web.app"><img src="./assets/previews/live.svg" width="69" height="24" alt="Live"></a>
+Google Forms manager<br>
+<a href="https://github.com/ryouy/gformgen"><img src="./assets/previews/code.svg" width="90" height="30" alt="Source code"></a> &nbsp;<a href="https://gfca-aizu.web.app/"><img src="./assets/previews/live.svg" width="86" height="30" alt="Live app"></a>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="middle">
-<a href="https://human-topology.vercel.app"><img src="./assets/previews/human.svg" width="112" height="64" align="right" alt="Human Topology preview"></a>
+<a href="https://human-topology.vercel.app/"><img src="./assets/previews/human.jpg" align="right" width="136" alt="Human Topology app screenshot"></a>
 <strong>Human Topology</strong><br>
-Wikipedia people graph<br>
-<a href="https://github.com/ryouy/human-topology"><img src="./assets/previews/code.svg" width="72" height="24" alt="Code"></a> &nbsp;<a href="https://human-topology.vercel.app"><img src="./assets/previews/live.svg" width="69" height="24" alt="Live"></a>
+People & network graph<br>
+<a href="https://github.com/ryouy/human-topology"><img src="./assets/previews/code.svg" width="90" height="30" alt="Source code"></a> &nbsp;<a href="https://human-topology.vercel.app/"><img src="./assets/previews/live.svg" width="86" height="30" alt="Live app"></a>
 </td>
 <td width="50%" valign="middle">
-<a href="https://unityroom.com/games/stick_catch"><img src="https://raw.githubusercontent.com/ryouy/VR_project/main/gameimage.png" width="112" height="64" align="right" alt="VR Project preview"></a>
+<a href="https://unityroom.com/games/stick_catch"><img src="./assets/previews/vr.jpg" align="right" width="136" alt="VR Project app screenshot"></a>
 <strong>VR Project</strong><br>
-Hand-tracking VR game<br>
-<a href="https://github.com/ryouy/VR_project"><img src="./assets/previews/code.svg" width="72" height="24" alt="Code"></a> &nbsp;<a href="https://unityroom.com/games/stick_catch"><img src="./assets/previews/live.svg" width="69" height="24" alt="Live"></a>
+Hand-tracking game<br>
+<a href="https://github.com/ryouy/VR_project"><img src="./assets/previews/code.svg" width="90" height="30" alt="Source code"></a> &nbsp;<a href="https://unityroom.com/games/stick_catch"><img src="./assets/previews/live.svg" width="86" height="30" alt="Live app"></a>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="middle">
-<a href="https://mindscapeai.streamlit.app/"><img src="./assets/previews/mindscape.svg" width="112" height="64" align="right" alt="MindscapeAI preview"></a>
+<a href="https://mindscapeai.streamlit.app/"><img src="./assets/previews/mindscape.jpg" align="right" width="136" alt="MindscapeAI app screenshot"></a>
 <strong>MindscapeAI</strong><br>
-LLM opinion-space explorer<br>
-<a href="https://github.com/ryouy/MindscapeAI"><img src="./assets/previews/code.svg" width="72" height="24" alt="Code"></a> &nbsp;<a href="https://mindscapeai.streamlit.app/"><img src="./assets/previews/live.svg" width="69" height="24" alt="Live"></a>
+Visualizing LLM opinions<br>
+<a href="https://github.com/ryouy/MindscapeAI"><img src="./assets/previews/code.svg" width="90" height="30" alt="Source code"></a> &nbsp;<a href="https://mindscapeai.streamlit.app/"><img src="./assets/previews/live.svg" width="86" height="30" alt="Live app"></a>
 </td>
 <td width="50%" valign="middle">
-<a href="https://github.com/ryouy/English_as_Code"><img src="./assets/previews/english.svg" width="112" height="64" align="right" alt="English as Code preview"></a>
+<a href="https://english-as-code-indol.vercel.app/"><img src="./assets/previews/english.jpg" align="right" width="136" alt="English as Code app screenshot"></a>
 <strong>English as Code</strong><br>
-English syntax visualizer<br>
-<a href="https://github.com/ryouy/English_as_Code"><img src="./assets/previews/code.svg" width="72" height="24" alt="Code"></a>
+English syntax explorer<br>
+<a href="https://github.com/ryouy/English_as_Code"><img src="./assets/previews/code.svg" width="90" height="30" alt="Source code"></a> &nbsp;<a href="https://english-as-code-indol.vercel.app/"><img src="./assets/previews/live.svg" width="86" height="30" alt="Live app"></a>
 </td>
 </tr>
 </table>
 
 ### Languages
 
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ryouy&layout=compact&theme=transparent&hide_border=true&langs_count=8&card_width=440" width="440" alt="Top languages in public repositories">
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ryouy&layout=compact&theme=tokyonight&hide_border=true&langs_count=7&card_width=340" width="570" alt="Most used programming languages by repository code">
