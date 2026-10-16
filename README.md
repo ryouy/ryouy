@@ -15,7 +15,7 @@ LLMs & Robotics · Art · World
 
 Philosophy · Economy · Future
 
-[**View projects**](https://ryouyplayground.vercel.app/#projects) &nbsp;·&nbsp; [**YouTube**](https://www.youtube.com/@sun_voyager)
+[**View projects**](https://ryouyplayground.vercel.app/#projects) &nbsp;/&nbsp; [**YouTube**](https://www.youtube.com/@sun_voyager)
 
 <br clear="both">
 
