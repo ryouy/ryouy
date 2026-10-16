@@ -1,0 +1,43 @@
+name: Refresh Language Card
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-language-card.yml"
+      - ".github/scripts/render_language_card.mjs"
+  schedule:
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-language-card:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install renderer
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Render static language card
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/render_language_card.mjs
+      - name: Publish language card
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/languages-card.png
+          if git diff --staged --quiet; then
+            echo "No language statistic changes."
+            exit 0
+          fi
+          git commit -m "chore: refresh language card [skip ci]"
+          git push
