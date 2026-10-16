@@ -1,0 +1,43 @@
+name: Refresh Responsive Stats
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-responsive-stats.yml"
+      - ".github/scripts/render_responsive_stats.mjs"
+  schedule:
+    - cron: "13 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-responsive-stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install screenshot renderer
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Render languages and WakaTime as one card
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/render_responsive_stats.mjs
+      - name: Publish generated stats
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/stats-column.png
+          if git diff --staged --quiet; then
+            echo "No change to stats image."
+            exit 0
+          fi
+          git commit -m "chore: refresh responsive profile stats [skip ci]"
+          git push
