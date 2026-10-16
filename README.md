@@ -28,10 +28,10 @@ Philosophy · Economy · Future
 
 
 
-<!-- Responsive image row: the two images wrap vertically on narrow screens. -->
+<!-- Balanced cards: equal width keeps Spotify and the stats column close in height on desktop; cards wrap on mobile. -->
 <p align="center">
-  <a href="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/09232355-8f21-441b-adb4-7513333aad19.svg"><img src="./assets/stats-column.png" width="430" align="top" alt="Most Used Languages and WakaTime statistics"></a>
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="315" align="top" alt="Spotify Now Playing"></a>
+  <a href="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/09232355-8f21-441b-adb4-7513333aad19.svg"><img src="./assets/stats-column.png" width="372" align="top" alt="Most Used Languages and WakaTime statistics"></a>
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="372" align="top" alt="Spotify Now Playing"></a>
 </p>
 
 <!-- BEGIN ACTIVITY-GRAPH -->
