@@ -31,4 +31,5 @@ Philosophy · Economy · Future
 <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ryouy&layout=compact&theme=tokyonight&hide_border=true&langs_count=7&card_width=500" width="500" alt="Most used programming languages">
 
 
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=ryouy&theme=github-compact&hide_border=true" width="100%" alt="GitHub contribution activity graph">
+<!-- BEGIN ACTIVITY-GRAPH -->
+<!-- END ACTIVITY-GRAPH -->
