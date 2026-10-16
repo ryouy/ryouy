@@ -28,7 +28,7 @@ Philosophy · Economy · Future
 
 
 
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ryouy&layout=compact&theme=tokyonight&hide_border=true&langs_count=7&card_width=500" width="500" alt="Most used programming languages">
+<img src="./assets/languages-animated.svg" width="500" alt="Animated Most Used Languages chart">
 
 
 <a href="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/cf1f7b43-c194-4de5-ad09-8c7f7ca42290.svg">
