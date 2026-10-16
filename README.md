@@ -1,21 +1,23 @@
-<table width="100%">
-  <tr>
-    <td width="50%" valign="middle">
-      <strong>About</strong>
-      <p>University of Aizu · Computer Science<br>
-      Aizuwakamatsu → Azumino<br>
-      Student / Developer / Artist / Hiker</p>
-      <strong>Exploring</strong>
-      <p>LLMs &amp; Robotics · Art · World</p>
-      <strong>Interests</strong>
-      <p>Philosophy · Economy · Future</p>
-      <p><a href="https://ryouyplayground.vercel.app/#projects"><strong>View projects</strong></a> &nbsp;·&nbsp; <a href="https://www.youtube.com/@sun_voyager"><strong>YouTube</strong></a></p>
-    </td>
-    <td width="50%" align="right" valign="middle">
-      <img src="./assets/IMG_2137.JPG" width="100%" alt="Profile photograph">
-    </td>
-  </tr>
-</table>
+<!-- Borderless profile header: the photo floats right while text stays on the left. -->
+<img align="right" width="49%" src="./assets/IMG_2137.JPG" alt="Profile photograph">
+
+**About**
+
+University of Aizu · Computer Science<br>
+Aizuwakamatsu → Azumino<br>
+Student / Developer / Artist / Hiker
+
+**Exploring**
+
+LLMs & Robotics · Art · World
+
+**Interests**
+
+Philosophy · Economy · Future
+
+[**View projects**](https://ryouyplayground.vercel.app/#projects) &nbsp;·&nbsp; [**YouTube**](https://www.youtube.com/@sun_voyager)
+
+<br clear="both">
 
 <!-- Full-width, balanced cards. The equal-width images wrap onto separate lines on small screens. -->
 <p align="center">
