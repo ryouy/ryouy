@@ -28,21 +28,11 @@ Philosophy · Economy · Future
 
 
 
-<table width="100%">
-  <tr>
-    <td width="54%" valign="top" align="left">
-      <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ryouy&amp;layout=compact&amp;theme=tokyonight&amp;hide_border=true&amp;langs_count=7&amp;card_width=500&amp;disable_animations=true" width="100%" alt="Most used programming languages">
-      <a href="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/46152627-c048-465f-93af-b5c0e8b1c4ef.svg">
-        <img src="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/46152627-c048-465f-93af-b5c0e8b1c4ef.svg" width="100%" alt="WakaTime coding activity">
-      </a>
-    </td>
-    <td width="46%" valign="top" align="center">
-      <a href="https://github.com/kittinan/spotify-github-profile">
-        <img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="100%" alt="Spotify Now Playing">
-      </a>
-    </td>
-  </tr>
-</table>
+<!-- Responsive image row: the two images wrap vertically on narrow screens. -->
+<p align="center">
+  <a href="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/46152627-c048-465f-93af-b5c0e8b1c4ef.svg"><img src="./assets/stats-column.png" width="430" align="top" alt="Most Used Languages and WakaTime statistics"></a>
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="315" align="top" alt="Spotify Now Playing"></a>
+</p>
 
 <!-- BEGIN ACTIVITY-GRAPH -->
 <picture>
