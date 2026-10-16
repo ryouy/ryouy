@@ -1,6 +1,10 @@
 name: Activity Graph
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/activity-graph.yml
   schedule:
     - cron: "27 2 * * *"
   workflow_dispatch:
