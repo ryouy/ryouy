@@ -102,7 +102,7 @@ async function main() {
     '.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}' +
     '.name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
     '.percent{margin-left:auto;color:#9aa5c6;font-size:11px}' +
-    '#wakatime{display:block;width:440px;height:auto;object-fit:contain}' +
+    '#wakatime{display:block;width:440px;height:auto;object-fit:fill}' +
     '</style></head><body><div id="column">' + languageCard(languages) +
     '<img id="wakatime" alt="WakaTime stats" src="' + WAKATIME_URL + '">' +
     '</div></body></html>';
@@ -118,6 +118,13 @@ async function main() {
       const img = document.getElementById("wakatime");
       return img && img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
     }, { timeout: 50000 });
+    // Spotify's cover-art card is slightly taller than this combined column.
+    // Extend only the chart vertically (~7%); keep the language card and widths untouched.
+    // This matches the two lower edges in the currently used 414px-wide desktop layout.
+    await page.$eval("#wakatime", (img) => {
+      const originalHeight = img.getBoundingClientRect().height;
+      img.style.height = (originalHeight + 34) + "px";
+    });
     await page.waitForTimeout(1700); // Let SVG-internal loading transitions settle.
     await fs.mkdir(path.dirname(OUTPUT), { recursive: true });
     await page.locator("#column").screenshot({
