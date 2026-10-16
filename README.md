@@ -35,6 +35,10 @@ Philosophy · Economy · Future
   <img src="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/cf1f7b43-c194-4de5-ad09-8c7f7ca42290.svg" width="500" alt="WakaTime coding activity">
 </a>
 
+<a href="https://github.com/kittinan/spotify-github-profile">
+  <img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="500" alt="Spotify Now Playing">
+</a>
+
 <!-- BEGIN ACTIVITY-GRAPH -->
 <picture>
   <source media="(max-width: 767px)" srcset="activity-graph-mobile.svg">
