@@ -6,18 +6,19 @@
 </p>
 <!-- END PROFILE-EXTRAS -->
 
-<!-- Responsive layout: stack media vertically to avoid rigid mobile table columns. -->
-<div align="center">
-  <img src="./assets/profile-current.jpg" width="340" alt="Randomly rotated profile photograph (4:5)">
-  <br>
-  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
-  <br>
-  <img src="./assets/weather-azumino.svg" width="340" alt="Current weather in Azumino, Nagano, refreshed every three hours">
-</div>
-
-<!-- Keep Spotify on a separate row for narrow screens. -->
+<!-- Mobile-first: compact profile media, no tables, no large Spotify album artwork. -->
 <p align="center">
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="340" alt="Spotify Now Playing"></a>
+  <img src="./assets/profile-current.jpg" width="240" alt="Randomly rotated profile photograph">
+</p>
+<p align="center">
+  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="100" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="100" alt="YouTube"></a>
+</p>
+<p align="center">
+  <img src="./assets/weather-azumino.svg" width="320" alt="Current Azumino weather">
+</p>
+<!-- Spotify: minimal text-only now-playing card, no album art. -->
+<p align="center">
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=false&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="320" alt="Spotify Now Playing"></a>
 </p>
 
 <!-- Animated GitHub contribution snake. Switches with GitHub's color scheme. -->
