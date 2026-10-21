@@ -1,9 +1,3 @@
-<!-- BEGIN PROFILE-EXTRAS -->
-<!-- Animated header -->
-<p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&amp;color=timeGradient&amp;height=220&amp;section=header&amp;text=Welcome%20to%20Ryou%27s%20Profile%21&amp;fontSize=45&amp;fontAlignY=35&amp;animation=fadeIn" width="100%" alt="Welcome to Ryou's Profile">
-</p>
-
 <!-- Typing SVG: About / Exploring / Interests -->
 <p align="center">
   <a href="https://git.io/typing-svg">
