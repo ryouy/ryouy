@@ -2,7 +2,7 @@
 """Rotate the GitHub README profile photo without changing its displayed aspect ratio.
 
 Place additional photos in images/ (JPG, PNG, WEBP, HEIC, etc.).
-The generated assets/profile-current.jpg uses a consistent 3:2 landscape canvas.
+The generated assets/profile-current.webp uses a consistent 3:2 landscape canvas.
 Photos close to that ratio are gently cropped; portraits and extreme ratios
 are shown in full against a blurred background.
 """
@@ -13,7 +13,7 @@ import re
 import secrets
 from pathlib import Path
 
-from PIL import Image, ImageFilter, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageDraw, ImageFilter, ImageOps, UnidentifiedImageError
 from pillow_heif import register_heif_opener
 
 register_heif_opener()
@@ -21,15 +21,16 @@ register_heif_opener()
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
 IMAGES = ROOT / "images"
-OUTPUT = ASSETS / "profile-current.jpg"
+OUTPUT = ASSETS / "profile-current.webp"
 LAST_SELECTION = ASSETS / ".profile-last.txt"
 README = ROOT / "README.md"
 # A changing query string forces the GitHub README image proxy to request fresh artwork.
-PHOTO_TAG = re.compile(r'(?<=src=")\./assets/profile-current\.jpg(?:\?v=[0-9a-f]{12})?(?=")')
+PHOTO_TAG = re.compile(r'(?<=src=")\./assets/profile-current\.(?:jpg|webp)(?:\?v=[0-9a-f]{12})?(?=")')
 SIZE = (960, 640)  # Desktop-friendly 3:2 image; stable layout across source photos.
 EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".bmp", ".tif", ".tiff"}
 EXCLUDED = {
     "profile-current.jpg",
+    "profile-current.webp",
     "stats-column.png",  # Old generated statistics, not a photograph.
 }
 
@@ -85,7 +86,21 @@ def render_photo(source: Path) -> None:
     x = (SIZE[0] - foreground.width) // 2
     y = (SIZE[1] - foreground.height) // 2
     card.alpha_composite(foreground, (x, y))
-    card.convert("RGB").save(OUTPUT, "JPEG", quality=87, optimize=True, progressive=True)
+    # Render real transparent rounded corners. GitHub does not preserve custom CSS
+    # border-radius styling in profile READMEs; the output itself must be rounded.
+    # Supersample the corner mask for smooth anti-aliased edges.
+    scale = 3
+    radius = 27
+    mask_large = Image.new("L", (SIZE[0] * scale, SIZE[1] * scale), 0)
+    draw = ImageDraw.Draw(mask_large)
+    draw.rounded_rectangle(
+        (0, 0, SIZE[0] * scale - 1, SIZE[1] * scale - 1),
+        radius=radius * scale,
+        fill=255,
+    )
+    alpha = mask_large.resize(SIZE, Image.Resampling.LANCZOS)
+    card.putalpha(alpha)
+    card.save(OUTPUT, "WEBP", quality=87, method=6)
 
 
 def refresh_readme_photo_url() -> None:
@@ -97,7 +112,7 @@ def refresh_readme_photo_url() -> None:
     token = hashlib.sha256(OUTPUT.read_bytes()).hexdigest()[:12]
     current = README.read_text(encoding="utf-8")
     refreshed, occurrences = PHOTO_TAG.subn(
-        f"./assets/profile-current.jpg?v={token}", current
+        f"./assets/profile-current.webp?v={token}", current
     )
     if occurrences != 1:
         raise RuntimeError("Expected one versioned profile photo <img> in README.md")
