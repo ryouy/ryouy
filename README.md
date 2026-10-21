@@ -13,7 +13,7 @@
       <img src="./assets/IMG_2137.JPG" alt="Profile photograph" width="100%">
       <!-- Image-based links avoid GitHub's anchor underlines and subscript overlap. -->
       <div align="center">
-        <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;·&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
+        <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
       </div>
       <div align="center">
         <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano, refreshed every three hours" width="100%">
