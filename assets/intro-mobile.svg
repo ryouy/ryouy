@@ -3,14 +3,14 @@
   <!-- Transparent mobile layout; no background. -->
   <style>text {font-family: 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; font-size: 18px; font-weight: 600; fill: #4593f8;}</style>
   <text x="4" y="23">ryouy</text>
-  <clipPath id="mobile-0"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000;0.135;0.186;0.200;1.000" values="0;336;336;0;0"/></rect></clipPath>
+  <clipPath id="mobile-0"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000000;0.115000;0.171667;0.183333;1.000000" values="0;336;336;0;0"/></rect></clipPath>
   <text x="83" y="23" clip-path="url(#mobile-0)">About · University of Aizu</text>
-  <clipPath id="mobile-1"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000;0.200;0.335;0.386;0.400;1.000" values="0;0;336;336;0;0"/></rect></clipPath>
+  <clipPath id="mobile-1"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000000;0.200000;0.315000;0.371667;0.383333;1.000000" values="0;0;336;336;0;0"/></rect></clipPath>
   <text x="83" y="23" clip-path="url(#mobile-1)">Aizu → Azumino</text>
-  <clipPath id="mobile-2"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000;0.400;0.535;0.586;0.600;1.000" values="0;0;336;336;0;0"/></rect></clipPath>
+  <clipPath id="mobile-2"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000000;0.400000;0.515000;0.571667;0.583333;1.000000" values="0;0;336;336;0;0"/></rect></clipPath>
   <text x="83" y="23" clip-path="url(#mobile-2)">Developer · Artist · Hiker</text>
-  <clipPath id="mobile-3"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000;0.600;0.735;0.786;0.800;1.000" values="0;0;336;336;0;0"/></rect></clipPath>
+  <clipPath id="mobile-3"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000000;0.600000;0.715000;0.771667;0.783333;1.000000" values="0;0;336;336;0;0"/></rect></clipPath>
   <text x="83" y="23" clip-path="url(#mobile-3)">LLMs · Robotics · Art</text>
-  <clipPath id="mobile-4"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000;0.800;0.935;0.986;1.000" values="0;0;336;336;0"/></rect></clipPath>
+  <clipPath id="mobile-4"><rect x="83" y="0" width="0" height="32"><animate attributeName="width" dur="30s" repeatCount="indefinite" keyTimes="0.000000;0.800000;0.915000;0.971667;0.983333;1.000000" values="0;0;336;336;0;0"/></rect></clipPath>
   <text x="83" y="23" clip-path="url(#mobile-4)">Philosophy · Economy · Future</text>
 </svg>
