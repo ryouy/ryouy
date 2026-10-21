@@ -11,10 +11,13 @@
   <tr>
     <td width="50%" align="center" valign="top">
       <img src="./assets/IMG_2137.JPG" alt="Profile photograph" width="100%">
+      <!-- Image-based links avoid GitHub's anchor underlines and subscript overlap. -->
       <div align="center">
-        <sub><a href="https://ryouyplayground.vercel.app/#projects"><strong>Projects</strong></a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><strong>YouTube</strong></a></sub>
+        <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;·&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
       </div>
-      <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano, refreshed every three hours" width="100%">
+      <div align="center">
+        <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano, refreshed every three hours" width="100%">
+      </div>
     </td>
     <td width="50%" align="center" valign="top">
       <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" alt="Spotify Now Playing" width="100%"></a>
