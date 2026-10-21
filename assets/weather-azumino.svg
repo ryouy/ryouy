@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="192" viewBox="0 0 900 192" role="img" aria-label="Azumino weather, automatic data update pending">
+  <title>Weather in Azumino, Nagano</title>
+  <rect x="1" y="1" width="898" height="190" rx="16" fill="#101b2b" stroke="#2d4158" stroke-width="2"/>
+  <text x="32" y="39" fill="#8ac7ee" font-size="17" font-family="Arial,Helvetica,sans-serif" letter-spacing="1.6">AZUMINO / NAGANO</text>
+  <text x="32" y="109" fill="#f8fafc" font-size="31" font-family="Arial,Helvetica,sans-serif" font-weight="bold">Weather update pending</text>
+  <text x="32" y="153" fill="#c3d5e5" font-size="18" font-family="Arial,Helvetica,sans-serif">Forecast data will refresh automatically via GitHub Actions.</text>
+</svg>
