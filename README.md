@@ -7,19 +7,16 @@
 </div>
 <!-- Hero: a 3:2 photo and a 4:5 Spotify Compact card have matching displayed heights. -->
 <div align="center">
-  <img src="./assets/profile-current.jpg" width="450" align="top" alt="Rotating profile photo, updated hourly">
+  <img src="./assets/profile-current.jpg?v=94feed2d9cb3" width="450" align="top" alt="Rotating profile photo, updated hourly">
   &nbsp;
   <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="240" align="top" alt="Spotify — current album and song"></a>
 </div>
-<!-- Compact navigation with no hyperlink underlines. -->
+<!-- SECOND ROW: Azumino weather left, Projects and YouTube links to the right. -->
 <div align="center">
-  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>
-  &nbsp;&nbsp;
-  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
-</div>
-<!-- Hourly weather: kept centered, with no surrounding heading or paragraph margin. -->
-<div align="center">
-  <img src="./assets/weather-azumino.svg" width="420" alt="Azumino local weather, updated hourly">
+  <img src="./assets/weather-azumino.svg" width="420" align="middle" alt="Azumino local weather, updated hourly">
+  &nbsp;
+  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="125" align="middle" alt="Projects"></a>
+  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="125" align="middle" alt="YouTube"></a>
 </div>
 <!-- Contribution visuals: no redundant headings and minimal section margins. -->
 <div align="center">
