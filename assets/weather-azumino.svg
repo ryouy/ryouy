@@ -1,7 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="192" viewBox="0 0 900 192" role="img" aria-label="Azumino weather, automatic data update pending">
-  <title>Weather in Azumino, Nagano</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="192" viewBox="0 0 900 192" role="img" aria-label="Current Azumino weather: 24°C, Clear sky">
+  <title>Current weather in Azumino, Nagano</title>
   <rect x="1" y="1" width="898" height="190" rx="16" fill="#101b2b" stroke="#2d4158" stroke-width="2"/>
   <text x="32" y="39" fill="#8ac7ee" font-size="17" font-family="Arial,Helvetica,sans-serif" letter-spacing="1.6">AZUMINO / NAGANO</text>
-  <text x="32" y="109" fill="#f8fafc" font-size="31" font-family="Arial,Helvetica,sans-serif" font-weight="bold">Weather update pending</text>
-  <text x="32" y="153" fill="#c3d5e5" font-size="18" font-family="Arial,Helvetica,sans-serif">Forecast data will refresh automatically via GitHub Actions.</text>
+  <text x="30" y="120" fill="#f8fafc" font-size="65" font-family="Arial,Helvetica,sans-serif" font-weight="bold">24°C</text>
+  <text x="33" y="158" fill="#c3d5e5" font-size="19" font-family="Arial,Helvetica,sans-serif">Clear sky</text>
+  <line x1="355" y1="30" x2="355" y2="164" stroke="#33475c"/>
+  <text x="392" y="59" fill="#d5e4ef" font-size="20" font-family="Arial,Helvetica,sans-serif">High 28°   /   Low 15°</text>
+  <text x="392" y="95" fill="#d5e4ef" font-size="20" font-family="Arial,Helvetica,sans-serif">Feels like 23°C</text>
+  <text x="392" y="131" fill="#d5e4ef" font-size="20" font-family="Arial,Helvetica,sans-serif">Humidity 59%</text>
+  <text x="392" y="160" fill="#849db2" font-size="15" font-family="Arial,Helvetica,sans-serif">Updated 2026-10-21 16:45 JST  ·  Open-Meteo</text>
 </svg>
