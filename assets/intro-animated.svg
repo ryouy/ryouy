@@ -7,31 +7,31 @@
   <text x="4" y="26">ryouy</text>
   <clipPath id="typing-0">
     <rect x="99" y="0" width="0" height="36">
-      <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000000;0.115000;0.171667;0.183333;1.000000" values="0;715;715;0;0"/>
+      <animate attributeName="width" dur="32.5s" repeatCount="indefinite" calcMode="linear" keyTimes="0.0000000;0.1061538;0.1584615;0.1692308;1.0000000" values="0;715;715;0;0"/>
     </rect>
   </clipPath>
   <text x="99" y="26" clip-path="url(#typing-0)">About · University of Aizu · Computer Science</text>
   <clipPath id="typing-1">
     <rect x="99" y="0" width="0" height="36">
-      <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000000;0.200000;0.315000;0.371667;0.383333;1.000000" values="0;0;715;715;0;0"/>
+      <animate attributeName="width" dur="32.5s" repeatCount="indefinite" calcMode="linear" keyTimes="0.0000000;0.2000000;0.3061538;0.3584615;0.3692308;1.0000000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
   <text x="99" y="26" clip-path="url(#typing-1)">Aizuwakamatsu → Azumino</text>
   <clipPath id="typing-2">
     <rect x="99" y="0" width="0" height="36">
-      <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000000;0.400000;0.515000;0.571667;0.583333;1.000000" values="0;0;715;715;0;0"/>
+      <animate attributeName="width" dur="32.5s" repeatCount="indefinite" calcMode="linear" keyTimes="0.0000000;0.4000000;0.5061538;0.5584615;0.5692308;1.0000000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
   <text x="99" y="26" clip-path="url(#typing-2)">Student / Developer / Artist / Hiker</text>
   <clipPath id="typing-3">
     <rect x="99" y="0" width="0" height="36">
-      <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000000;0.600000;0.715000;0.771667;0.783333;1.000000" values="0;0;715;715;0;0"/>
+      <animate attributeName="width" dur="32.5s" repeatCount="indefinite" calcMode="linear" keyTimes="0.0000000;0.6000000;0.7061538;0.7584615;0.7692308;1.0000000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
   <text x="99" y="26" clip-path="url(#typing-3)">Exploring · LLMs &amp; Robotics · Art · World</text>
   <clipPath id="typing-4">
     <rect x="99" y="0" width="0" height="36">
-      <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000000;0.800000;0.915000;0.971667;0.983333;1.000000" values="0;0;715;715;0;0"/>
+      <animate attributeName="width" dur="32.5s" repeatCount="indefinite" calcMode="linear" keyTimes="0.0000000;0.8000000;0.9061538;0.9584615;0.9692308;1.0000000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
   <text x="99" y="26" clip-path="url(#typing-4)">Interests · Philosophy · Economy · Future</text>
