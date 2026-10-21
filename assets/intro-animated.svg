@@ -5,35 +5,34 @@
     text { font-family: 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; font-size: 23px; font-weight: 600; fill: #4593f8; }
   </style>
   <text x="4" y="26">ryouy</text>
-  <path d="M 91 7 V 29" stroke="#4593f8" stroke-width="1" opacity=".45"/>
   <clipPath id="typing-0">
-    <rect x="111" y="0" width="0" height="36">
+    <rect x="99" y="0" width="0" height="36">
       <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000;0.135;0.186;0.200;1.000" values="0;715;715;0;0"/>
     </rect>
   </clipPath>
-  <text x="111" y="26" clip-path="url(#typing-0)">About · University of Aizu · Computer Science</text>
+  <text x="99" y="26" clip-path="url(#typing-0)">About · University of Aizu · Computer Science</text>
   <clipPath id="typing-1">
-    <rect x="111" y="0" width="0" height="36">
+    <rect x="99" y="0" width="0" height="36">
       <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000;0.200;0.335;0.386;0.400;1.000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
-  <text x="111" y="26" clip-path="url(#typing-1)">Aizuwakamatsu → Azumino</text>
+  <text x="99" y="26" clip-path="url(#typing-1)">Aizuwakamatsu → Azumino</text>
   <clipPath id="typing-2">
-    <rect x="111" y="0" width="0" height="36">
+    <rect x="99" y="0" width="0" height="36">
       <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000;0.400;0.535;0.586;0.600;1.000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
-  <text x="111" y="26" clip-path="url(#typing-2)">Student / Developer / Artist / Hiker</text>
+  <text x="99" y="26" clip-path="url(#typing-2)">Student / Developer / Artist / Hiker</text>
   <clipPath id="typing-3">
-    <rect x="111" y="0" width="0" height="36">
+    <rect x="99" y="0" width="0" height="36">
       <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000;0.600;0.735;0.786;0.800;1.000" values="0;0;715;715;0;0"/>
     </rect>
   </clipPath>
-  <text x="111" y="26" clip-path="url(#typing-3)">Exploring · LLMs &amp; Robotics · Art · World</text>
+  <text x="99" y="26" clip-path="url(#typing-3)">Exploring · LLMs &amp; Robotics · Art · World</text>
   <clipPath id="typing-4">
-    <rect x="111" y="0" width="0" height="36">
+    <rect x="99" y="0" width="0" height="36">
       <animate attributeName="width" dur="30s" repeatCount="indefinite" calcMode="linear" keyTimes="0.000;0.800;0.935;0.986;1.000" values="0;0;715;715;0"/>
     </rect>
   </clipPath>
-  <text x="111" y="26" clip-path="url(#typing-4)">Interests · Philosophy · Economy · Future</text>
+  <text x="99" y="26" clip-path="url(#typing-4)">Interests · Philosophy · Economy · Future</text>
 </svg>
