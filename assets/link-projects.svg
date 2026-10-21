@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="140" height="185" viewBox="0 0 140 185" role="img" aria-label="Projects">
   <title>Projects</title>
   <rect x="1" y="1" width="138" height="183" rx="14" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5"/>
-  <path d="M108 23H122V37 M122 23L105 40" fill="none" stroke="#8abfe5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="15" y="108" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="20" fill="#f7fbff">Projects</text>
+  <text x="70" y="98" text-anchor="middle" dominant-baseline="middle" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="19" fill="#f7fbff">Projects</text>
 </svg>
