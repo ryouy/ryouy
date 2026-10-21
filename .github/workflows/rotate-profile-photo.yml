@@ -2,7 +2,7 @@ name: Rotate README Profile Photo
 
 on:
   schedule:
-    - cron: "27 */6 * * *" # Every 6 hours (UTC).
+    - cron: "17 * * * *" # Hourly (UTC), offset from the weather updater.
   push:
     branches: [main]
     paths:
