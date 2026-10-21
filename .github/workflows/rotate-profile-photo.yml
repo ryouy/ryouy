@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'assets/**'
+      - 'images/**'
       - '!assets/profile-current.jpg'
       - '!assets/.profile-last.txt'
       - '!assets/weather-azumino.svg'
