@@ -6,35 +6,34 @@
 </p>
 <!-- END PROFILE-EXTRAS -->
 
-<!-- Desktop-oriented hero. Fixed image widths sit side by side on a wide profile
-     and wrap instead of shrinking into unreadable columns on narrow screens. -->
+<!-- HERO: one consistent 3:2 image makes photography the focal point. -->
 <p align="center">
-  <img src="./assets/profile-current.jpg" width="415" align="top" alt="Randomly selected landscape profile photo">
+  <img src="./assets/profile-current.jpg" width="720" alt="A randomly selected photograph, updated hourly">
+</p>
+
+<!-- Small image links: no underline and no forced columns. -->
+<p align="center">
+  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="110" alt="Projects"></a>
   &nbsp;&nbsp;
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=false&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="330" align="top" alt="Spotify Now Playing"></a>
+  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="110" alt="YouTube"></a>
 </p>
 
-<!-- Compact navigation: image labels avoid underlines. -->
+<!-- LIVE: supporting cards stay compact and can wrap naturally on narrow screens. -->
 <p align="center">
-  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" alt="Projects"></a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" alt="YouTube"></a>
-</p>
-
-<!-- Weather retains a legible size instead of shrinking inside a two-column table. -->
-<p align="center">
-  <img src="./assets/weather-azumino.svg" width="560" alt="Azumino weather, updated hourly">
+  <img src="./assets/weather-azumino.svg" width="390" align="top" alt="Hourly weather in Azumino">
+  &nbsp;
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=false&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="300" align="top" alt="Spotify Now Playing"></a>
 </p>
 
 <!-- Animated GitHub contribution snake. Switches with GitHub's color scheme. -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake-dark.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="96%">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="92%">
   </picture>
 </p>
 
 <!-- 3D contribution calendar. Aligned to snake above. -->
 <p align="center">
-  <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="96%">
+  <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="92%">
 </p>
