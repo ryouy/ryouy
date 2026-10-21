@@ -5,30 +5,32 @@
   </a>
 </p>
 <!-- END PROFILE-EXTRAS -->
-
-<!-- Profile photo and Spotify. Keep the existing project links. -->
-<img align="right" width="49%" src="./assets/IMG_2137.JPG" alt="Profile photograph">
-
-<p align="left">
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="49%" alt="Spotify Now Playing"></a>
+<!-- QUICK LINKS -->
+<p align="center">
+  <a href="https://ryouyplayground.vercel.app/#projects"><strong>Projects</strong></a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://www.youtube.com/@sun_voyager"><strong>YouTube</strong></a>
 </p>
 
-[**Projects**](https://ryouyplayground.vercel.app/#projects)&nbsp;/&nbsp;[**YouTube**](https://www.youtube.com/@sun_voyager)
+<!-- PROFILE SHOWCASE: Portrait on the left; live cards on the right. -->
+<img src="./assets/IMG_2137.JPG" align="left" width="44%" alt="Profile photograph">
+
+<p align="right">
+  <img src="./assets/weather-azumino.svg" width="52%" alt="Current weather in Azumino, Nagano. Updated automatically every three hours.">
+</p>
+
+<p align="right">
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="52%" alt="Spotify Now Playing"></a>
+</p>
 
 <br clear="both">
 
-<!-- BEGIN LOCAL-WEATHER -->
-**Weather · Azumino**
+---
 
-<p align="center">
-  <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano (updated every three hours via Open-Meteo)" width="100%">
-</p>
-<!-- END LOCAL-WEATHER -->
+<!-- CONTRIBUTIONS -->
+<p align="center"><strong>Contribution &amp; Activity</strong></p>
 
-<!-- BEGIN CONTRIBUTION-EXTRAS -->
-**Contribution & Activity**
-
-<!-- Contribution snake: generated daily on the output branch -->
+<!-- Contribution snake, theme aware; generated daily on output branch. -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake-dark.svg">
@@ -36,8 +38,7 @@
   </picture>
 </p>
 
-<!-- 3D contribution calendar: generated daily in the main branch -->
+<!-- 3D contribution calendar; generated daily on main branch. -->
 <p align="center">
-  <img src="./profile-3d-contrib/profile-night-rainbow.svg" alt="3D GitHub contribution calendar" width="100%">
+  <img src="./profile-3d-contrib/profile-night-rainbow.svg" alt="3D GitHub contribution calendar" width="94%">
 </p>
-<!-- END CONTRIBUTION-EXTRAS -->
