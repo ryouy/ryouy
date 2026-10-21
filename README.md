@@ -1,9 +1,9 @@
 <!-- Matching Fira Code SVGs: a fixed 'ryouy' wordmark next to the animated introduction. -->
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=0&amp;duration=1&amp;repeat=false&amp;color=4593f8&amp;center=true&amp;vCenter=true&amp;width=100&amp;height=58&amp;lines=ryouy" width="100" height="58" align="middle" alt="ryouy">
+  <img src="https://readme-typing-svg.demolab.com?background=00000000&amp;font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=0&amp;duration=1&amp;repeat=false&amp;color=4593f8&amp;center=true&amp;vCenter=true&amp;width=100&amp;height=58&amp;lines=ryouy" width="100" height="58" align="middle" alt="ryouy">
   &nbsp;
   <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=1250&amp;color=4593f8&amp;center=false&amp;vCenter=true&amp;width=660&amp;height=58&amp;lines=About%20%C2%B7%20University%20of%20Aizu%20%C2%B7%20Computer%20Science;Aizuwakamatsu%20%E2%86%92%20Azumino;Student%20%2F%20Developer%20%2F%20Artist%20%2F%20Hiker;Exploring%20%C2%B7%20LLMs%20%26%20Robotics%20%C2%B7%20Art%20%C2%B7%20World;Interests%20%C2%B7%20Philosophy%20%C2%B7%20Economy%20%C2%B7%20Future" width="660" height="58" align="middle" alt="About: University of Aizu, Computer Science. Aizuwakamatsu to Azumino. Developer, Artist, Hiker. Exploring LLMs, Robotics, Art and World. Interests in Philosophy, Economy and Future.">
+    <img src="https://readme-typing-svg.demolab.com?background=00000000&amp;font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=1250&amp;color=4593f8&amp;center=false&amp;vCenter=true&amp;width=660&amp;height=58&amp;lines=About%20%C2%B7%20University%20of%20Aizu%20%C2%B7%20Computer%20Science;Aizuwakamatsu%20%E2%86%92%20Azumino;Student%20%2F%20Developer%20%2F%20Artist%20%2F%20Hiker;Exploring%20%C2%B7%20LLMs%20%26%20Robotics%20%C2%B7%20Art%20%C2%B7%20World;Interests%20%C2%B7%20Philosophy%20%C2%B7%20Economy%20%C2%B7%20Future" width="660" height="58" align="middle" alt="About: University of Aizu, Computer Science. Aizuwakamatsu to Azumino. Developer, Artist, Hiker. Exploring LLMs, Robotics, Art and World. Interests in Philosophy, Economy and Future.">
   </a>
 </p>
 <!-- END PROFILE-EXTRAS -->
