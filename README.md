@@ -1,41 +1,33 @@
-<!-- Matching Fira Code SVGs: a fixed 'ryouy' wordmark next to the animated introduction. -->
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?background=00000000&amp;font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=0&amp;duration=1&amp;repeat=false&amp;color=4593f8&amp;center=true&amp;vCenter=true&amp;width=100&amp;height=58&amp;lines=ryouy" width="100" height="58" align="middle" alt="ryouy">
+<!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
+<div align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="./assets/intro-mobile.svg">
+    <img src="./assets/intro-animated.svg" width="800" alt="ryouy — University of Aizu, Computer Science, Azumino, developer, artist, hiker">
+  </picture>
+</div>
+<!-- Hero: a 3:2 photo and a 4:5 Spotify Compact card have matching displayed heights. -->
+<div align="center">
+  <img src="./assets/profile-current.jpg" width="450" align="top" alt="Rotating profile photo, updated hourly">
   &nbsp;
-  <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?background=00000000&amp;font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=1250&amp;color=4593f8&amp;center=false&amp;vCenter=true&amp;width=660&amp;height=58&amp;lines=About%20%C2%B7%20University%20of%20Aizu%20%C2%B7%20Computer%20Science;Aizuwakamatsu%20%E2%86%92%20Azumino;Student%20%2F%20Developer%20%2F%20Artist%20%2F%20Hiker;Exploring%20%C2%B7%20LLMs%20%26%20Robotics%20%C2%B7%20Art%20%C2%B7%20World;Interests%20%C2%B7%20Philosophy%20%C2%B7%20Economy%20%C2%B7%20Future" width="660" height="58" align="middle" alt="About: University of Aizu, Computer Science. Aizuwakamatsu to Azumino. Developer, Artist, Hiker. Exploring LLMs, Robotics, Art and World. Interests in Philosophy, Economy and Future.">
-  </a>
-</p>
-<!-- END PROFILE-EXTRAS -->
-
-<!-- HERO: one consistent 3:2 image makes photography the focal point. -->
-<p align="center">
-  <img src="./assets/profile-current.jpg" width="720" alt="A randomly selected photograph, updated hourly">
-</p>
-
-<!-- Small image links: no underline and no forced columns. -->
-<p align="center">
-  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="110" alt="Projects"></a>
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="240" align="top" alt="Spotify — current album and song"></a>
+</div>
+<!-- Compact navigation with no hyperlink underlines. -->
+<div align="center">
+  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>
   &nbsp;&nbsp;
-  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="110" alt="YouTube"></a>
-</p>
-
-<!-- LIVE: supporting cards stay compact and can wrap naturally on narrow screens. -->
-<p align="center">
-  <img src="./assets/weather-azumino.svg" width="390" align="top" alt="Hourly weather in Azumino">
-  &nbsp;
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="300" align="top" alt="Spotify Now Playing"></a>
-</p>
-
-<!-- Animated GitHub contribution snake. Switches with GitHub's color scheme. -->
-<p align="center">
+  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
+</div>
+<!-- Hourly weather: kept centered, with no surrounding heading or paragraph margin. -->
+<div align="center">
+  <img src="./assets/weather-azumino.svg" width="420" alt="Azumino local weather, updated hourly">
+</div>
+<!-- Contribution visuals: no redundant headings and minimal section margins. -->
+<div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake-dark.svg">
     <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="92%">
   </picture>
-</p>
-
-<!-- 3D contribution calendar. Aligned to snake above. -->
-<p align="center">
+</div>
+<div align="center">
   <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="92%">
-</p>
+</div>
