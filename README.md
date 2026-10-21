@@ -10,7 +10,7 @@
 <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td width="50%" align="center" valign="top">
-      <img src="./assets/IMG_2137.JPG" alt="Profile photograph" width="100%">
+      <img src="./assets/profile-current.jpg" alt="Profile photograph" width="100%">
       <!-- Image-based links avoid GitHub's anchor underlines and subscript overlap. -->
       <div align="center">
         <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
