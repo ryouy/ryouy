@@ -71,7 +71,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewB
   <text x="180" y="57" fill="#f7fbff" font-size="17" font-family="Arial,Helvetica,sans-serif">{condition}</text>
   <text x="180" y="85" fill="#d2e1ed" font-size="16" font-family="Arial,Helvetica,sans-serif">High {high}  /  Low {low}</text>
   <text x="180" y="108" fill="#b6cadb" font-size="13" font-family="Arial,Helvetica,sans-serif">Feels {feels}  ·  Humidity {humidity}</text>
-  <text x="20" y="132" fill="#879fb2" font-size="11" font-family="Arial,Helvetica,sans-serif">{observed} JST · Open-Meteo</text>
+  <text x="20" y="132" fill="#879fb2" font-size="11" font-family="Arial,Helvetica,sans-serif">{observed} · Open-Meteo</text>
 </svg>'''
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
 OUTPUT.write_text(svg, encoding="utf-8")
