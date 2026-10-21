@@ -1,0 +1,41 @@
+name: Update Azumino Weather
+
+on:
+  schedule:
+    - cron: '14 */3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - scripts/update_weather.py
+      - .github/workflows/weather.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-azumino-weather
+  cancel-in-progress: false
+
+jobs:
+  weather:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch Open-Meteo weather and render SVG
+        run: python scripts/update_weather.py
+      - name: Commit weather card when updated
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/weather-azumino.svg
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: refresh Azumino weather card'
+            git push
+          fi
