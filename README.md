@@ -13,17 +13,19 @@
   <a href="https://www.youtube.com/@sun_voyager"><strong>YouTube</strong></a>
 </p>
 
-<!-- Aligned portrait and Spotify card. Fixed pixel widths allow wrapping on narrow screens. -->
-<p align="center">
-  <img src="./assets/IMG_2137.JPG" width="340" align="top" alt="Profile photograph">
-  &nbsp;
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="340" align="top" alt="Spotify Now Playing"></a>
-</p>
-
-<!-- Compact, full-width weather strip. No standalone heading. -->
-<p align="center">
-  <img src="./assets/weather-azumino.svg" width="690" alt="Azumino weather, automatically updated every three hours">
-</p>
+<!-- Two-column layout: photo and slim weather stacked on the left, Spotify Compact on the right. -->
+<table align="center" width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="./assets/IMG_2137.JPG" alt="Profile photograph" width="100%">
+      <br>
+      <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano, refreshed every three hours" width="100%">
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" alt="Spotify Now Playing" width="100%"></a>
+    </td>
+  </tr>
+</table>
 
 <!-- Animated GitHub contribution snake. Switches with GitHub's color scheme. -->
 <p align="center">
