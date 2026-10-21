@@ -4,30 +4,20 @@
   <img src="https://capsule-render.vercel.app/api?type=waving&amp;color=timeGradient&amp;height=220&amp;section=header&amp;text=Welcome%20to%20Ryou%27s%20Profile%21&amp;fontSize=45&amp;fontAlignY=35&amp;animation=fadeIn" width="100%" alt="Welcome to Ryou's Profile">
 </p>
 
-<!-- Typing introduction -->
+<!-- Typing SVG: About / Exploring / Interests -->
 <p align="center">
   <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=24&amp;pause=1000&amp;color=38BDF8&amp;center=true&amp;vCenter=true&amp;width=650&amp;height=50&amp;lines=Web+Developer+%7C+Next.js+%26+React;Creative+Coder+%7C+p5.js;Learning+%26+Building+Awesome+Things%21" alt="Web Developer, Creative Coder, Learning and Building">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;weight=600&amp;size=23&amp;pause=1250&amp;color=38BDF8&amp;center=true&amp;vCenter=true&amp;width=850&amp;height=58&amp;lines=About%20%C2%B7%20University%20of%20Aizu%20%C2%B7%20Computer%20Science;About%20%C2%B7%20Aizuwakamatsu%20%E2%86%92%20Azumino;About%20%C2%B7%20Student%20%2F%20Developer%20%2F%20Artist%20%2F%20Hiker;Exploring%20%C2%B7%20LLMs%20%26%20Robotics%20%C2%B7%20Art%20%C2%B7%20World;Interests%20%C2%B7%20Philosophy%20%C2%B7%20Economy%20%C2%B7%20Future" alt="About: University of Aizu, Computer Science, Aizuwakamatsu to Azumino. Student, Developer, Artist, Hiker. Exploring LLMs, Robotics, Art, and World. Interests in Philosophy, Economy, and Future." width="100%">
   </a>
 </p>
 <!-- END PROFILE-EXTRAS -->
 
-<!-- Borderless profile header: the photo floats right while text stays on the left. -->
+<!-- Profile photo and Spotify. Keep the existing project links. -->
 <img align="right" width="49%" src="./assets/IMG_2137.JPG" alt="Profile photograph">
 
-**About**
-
-University of Aizu · Computer Science<br>
-Aizuwakamatsu → Azumino<br>
-Student / Developer / Artist / Hiker
-
-**Exploring**
-
-LLMs & Robotics · Art · World
-
-**Interests**
-
-Philosophy · Economy · Future
+<p align="left">
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="49%" alt="Spotify Now Playing"></a>
+</p>
 
 [**Projects**](https://ryouyplayground.vercel.app/#projects)&nbsp;/&nbsp;[**YouTube**](https://www.youtube.com/@sun_voyager)
 
@@ -41,21 +31,8 @@ Philosophy · Economy · Future
 </p>
 <!-- END LOCAL-WEATHER -->
 
-<!-- Full-width, balanced cards. The equal-width images wrap onto separate lines on small screens. -->
-<p align="center">
-  <a href="https://wakatime.com/share/@fbc09dd1-8cde-45b2-87e4-c0b5efee3fa7/09232355-8f21-441b-adb4-7513333aad19.svg"><img src="./assets/stats-column.png" width="414" align="top" alt="Most Used Languages and WakaTime statistics"></a>
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=121212&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="414" align="top" alt="Spotify Now Playing"></a>
-</p>
-
 <!-- BEGIN CONTRIBUTION-EXTRAS -->
 **Contribution & Activity**
-
-<!-- BEGIN ACTIVITY-GRAPH -->
-<picture>
-  <source media="(max-width: 767px)" srcset="activity-graph-mobile.svg">
-  <img src="activity-graph.svg" alt="Activity Graph" width="100%">
-</picture>
-<!-- END ACTIVITY-GRAPH -->
 
 <!-- Contribution snake: generated daily on the output branch -->
 <p align="center">
