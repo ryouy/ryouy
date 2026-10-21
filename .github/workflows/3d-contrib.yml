@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - README.md
       - .github/workflows/3d-contrib.yml
+      - scripts/round_contrib_svg.py
   schedule:
     - cron: '0 18 * * *'
   workflow_dispatch:
@@ -29,6 +29,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
+      - name: Round the generated 3D card
+        run: python scripts/round_contrib_svg.py
       - name: Commit generated contribution images
         run: |
           git config user.name 'github-actions[bot]'
@@ -36,5 +38,6 @@ jobs:
           git add profile-3d-contrib/
           if ! git diff --cached --quiet; then
             git commit -m 'chore: update 3D contribution calendar'
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
