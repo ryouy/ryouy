@@ -1,8 +1,8 @@
 <!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
 <div align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="./assets/intro-mobile.svg?v=98a74c957b4b">
-    <img src="./assets/intro-animated.svg?v=32599327d2cb" width="800" alt="ryouy — University of Aizu, Computer Science, Azumino, developer, artist, hiker">
+    <source media="(max-width: 600px)" srcset="./assets/intro-mobile.svg?v=877ecb969397">
+    <img src="./assets/intro-animated.svg?v=32bfb5401640" width="800" alt="ryouy — University of Aizu, Computer Science, Azumino, developer, artist, hiker">
   </picture>
 </div>
 <!-- Wide desktop hero: 3:2 photo and Spotify Compact span nearly the full README width. -->
@@ -11,6 +11,8 @@
   &nbsp;
   <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="275" align="top" alt="Spotify — current album and song"></a>
 </div>
+<!-- A quiet spacer between the hero and the second row. -->
+<div align="center"><sub>&nbsp;</sub></div>
 <!-- Wide second row: weather and photo share a 520px left edge; matching navigation cards on right. -->
 <div align="center">
   <img src="./assets/weather-azumino.svg" width="520" align="top" alt="Azumino local weather, updated hourly">
@@ -22,9 +24,9 @@
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake-dark.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="92%">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="800">
   </picture>
 </div>
 <div align="center">
-  <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="92%">
+  <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="800">
 </div>
