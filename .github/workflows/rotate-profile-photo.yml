@@ -45,9 +45,20 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/profile-current.jpg assets/.profile-last.txt
-          if ! git diff --cached --quiet; then
+          # Recreate from the latest main to prevent generated-photo merge conflicts.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/rotate_profile_photo.py
+            git add assets/profile-current.jpg assets/.profile-last.txt
+            if git diff --cached --quiet; then
+              echo "Profile photograph is already up to date"
+              exit 0
+            fi
             git commit -m 'chore: rotate README profile photo'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Main changed during update; retrying ($attempt/3)"
+          done
+          exit 1
