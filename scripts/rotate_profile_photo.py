@@ -2,8 +2,9 @@
 """Rotate the GitHub README profile photo without changing its displayed aspect ratio.
 
 Place additional photos in images/ (JPG, PNG, WEBP, HEIC, etc.).
-The generated assets/profile-current.jpg always has the same 4:5 canvas,
-and the original image is never cropped; blurred edges fill the remaining space.
+The generated assets/profile-current.jpg uses a consistent 3:2 landscape canvas.
+Photos close to that ratio are gently cropped; portraits and extreme ratios
+are shown in full against a blurred background.
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ ASSETS = ROOT / "assets"
 IMAGES = ROOT / "images"
 OUTPUT = ASSETS / "profile-current.jpg"
 LAST_SELECTION = ASSETS / ".profile-last.txt"
-SIZE = (800, 1000)  # Consistent display geometry for portrait and landscape photos.
+SIZE = (960, 640)  # Desktop-friendly 3:2 image; stable layout across source photos.
 EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".bmp", ".tif", ".tiff"}
 EXCLUDED = {
     "profile-current.jpg",
@@ -65,10 +66,17 @@ def render_photo(source: Path) -> None:
     tint = Image.new("RGBA", SIZE, "#101b2b")
     card = Image.blend(backdrop, tint, 0.28)
 
-    # Fit the entire foreground within the canvas: never crop heads or scenery.
-    foreground = ImageOps.contain(
-        rgba, (SIZE[0] - 24, SIZE[1] - 24), method=Image.Resampling.LANCZOS
-    )
+    # Slightly crop landscape images close to the target aspect ratio.
+    # For portraits and very wide photos, retain the whole image with a soft backdrop.
+    ratio = rgba.width / rgba.height
+    if 1.27 <= ratio <= 1.80:
+        foreground = ImageOps.fit(
+            rgba, SIZE, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5)
+        )
+    else:
+        foreground = ImageOps.contain(
+            rgba, (SIZE[0] - 18, SIZE[1] - 18), method=Image.Resampling.LANCZOS
+        )
     x = (SIZE[0] - foreground.width) // 2
     y = (SIZE[1] - foreground.height) // 2
     card.alpha_composite(foreground, (x, y))
