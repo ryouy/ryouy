@@ -6,19 +6,14 @@
 </p>
 <!-- END PROFILE-EXTRAS -->
 
-<!-- Simple, centered navigation. -->
-<p align="center">
-  <a href="https://ryouyplayground.vercel.app/#projects"><strong>Projects</strong></a>
-  &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;
-  <a href="https://www.youtube.com/@sun_voyager"><strong>YouTube</strong></a>
-</p>
-
 <!-- Two-column layout: photo and slim weather stacked on the left, Spotify Compact on the right. -->
 <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td width="50%" align="center" valign="top">
       <img src="./assets/IMG_2137.JPG" alt="Profile photograph" width="100%">
-      <br>
+      <div align="center">
+        <sub><a href="https://ryouyplayground.vercel.app/#projects"><strong>Projects</strong></a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><strong>YouTube</strong></a></sub>
+      </div>
       <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano, refreshed every three hours" width="100%">
     </td>
     <td width="50%" align="center" valign="top">
