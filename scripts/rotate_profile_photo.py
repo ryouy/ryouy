@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Rotate the GitHub README profile photo without changing its displayed aspect ratio.
 
-Place additional photos in images/ (JPG, PNG, WEBP, HEIC, etc.).
+Put original photos in images/ (JPG, PNG, WEBP, HEIC, etc.).
 The generated assets/profile-current.webp uses a consistent 3:2 landscape canvas.
 Photos close to that ratio are gently cropped; portraits and extreme ratios
-are shown in full against a blurred background.
+are shown in full against a blurred background. Only images/ is scanned.
 """
 from __future__ import annotations
 
@@ -28,12 +28,6 @@ README = ROOT / "README.md"
 PHOTO_TAG = re.compile(r'(?<=src=")\./assets/profile-current\.(?:jpg|webp)(?:\?v=[0-9a-f]{12})?(?=")')
 SIZE = (960, 640)  # Desktop-friendly 3:2 image; stable layout across source photos.
 EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".bmp", ".tif", ".tiff"}
-EXCLUDED = {
-    "profile-current.jpg",
-    "profile-current.webp",
-    "stats-column.png",  # Old generated statistics, not a photograph.
-}
-
 
 def valid_photo(path: Path) -> bool:
     try:
@@ -47,10 +41,9 @@ def valid_photo(path: Path) -> bool:
 
 def select_photo() -> Path | None:
     candidates = [
-        photo for photo in sorted(list(ASSETS.iterdir()) + list(IMAGES.iterdir()))
+        photo for photo in sorted(IMAGES.iterdir())
         if photo.is_file()
         and photo.suffix.lower() in EXTENSIONS
-        and photo.name not in EXCLUDED
         and valid_photo(photo)
     ]
     if not candidates:
@@ -124,7 +117,7 @@ def refresh_readme_photo_url() -> None:
 def main() -> None:
     chosen = select_photo()
     if chosen is None:
-        print("No photos in assets/: keeping the last generated image unchanged.")
+        print("No valid photos in images/: keeping last generated image unchanged.")
         return
 
     render_photo(chosen)

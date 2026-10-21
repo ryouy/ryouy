@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths:
-      - README.md
       - .github/workflows/snake.yml
   schedule:
     - cron: '17 0 * * *'

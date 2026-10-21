@@ -6,14 +6,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'assets/**'
       - 'images/**'
-      - '!assets/profile-current.jpg'
-      - '!assets/profile-current.webp'
-      - '!assets/.profile-last.txt'
-      - '!assets/weather-azumino.svg'
-      - '!assets/stats-column.png'
-      - '!assets/previews/**'
       - 'scripts/rotate_profile_photo.py'
       - '.github/workflows/rotate-profile-photo.yml'
   workflow_dispatch:
@@ -51,7 +44,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python scripts/rotate_profile_photo.py
-            git add assets/profile-current.* assets/.profile-last.txt README.md
+            git add assets/profile-current.webp assets/.profile-last.txt README.md
             if git diff --cached --quiet; then
               echo "Profile photograph is already up to date"
               exit 0
