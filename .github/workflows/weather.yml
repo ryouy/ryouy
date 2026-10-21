@@ -34,9 +34,21 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/weather-azumino.svg
-          if ! git diff --cached --quiet; then
+          # Other workflows may update main while weather is running.
+          # Refresh from current main and regenerate before every push attempt.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/update_weather.py
+            git add assets/weather-azumino.svg
+            if git diff --cached --quiet; then
+              echo "Weather card is already up to date"
+              exit 0
+            fi
             git commit -m 'chore: refresh Azumino weather card'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Main changed during update; retrying ($attempt/3)"
+          done
+          exit 1
