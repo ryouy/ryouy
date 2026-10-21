@@ -61,18 +61,16 @@ low = f'{daily["temperature_2m_min"][0]:.0f}°'
 condition = escape(WEATHER_NAMES.get(int(current["weather_code"]), "Current weather"))
 observed = escape(current["time"].replace("T", " ") + " JST")
 
-svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="560" height="236" viewBox="0 0 560 236" role="img" aria-label="Azumino weather: {temp}, {condition}">
+svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="560" height="170" viewBox="0 0 560 170" role="img" aria-label="Azumino weather: {temp}, {condition}">
   <title>Current weather in Azumino, Nagano</title>
-  <rect x="1" y="1" width="558" height="234" rx="17" fill="#101b2b" stroke="#2d4158" stroke-width="2"/>
-  <text x="26" y="39" fill="#8ac7ee" font-size="18" font-family="Arial,Helvetica,sans-serif" letter-spacing="1.3">AZUMINO / NAGANO</text>
-  <text x="25" y="125" fill="#f8fafc" font-size="68" font-family="Arial,Helvetica,sans-serif" font-weight="bold">{temp}</text>
-  <text x="27" y="166" fill="#c3d5e5" font-size="20" font-family="Arial,Helvetica,sans-serif">{condition}</text>
-  <line x1="289" y1="55" x2="289" y2="180" stroke="#33475c"/>
-  <text x="314" y="80" fill="#d5e4ef" font-size="18" font-family="Arial,Helvetica,sans-serif">High {high} / Low {low}</text>
-  <text x="314" y="122" fill="#d5e4ef" font-size="18" font-family="Arial,Helvetica,sans-serif">Feels like {feels}</text>
-  <text x="314" y="164" fill="#d5e4ef" font-size="18" font-family="Arial,Helvetica,sans-serif">Humidity {humidity}</text>
-  <line x1="25" y1="192" x2="535" y2="192" stroke="#33475c"/>
-  <text x="27" y="216" fill="#849db2" font-size="14" font-family="Arial,Helvetica,sans-serif">Updated {observed}  ·  Open-Meteo</text>
+  <rect x="1" y="1" width="558" height="168" rx="15" fill="#101b2b" stroke="#2d4158" stroke-width="2"/>
+  <text x="24" y="30" fill="#8ac7ee" font-size="17" font-family="Arial,Helvetica,sans-serif" letter-spacing="1.3">AZUMINO / NAGANO</text>
+  <text x="23" y="113" fill="#f8fafc" font-size="61" font-family="Arial,Helvetica,sans-serif" font-weight="bold">{temp}</text>
+  <line x1="190" y1="41" x2="190" y2="130" stroke="#33475c"/>
+  <text x="208" y="57" fill="#f8fafc" font-size="20" font-family="Arial,Helvetica,sans-serif">{condition}</text>
+  <text x="208" y="91" fill="#d5e4ef" font-size="19" font-family="Arial,Helvetica,sans-serif">High {high}   /   Low {low}</text>
+  <text x="208" y="123" fill="#c3d5e5" font-size="17" font-family="Arial,Helvetica,sans-serif">Feels {feels}  ·  Humidity {humidity}</text>
+  <text x="24" y="152" fill="#849db2" font-size="13" font-family="Arial,Helvetica,sans-serif">{observed}  ·  Open-Meteo</text>
 </svg>'''
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
 OUTPUT.write_text(svg, encoding="utf-8")
