@@ -7,7 +7,7 @@
 </div>
 <!-- Hero: a 3:2 photo and a 4:5 Spotify Compact card have matching displayed heights. -->
 <div align="center">
-  <img src="./assets/profile-current.webp?v=7851f38d90b4" width="450" align="top" alt="Rotating profile photo, updated hourly">
+  <img src="./assets/profile-current.webp?v=1f21abc98909" width="450" align="top" alt="Rotating profile photo, updated hourly">
   &nbsp;
   <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="240" align="top" alt="Spotify — current album and song"></a>
 </div>
