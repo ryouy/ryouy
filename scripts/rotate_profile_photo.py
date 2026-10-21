@@ -8,6 +8,8 @@ are shown in full against a blurred background.
 """
 from __future__ import annotations
 
+import hashlib
+import re
 import secrets
 from pathlib import Path
 
@@ -21,6 +23,9 @@ ASSETS = ROOT / "assets"
 IMAGES = ROOT / "images"
 OUTPUT = ASSETS / "profile-current.jpg"
 LAST_SELECTION = ASSETS / ".profile-last.txt"
+README = ROOT / "README.md"
+# A changing query string forces the GitHub README image proxy to request fresh artwork.
+PHOTO_TAG = re.compile(r'(?<=src=")\./assets/profile-current\.jpg(?:\?v=[0-9a-f]{12})?(?=")')
 SIZE = (960, 640)  # Desktop-friendly 3:2 image; stable layout across source photos.
 EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".bmp", ".tif", ".tiff"}
 EXCLUDED = {
@@ -83,6 +88,24 @@ def render_photo(source: Path) -> None:
     card.convert("RGB").save(OUTPUT, "JPEG", quality=87, optimize=True, progressive=True)
 
 
+def refresh_readme_photo_url() -> None:
+    """Update the README URL when the generated photo actually changes.
+
+    GitHub caches README images independently of the linked original. Keeping
+    the same image path can leave the profile showing an older thumbnail.
+    """
+    token = hashlib.sha256(OUTPUT.read_bytes()).hexdigest()[:12]
+    current = README.read_text(encoding="utf-8")
+    refreshed, occurrences = PHOTO_TAG.subn(
+        f"./assets/profile-current.jpg?v={token}", current
+    )
+    if occurrences != 1:
+        raise RuntimeError("Expected one versioned profile photo <img> in README.md")
+    if refreshed != current:
+        README.write_text(refreshed, encoding="utf-8")
+    print(f"Profile README image cache key: {token}")
+
+
 def main() -> None:
     chosen = select_photo()
     if chosen is None:
@@ -90,6 +113,7 @@ def main() -> None:
         return
 
     render_photo(chosen)
+    refresh_readme_photo_url()
     LAST_SELECTION.write_text(str(chosen.relative_to(ROOT)) + "\n", encoding="utf-8")
     print(f"Selected {chosen.name}; wrote {OUTPUT.relative_to(ROOT)} at {SIZE[0]}x{SIZE[1]}.")
 
