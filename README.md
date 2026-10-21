@@ -6,19 +6,24 @@
 </p>
 <!-- END PROFILE-EXTRAS -->
 
-<!-- Mobile-first: compact profile media, no tables, no large Spotify album artwork. -->
+<!-- Desktop-oriented hero. Fixed image widths sit side by side on a wide profile
+     and wrap instead of shrinking into unreadable columns on narrow screens. -->
 <p align="center">
-  <img src="./assets/profile-current.jpg" width="240" alt="Randomly rotated profile photograph">
+  <img src="./assets/profile-current.jpg" width="415" align="top" alt="Randomly selected landscape profile photo">
+  &nbsp;&nbsp;
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=false&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="330" align="top" alt="Spotify Now Playing"></a>
 </p>
+
+<!-- Compact navigation: image labels avoid underlines. -->
 <p align="center">
-  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="100" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="100" alt="YouTube"></a>
+  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" alt="Projects"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" alt="YouTube"></a>
 </p>
+
+<!-- Weather retains a legible size instead of shrinking inside a two-column table. -->
 <p align="center">
-  <img src="./assets/weather-azumino.svg" width="320" alt="Current Azumino weather">
-</p>
-<!-- Spotify: minimal text-only now-playing card, no album art. -->
-<p align="center">
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=false&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="320" alt="Spotify Now Playing"></a>
+  <img src="./assets/weather-azumino.svg" width="560" alt="Azumino weather, updated hourly">
 </p>
 
 <!-- Animated GitHub contribution snake. Switches with GitHub's color scheme. -->
