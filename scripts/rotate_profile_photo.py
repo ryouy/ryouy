@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rotate the GitHub README profile photo without changing its displayed aspect ratio.
 
-Place photos directly in assets/ (JPG, PNG, WEBP, HEIC, etc.).
+Place additional photos in images/ (JPG, PNG, WEBP, HEIC, etc.).
 The generated assets/profile-current.jpg always has the same 4:5 canvas,
 and the original image is never cropped; blurred edges fill the remaining space.
 """
@@ -17,6 +17,7 @@ register_heif_opener()
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
+IMAGES = ROOT / "images"
 OUTPUT = ASSETS / "profile-current.jpg"
 LAST_SELECTION = ASSETS / ".profile-last.txt"
 SIZE = (800, 1000)  # Consistent display geometry for portrait and landscape photos.
@@ -39,7 +40,7 @@ def valid_photo(path: Path) -> bool:
 
 def select_photo() -> Path | None:
     candidates = [
-        photo for photo in sorted(ASSETS.iterdir())
+        photo for photo in sorted(list(ASSETS.iterdir()) + list(IMAGES.iterdir()))
         if photo.is_file()
         and photo.suffix.lower() in EXTENSIONS
         and photo.name not in EXCLUDED
@@ -49,7 +50,7 @@ def select_photo() -> Path | None:
         return None
 
     previous = LAST_SELECTION.read_text(encoding="utf-8").strip() if LAST_SELECTION.exists() else ""
-    alternatives = [photo for photo in candidates if photo.name != previous]
+    alternatives = [photo for photo in candidates if str(photo.relative_to(ROOT)) != previous]
     return secrets.choice(alternatives or candidates)
 
 
@@ -81,7 +82,7 @@ def main() -> None:
         return
 
     render_photo(chosen)
-    LAST_SELECTION.write_text(chosen.name + "\n", encoding="utf-8")
+    LAST_SELECTION.write_text(str(chosen.relative_to(ROOT)) + "\n", encoding="utf-8")
     print(f"Selected {chosen.name}; wrote {OUTPUT.relative_to(ROOT)} at {SIZE[0]}x{SIZE[1]}.")
 
 
