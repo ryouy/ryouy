@@ -2,7 +2,7 @@ name: Update Azumino Weather
 
 on:
   schedule:
-    - cron: '14 */3 * * *'
+    - cron: '43 * * * *' # Hourly (UTC), staggered from photo rotation.
   push:
     branches: [main]
     paths:
@@ -37,5 +37,6 @@ jobs:
           git add assets/weather-azumino.svg
           if ! git diff --cached --quiet; then
             git commit -m 'chore: refresh Azumino weather card'
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
