@@ -6,24 +6,19 @@
 </p>
 <!-- END PROFILE-EXTRAS -->
 
-<!-- Two-column layout: photo and slim weather stacked on the left, Spotify Compact on the right. -->
-<table align="center" width="100%" border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td width="50%" align="center" valign="top">
-      <img src="./assets/profile-current.jpg" alt="Profile photograph" width="100%">
-      <!-- Image-based links avoid GitHub's anchor underlines and subscript overlap. -->
-      <div align="center">
-        <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
-      </div>
-      <div align="center">
-        <img src="./assets/weather-azumino.svg" alt="Current weather in Azumino, Nagano, refreshed every three hours" width="100%">
-      </div>
-    </td>
-    <td width="50%" align="center" valign="top">
-      <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" alt="Spotify Now Playing" width="100%"></a>
-    </td>
-  </tr>
-</table>
+<!-- Responsive layout: stack media vertically to avoid rigid mobile table columns. -->
+<div align="center">
+  <img src="./assets/profile-current.jpg" width="340" alt="Randomly rotated profile photograph (4:5)">
+  <br>
+  <a href="https://ryouyplayground.vercel.app/#projects"><img src="./assets/link-projects.svg" width="104" height="28" alt="Projects"></a>&nbsp;&nbsp;<a href="https://www.youtube.com/@sun_voyager"><img src="./assets/link-youtube.svg" width="104" height="28" alt="YouTube"></a>
+  <br>
+  <img src="./assets/weather-azumino.svg" width="340" alt="Current weather in Azumino, Nagano, refreshed every three hours">
+</div>
+
+<!-- Keep Spotify on a separate row for narrow screens. -->
+<p align="center">
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="340" alt="Spotify Now Playing"></a>
+</p>
 
 <!-- Animated GitHub contribution snake. Switches with GitHub's color scheme. -->
 <p align="center">
