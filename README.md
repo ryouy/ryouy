@@ -24,5 +24,5 @@
   </picture>
 </div>
 <div align="center">
-  <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="800">
+  <img src="./profile-3d-contrib/profile-night-view.svg?v=simple-stats" alt="3D GitHub contribution calendar" width="800">
 </div>
