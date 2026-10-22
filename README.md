@@ -14,7 +14,7 @@
 </div>
 <div align="center"><sub>&nbsp;</sub></div>
 <div align="center">
-<img src="./assets/weather-azumino.svg" width="534" align="top" alt="Azumino local weather, updated hourly"><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=b12c9f339f88" width="123" align="top" alt="Projects"></a><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=868944fa3aa6" width="123" align="top" alt="YouTube"></a>
+<img src="./assets/weather-azumino.svg" width="534" align="top" alt="Azumino local weather, updated hourly"><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/ryouy/ryouy/5d0ce70a06eae028ec52cff4c096bd9a955ba683/assets/link-projects.svg" width="123" align="top" alt="Projects"></a><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/ryouy/ryouy/5a95af82b7098126cf5891d898953fc284947973/assets/link-youtube.svg" width="123" align="top" alt="YouTube"></a>
 </div>
 <!-- Contribution visuals: no redundant headings and minimal section margins. -->
 <div align="center">
