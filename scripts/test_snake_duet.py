@@ -3,7 +3,7 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message
 
 
 def fixture():
@@ -38,10 +38,10 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertIsNotNone(message)
         actual = {(int(c.get('data-grid-x')), int(c.get('data-grid-y'))) for c in message}
         self.assertEqual(actual, pixels)
-        self.assertEqual({c.get('fill') for c in message}, {'#279cff'})
+        self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
         self.assertTrue(all(c.get('transform') for c in message))
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
-        self.assertLess(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
+        self.assertEqual(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
 
     def test_particles_collide_then_assemble_exact_letters_without_overlaps(self):
@@ -57,6 +57,18 @@ class SnakeDuetTests(unittest.TestCase):
             for p in paths:
                 self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(p,p[1:])))
             self.assertEqual((paths, collisions), assemble_message(targets, 53, 7, seed))
+
+    def test_message_merges_into_exact_blue_bodies(self):
+        bodies = [tuple((17-i, 3) for i in range(4)), tuple((35+i, 3) for i in range(4))]
+        paths = [[p] for p in sorted(restart_pixels(53, 7))]
+        morphs = morph_message(paths, bodies)
+        self.assertEqual({target for _,target,_ in morphs}, set(bodies[0]) | set(bodies[1]))
+        for owner, target, route in morphs:
+            self.assertIn(target, bodies[owner])
+            self.assertEqual(route[-1], target)
+            self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) == 1 for a,b in zip(route,route[1:])))
+        plans = plan_pair({(1,1),(50,5)},53,7,4,42,start_bodies=bodies)
+        self.assertEqual([p['states'][0] for p in plans], bodies)
 
     def test_snakes_wander_after_completion_then_fully_leave(self):
         plans = plan_pair({(3, 2), (9, 4)}, 14, 7, 4, 42)
