@@ -36,6 +36,7 @@ class SnakeDuetTests(unittest.TestCase):
         root = ET.fromstring(build_duet(ET.tostring(source, encoding='unicode'), seed=42))
         message = root.find(TAG+"g[@class='restart-message']")
         self.assertIsNotNone(message)
+        self.assertGreaterEqual(float(root.get('data-red-second-entry-delay-ms')), 900)
         actual = {(int(c.get('data-grid-x')), int(c.get('data-grid-y'))) for c in message}
         self.assertEqual(actual, pixels)
         self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
@@ -69,6 +70,15 @@ class SnakeDuetTests(unittest.TestCase):
             self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) == 1 for a,b in zip(route,route[1:])))
         plans = plan_pair({(1,1),(50,5)},53,7,4,42,start_bodies=bodies)
         self.assertEqual([p['states'][0] for p in plans], bodies)
+
+    def test_red_snakes_wait_four_seconds_and_enter_separately(self):
+        root = ET.fromstring(build_duet(fixture(), seed=42))
+        self.assertEqual(float(root.get('data-intro-ms')), 4000)
+        plans = plan_pair({(3, 2), (9, 4)},14,7,4,42,entry_delays=(0,10))
+        self.assertTrue(all(b == plans[1]['states'][0] for b in plans[1]['states'][:11]))
+        self.assertNotEqual(plans[0]['states'][0], plans[0]['states'][1])
+        for a,b in zip(plans[0]['states'],plans[1]['states']):
+            self.assertFalse(set(a) & set(b))
 
     def test_snakes_wander_after_completion_then_fully_leave(self):
         plans = plan_pair({(3, 2), (9, 4)}, 14, 7, 4, 42)
