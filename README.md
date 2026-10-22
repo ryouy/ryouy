@@ -1,8 +1,8 @@
 <!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
 <div align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/e2feef126edbb778c7e471ca707db8278124c412/assets/intro-mobile.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/fdf22ab4e7f72418b214cb30554665178375a15f/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy calls Aizu home / next stop: Azumino; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/d828ebfc5a529e0c72ccbc9a071eda65022726bb/assets/intro-mobile.svg">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/77bc1b4d1a2f44f4ef9f5670eaa04a0e14d4d828/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy is based in Aizu → Azumino in 2027; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
   </picture>
 </div>
 <!-- 800px border-free grid: 534 + 10 + 256. Photo and Spotify both render at 356px. -->
@@ -14,7 +14,7 @@
 <!-- Custom contribution snakes, generated from the read-only upstream route data. -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=roaming-2">
-    <img src="./assets/snake-duet.svg?v=roaming-2" alt="Experimental contribution snakes: two red eat, two blue restore" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=once-more">
+    <img src="./assets/snake-duet.svg?v=once-more" alt="Two red snakes eat contributions, ONCE MORE appears in colored grid cells, then two blue snakes restore them" width="800">
   </picture>
 </div>
