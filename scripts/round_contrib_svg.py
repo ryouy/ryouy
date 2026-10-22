@@ -38,13 +38,13 @@ def customize_svg(svg: str) -> str:
     )
     ET.SubElement(root, TAG+'rect', {'x': '.75', 'y': '.75', 'width': '252.5',
         'height': '144.3857142857143', 'rx': '12', 'fill': '#101b2b', 'stroke': '#2a3e54', 'stroke-width': '1.5'})
-    ET.SubElement(root, TAG+'text', {'x': '16', 'y': '24', 'fill': '#f7fbff',
+    ET.SubElement(root, TAG+'text', {'x': '136', 'y': '25', 'fill': '#f7fbff',
         'font-size': '14', 'font-weight': '600'}).text = 'Languages'
     # Preserve all upstream slices, labels and tooltips; only their placement changes.
     chart = copy.deepcopy(donut)
-    chart.set('transform', 'translate(63 86) scale(.36)')
+    chart.set('transform', 'translate(65 73) scale(.48)')
     labels = copy.deepcopy(legend)
-    labels.set('transform', 'translate(124 37)')
+    labels.set('transform', 'translate(136 41)')
     for index, (box, text) in enumerate(zip(labels.findall(TAG+'rect'), labels.findall(TAG+'text'))):
         box.attrib.update(x='0', y=f'{index*16:g}', width='8', height='8')
         text.attrib.update(x='12', y=f'{index*16+4:g}')
