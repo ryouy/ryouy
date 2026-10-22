@@ -1,15 +1,15 @@
-<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" width="420" height="74" viewBox="0 74 420 74" role="img" aria-label="Azumino: now 8°C, Mainly clear. Today high 21°, low 7°. Tomorrow 10/24: Rain, high 14°, low 12°.">
-  <ns0:title>Azumino: now 8°C, Mainly clear. Today high 21°, low 7°. Tomorrow 10/24: Rain, high 14°, low 12°.</ns0:title>
-  <ns0:rect x="1" y="1" width="418" height="146" rx="13" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5" />
-  <ns0:g font-family="Arial,Helvetica,sans-serif">
-    <ns0:text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</ns0:text>
-    <ns0:text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">10/23 01:30</ns0:text>
-    <ns0:text x="18" y="101" fill="#f7fbff" font-size="57" font-weight="600">8<ns0:tspan font-size="30">°C</ns0:tspan></ns0:text>
-    <ns0:line x1="163" y1="45" x2="163" y2="131" stroke="#314558" />
-    <ns0:text x="180" y="58" fill="#f7fbff" font-size="17">Mainly clear</ns0:text>
-    <ns0:text x="180" y="83" fill="#d2e1ed" font-size="15">High 21° / Low 7°</ns0:text>
-    <ns0:text x="180" y="110" fill="#879fb2" font-size="12">Tomorrow</ns0:text>
-    <ns0:text x="248" y="110" fill="#d2e1ed" font-size="14">Rain</ns0:text>
-    <ns0:text x="180" y="132" fill="#b6cadb" font-size="15">High 14° / Low 12°</ns0:text>
-  </ns0:g>
-</ns0:svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="74" viewBox="0 74 420 74" role="img" aria-label="Azumino: now 8°C, Mainly clear. Today high 21°, low 7°. Tomorrow 10/24: Rain, high 14°, low 12°.">
+  <title>Azumino: now 8°C, Mainly clear. Today high 21°, low 7°. Tomorrow 10/24: Rain, high 14°, low 12°.</title>
+  <rect x="1" y="1" width="418" height="146" rx="13" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5" />
+  <g font-family="Arial,Helvetica,sans-serif">
+    <text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</text>
+    <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">10/23 01:30</text>
+    <text x="81.5" y="88" text-anchor="middle" dominant-baseline="central" fill="#f7fbff" font-size="57" font-weight="600">8<tspan font-size="30">°C</tspan></text>
+    <line x1="163" y1="45" x2="163" y2="131" stroke="#314558" />
+    <text x="180" y="58" fill="#f7fbff" font-size="17">Mainly clear</text>
+    <text x="180" y="83" fill="#d2e1ed" font-size="15">High 21° / Low 7°</text>
+    <text x="180" y="110" fill="#879fb2" font-size="12">Tomorrow</text>
+    <text x="248" y="110" fill="#d2e1ed" font-size="14">Rain</text>
+    <text x="180" y="132" fill="#b6cadb" font-size="15">High 14° / Low 12°</text>
+  </g>
+</svg>
