@@ -4,6 +4,7 @@
 The 420:148 canvas ratio matches the profile's aligned layout.
 """
 import json
+from profile_slices import write_slices
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -63,6 +64,7 @@ def main() -> None:
     svg = render_card(payload)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(svg, encoding='utf-8')
+    write_slices(svg, OUTPUT)
     print(f'Updated {OUTPUT.name}: current conditions and tomorrow forecast')
 
 
