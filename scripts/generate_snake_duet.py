@@ -246,10 +246,14 @@ def assemble_message(targets, columns, rows, seed):
                   (1, 0) if x < 0 else (-1, 0) if x >= columns else rng.choice(directions) for x, y in positions]
     inside = lambda p: -2 <= p[0] <= columns+1 and -2 <= p[1] <= rows+1
     collisions = 0
+    release = [rng.randrange(31) for _ in positions]
     for tick in range(44):
         occupied = set(positions)
         proposed = []
         for i, (x, y) in enumerate(positions):
+            if tick < release[i]:
+                proposed.append((x, y))
+                continue
             if rng.random() < .22:
                 velocities[i] = rng.choice(directions)
             if not (0 <= x < columns and 0 <= y < rows):
@@ -259,6 +263,9 @@ def assemble_message(targets, columns, rows, seed):
             proposed.append((x+dx, y+dy))
         counts = Counter(proposed)
         for i, p in enumerate(proposed):
+            if p == positions[i]:
+                histories[i].append(p)
+                continue
             if p in occupied or counts[p] > 1 or not inside(p):
                 collisions += 1
                 dx, dy = velocities[i]
@@ -304,6 +311,35 @@ def assemble_message(targets, columns, rows, seed):
     else:
         raise ValueError('Message particles failed to reach grid edges')
     return [list(reversed(path)) for path in histories], collisions
+
+
+def assembly_timeline(paths):
+    """Spread the actual first-to-last final arrivals over exactly four seconds."""
+    stops = [max(i for i in range(1, len(p)) if p[i] != p[i-1]) for p in paths]
+    first, last = min(stops), max(stops)
+    times = [tick*70 if tick <= first else first*70+(tick-first)*4000/max(1,last-first)
+             for tick in range(len(paths[0]))]
+    return times, stops
+
+
+def particle_contacts(paths, stops):
+    """Pair neighboring unsettled blocks for a small, visible contact/recoil."""
+    bumps = [{} for _ in paths]
+    for tick in range(len(paths[0])-1):
+        occupied = {path[tick]: i for i,path in enumerate(paths)}
+        used = set()
+        for i, path in enumerate(paths):
+            if i in used or tick >= stops[i]:
+                continue
+            x,y = path[tick]
+            for dx,dy in ((1,0),(0,1),(-1,0),(0,-1)):
+                j = occupied.get((x+dx,y+dy))
+                if j is not None and j not in used and tick < stops[j]:
+                    bumps[i][tick] = (dx*2,dy*2)
+                    bumps[j][tick] = (-dx*2,-dy*2)
+                    used.update((i,j))
+                    break
+    return bumps
 
 
 def morph_message(paths, bodies):
@@ -379,10 +415,12 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     red_ms = intro_ms + max(len(p['states']) - 1 for p in plans['red']) * step_ms
     message_start = red_ms + 350
     particle_paths, collision_count = assemble_message(message_pixels, columns, rows, seed+7919) if message_pixels else ([], 0)
-    assembly_ms = (len(particle_paths[0])-1)*70 if particle_paths else 0
+    assembly_times, settle_ticks = assembly_timeline(particle_paths) if particle_paths else ([], [])
+    bumps = particle_contacts(particle_paths, settle_ticks) if particle_paths else []
+    assembly_ms = assembly_times[-1] if particle_paths else 0
     morphs = morph_message(particle_paths, blue_bodies) if message_pixels else []
     morph_start = message_start + assembly_ms + 1600
-    morph_ms = max((len(points)-1)*55 + (i%4)*35 for i,(_,_,points) in enumerate(morphs)) if morphs else 0
+    morph_ms = max((len(points)-1)*300 + (i%4)*160 for i,(_,_,points) in enumerate(morphs)) if morphs else 0
     message_end = morph_start + morph_ms + 150
     blue_start = message_end if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
@@ -457,15 +495,20 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             animation = f'restart-cell-{index}'
             initial = ((path[0][0]-coord[0])*pitch, (path[0][1]-coord[1])*pitch)
             pixel.set('transform', f'translate({initial[0]:g} {initial[1]:g})')
-            motion = [(0, initial)] + [(message_start+tick*70,
-                       ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)) for tick,p in enumerate(path)]
-            # Discrete transforms preserve the contribution-grid cell rhythm.
-            declarations = ''.join(f'{pct(t)}'+'{'+f'transform:translate({p[0]:g}px,{p[1]:g}px);opacity:1'+'}'
-                                   for t,p in motion)
+            motion = [(0, initial)]
+            for tick,p in enumerate(path):
+                t = message_start+assembly_times[tick]
+                base = ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)
+                motion.append((t,base))
+                if tick in bumps[index]:
+                    duration = assembly_times[tick+1]-assembly_times[tick]
+                    dx,dy = bumps[index][tick]
+                    motion.append((t+duration*.3,(base[0]+dx,base[1]+dy)))
+                    motion.append((t+duration*.6,base))
             motion.append((morph_start, (0, 0)))
             for tick, p in enumerate(gathering):
                 offset = ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)
-                motion.append((morph_start+(index%4)*35+tick*55, offset))
+                motion.append((morph_start+(index%4)*160+tick*300, offset))
             final = ((target[0]-coord[0])*pitch + float(segments[0].get('x','1'))-xs[0],
                      (target[1]-coord[1])*pitch + float(segments[0].get('y','1'))-ys[0])
             motion.append((message_end-50, final))
@@ -476,6 +519,10 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
             message.append(pixel)
         root.set('data-message-collisions', str(collision_count))
+        root.set('data-message-visible-contacts', str(sum(len(b) for b in bumps)//2))
+        root.set('data-message-first-settled-ms', f'{message_start+min(assembly_times[t] for t in settle_ticks):.3f}')
+        root.set('data-message-settle-span-ms', '4000')
+        root.set('data-message-morph-duration-ms', f'{morph_ms:.3f}')
         root.set('data-message-morph-start-ms', f'{morph_start:.3f}')
         root.set('data-message-formed-ms', f'{message_start+assembly_ms:.3f}')
         rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
