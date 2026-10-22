@@ -14,29 +14,6 @@ OUTPUT = Path(__file__).resolve().parents[1] / 'assets/weather-azumino.svg'
 WEATHER_NAMES = {0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 56: 'Freezing drizzle', 57: 'Freezing drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Freezing rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Light showers', 81: 'Rain showers', 82: 'Heavy showers', 85: 'Snow showers', 86: 'Snow showers', 95: 'Thunderstorm', 96: 'Thunder + hail', 99: 'Thunder + hail'}
 
 
-def weather_icon(code: int, x: int, y: int, night: bool = False) -> str:
-    sun = '<circle cx="16" cy="16" r="7"/><path d="M16 2v3m0 22v3M2 16h3m22 0h3M6 6l2 2m16 16 2 2M6 26l2-2M24 8l2-2"/>'
-    moon = '<path d="M25 21A12 12 0 0 1 11 5a12 12 0 1 0 14 16Z"/>'
-    cloud = '<path d="M8 23h17a6 6 0 0 0 0-12 9 9 0 0 0-17-1 6.5 6.5 0 0 0 0 13Z"/>'
-    if code in (0, 1):
-        drawing = moon if night else sun
-    elif code == 2:
-        drawing = '<g transform="translate(0 -1) scale(.68)">' + (moon if night else sun) + '</g>' + cloud
-    elif code == 3:
-        drawing = cloud
-    elif code in (45, 48):
-        drawing = '<path d="M5 9h22M2 16h28M5 23h22"/>'
-    elif code in (71, 73, 75, 77, 85, 86):
-        drawing = cloud + '<path d="M10 26v6m-3-3h6m8-3v6m-3-3h6"/>'
-    elif code in (95, 96, 99):
-        drawing = cloud + '<path d="m17 22-4 6h5l-3 6"/>'
-    elif code in WEATHER_NAMES:
-        drawing = cloud + '<path d="m10 27-2 4m10-4-2 4m10-4-2 4"/>'
-    else:
-        drawing = cloud
-    return f'<g transform="translate({x} {y})" fill="none" stroke="#8abfe5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">{drawing}</g>'
-
-
 def render_card(payload: dict) -> str:
     current, daily = payload['current'], payload['daily']
     observed = datetime.fromisoformat(current['time'])
@@ -59,19 +36,17 @@ def render_card(payload: dict) -> str:
   <g font-family="Arial,Helvetica,sans-serif">
     <text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</text>
     <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">{observed:%m/%d %H:%M}</text>
-    <line x1="199" y1="45" x2="199" y2="128" stroke="#314558"/>
-    <text x="20" y="50" fill="#879fb2" font-size="10" letter-spacing="1">TODAY</text>
-    <text x="18" y="91" fill="#f7fbff" font-size="46" font-weight="600">{temperature[:-1]}<tspan font-size="23">°C</tspan></text>
-    <text x="20" y="112" fill="#d2e1ed" font-size="14">{now_name}</text>
-    <text x="20" y="132" fill="#b6cadb" font-size="14">High {today_high} / Low {today_low}</text>
-    <text x="220" y="50" fill="#879fb2" font-size="10" letter-spacing="1">TOMORROW</text>
-    <text x="260" y="87" fill="#f7fbff" font-size="14">{tomorrow_name}</text>
-    <text x="220" y="132" fill="#b6cadb" font-size="14">High {high} / Low {low}</text>
+    <text x="18" y="101" fill="#f7fbff" font-size="57" font-weight="600">{temperature[:-1]}<tspan font-size="30">°C</tspan></text>
+    <line x1="163" y1="45" x2="163" y2="131" stroke="#314558"/>
+    <text x="180" y="58" fill="#f7fbff" font-size="17">{now_name}</text>
+    <text x="180" y="83" fill="#d2e1ed" font-size="15">High {today_high} / Low {today_low}</text>
+    <text x="180" y="110" fill="#879fb2" font-size="12">Tomorrow</text>
+    <text x="248" y="110" fill="#d2e1ed" font-size="14">{tomorrow_name}</text>
+    <text x="180" y="132" fill="#b6cadb" font-size="15">High {high} / Low {low}</text>
   </g>
-  {weather_icon(now_code, 145, 61, not bool(current['is_day']))}
-  {weather_icon(tomorrow_code, 219, 64)}
 </svg>
 '''
+
 
 
 def main() -> None:
