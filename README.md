@@ -14,7 +14,7 @@
 <!-- Custom contribution snakes, generated from the read-only upstream route data. -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=once-more">
-    <img src="./assets/snake-duet.svg?v=once-more" alt="Two red snakes eat contributions, ONCE MORE appears in colored grid cells, then two blue snakes restore them" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=cyan-thread">
+    <img src="./assets/snake-duet.svg?v=cyan-thread" alt="Two red snakes eat contributions, ONCE MORE appears in colored grid cells, then two blue snakes restore them" width="800">
   </picture>
 </div>
