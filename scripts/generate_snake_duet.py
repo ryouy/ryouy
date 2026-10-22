@@ -87,9 +87,10 @@ def route_to(body, target, columns, rows, painted, rng, bounds=None, blocked=Non
     raise ValueError(f'No body-safe path to {target}')
 
 
-def plan_pair(targets, columns, rows, length, seed, start_bodies=None):
+def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_delays=None):
     """Two roaming snakes share one target pool, with collision-safe joint moves."""
     rng = random.Random(seed)
+    entry_delays = entry_delays or (0, 0)
     bounds = (-length-4, columns+length+3, -length-4, rows+length+3)
     # A body must start as a straight, connected snake, not random individual cells.
     left_row, right_row = rng.randrange(rows), rng.randrange(rows)
@@ -112,6 +113,8 @@ def plan_pair(targets, columns, rows, length, seed, start_bodies=None):
 
     def options(index):
         body, other = bodies[index], bodies[1-index]
+        if tick <= entry_delays[index]:
+            return [(0, body)]
         target = goals[index] if pending else exits[index]
         if not pending and body[0] == target:
             return [(0, body)]
@@ -364,14 +367,16 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     plans = {}
     for phase, color in enumerate(('red', 'blue')):
         plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009,
-                                 blue_bodies if color == 'blue' else None)
+                                 blue_bodies if color == 'blue' else None,
+                                 (0, max(1, round(1000/step_ms))) if color == 'red' and columns >= 8 else None)
         for plan in plans[color]:
             plan['restore'] = {
                 coord: next(tick for tick in range(visit+len(segments), len(plan['states']))
                             if all(coord not in snake['states'][tick] for snake in plans[color]))
                 for coord, visit in plan['visits'].items()
             }
-    red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
+    intro_ms = 4000
+    red_ms = intro_ms + max(len(p['states']) - 1 for p in plans['red']) * step_ms
     message_start = red_ms + 350
     particle_paths, collision_count = assemble_message(message_pixels, columns, rows, seed+7919) if message_pixels else ([], 0)
     assembly_ms = (len(particle_paths[0])-1)*70 if particle_paths else 0
@@ -397,7 +402,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         level = re.search(r'var\(--(c\d+)\)', frames[name][min(frames[name])]).group(1)
         red_plan = next(plan for plan in plans['red'] if coord in plan['visits'])
         blue_plan = next(plan for plan in plans['blue'] if coord in plan['visits'])
-        eat = red_plan['visits'][coord] * step_ms
+        eat = intro_ms + red_plan['visits'][coord] * step_ms
         restore = blue_start + blue_plan['restore'][coord] * step_ms
         rules.append(f'@keyframes d-{name}{{0%,{pct(eat - 5)}{{fill:var(--{level})}}{pct(eat)},{pct(restore - 5)}{{fill:var(--ce)}}{pct(restore)},100%{{fill:var(--{level})}}}}')
         rules.append(f'.c.{name}{{fill:var(--{level});animation-name:d-{name}}}')
@@ -408,7 +413,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         group = ET.SubElement(root, TAG + 'g', {'class': 'duet-' + color})
         for snake_index, plan in enumerate(plans[color]):
             snake = ET.SubElement(group, TAG + 'g', {'class': f'snake-{color}-{snake_index}'})
-            start_ms = 0 if color == 'red' else blue_start
+            start_ms = intro_ms if color == 'red' else blue_start
             for index, segment in enumerate(segments):
                 rect = copy.deepcopy(segment)
                 animation = f'{color}-{snake_index}-{index}'
@@ -486,6 +491,8 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     for key, val in {'step-ms': step_ms, 'original-red-ms': original_ms, 'red-ms': red_ms,
                      'blue-start-ms': blue_start, 'blue-end-ms': blue_end, 'cycle-ms': cycle_ms}.items():
         root.set('data-' + key, f'{val:.3f}')
+    root.set('data-intro-ms', str(intro_ms))
+    root.set('data-red-second-entry-delay-ms', str(max(1, round(1000/step_ms))*step_ms if columns >= 8 else 0))
     root.set('data-seed', str(seed))
     root.set('data-snakes-per-color', '2')
     box = root.get('viewBox').split()
