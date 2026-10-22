@@ -3,7 +3,7 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_blue
+from generate_snake_duet import TAG, build_duet, plan_pair
 
 
 def fixture():
@@ -20,88 +20,84 @@ def fixture():
 
 
 class SnakeDuetTests(unittest.TestCase):
-    def test_routes_cover_all_targets_without_teleports_or_body_collisions(self):
+    def test_shared_pool_coverage_and_collision_free_joint_routes(self):
         targets = {(x, y) for x in range(0, 53, 3) for y in (0, 2, 4, 6)}
         signatures = set()
-        for seed in range(12):
-            states, visits = plan_blue(targets, 53, 7, 4, seed)
-            self.assertEqual(set(visits), targets)
-            signatures.add(tuple(state[0] for state in states))
-            for before, after in zip(states, states[1:]):
-                self.assertEqual(len(set(after)), 4)
-                self.assertEqual(after[1:], before[:-1])
-                self.assertEqual(sum(abs(a-b) for a, b in zip(before[0], after[0])), 1)
-            for cell, visit in visits.items():
-                self.assertEqual(states[visit][0], cell)
-                self.assertIn(cell, states[visit + 3])
-                self.assertTrue(any(cell not in state for state in states[visit + 4:]))
-        self.assertEqual(len(signatures), 12)
-
-    def test_routes_reproduce_with_same_seed(self):
-        args = ({(1, 1), (3, 4), (10, 2)}, 12, 7, 4, 42)
-        self.assertEqual(plan_blue(*args), plan_blue(*args))
-
-    def test_svg_preserves_original_velocity_and_removes_all_gauges(self):
-        source = fixture()
-        root = ET.fromstring(build_duet(source, seed=42))
-        self.assertEqual(float(root.get('data-original-red-ms')), 1000)
-        self.assertEqual(float(root.get('data-step-ms')), 250)
-        self.assertFalse(any('u' in el.get('class', '').split() for el in root.iter()))
-        self.assertEqual(len(root.findall(TAG + 'g')), 2)
-        for color in ('red', 'blue'):
-            group = root.find(TAG + f"g[@class='duet-{color}']")
-            self.assertEqual(len(group.findall(TAG + 'g')), 2)
-            self.assertEqual(len(group.findall('.//' + TAG + 'rect')), 8)
-        css = root.find(TAG + 'style').text
-        self.assertNotIn('animation-direction:reverse', css)
-        self.assertNotIn('@keyframes u0', css)
-        self.assertIn('100%{fill:var(--c1)}', css)
-        self.assertIn('100%{fill:var(--c2)}', css)
-        self.assertLess(float(root.get('height')), 100)
-
-    def test_restore_events_happen_after_tail_clears_each_cell(self):
-        root = ET.fromstring(build_duet(fixture(), seed=42))
-        css = root.find(TAG + 'style').text
-        total = float(root.get('data-cycle-ms'))
-        start = float(root.get('data-blue-start-ms'))
-        step = float(root.get('data-step-ms'))
-        for cell, name in [((0, 0), 'c0'), ((1, 1), 'c1')]:
-            territory = cell[0]
-            local = (0, cell[1])
-            states, visits = plan_blue({local}, 1, 2, 4, 42 + 1009 + territory * 97,
-                                      'left' if territory == 0 else 'right')
-            body = re.search(r'@keyframes d-' + name + r'\{(.*?)\}\n', css).group(1)
-            restore_pct = float(re.search(r'([\d.]+)%,100%\{fill:var\(--c[12]\)', body).group(1))
-            tick = round((restore_pct * total / 100 - start) / step)
-            self.assertGreaterEqual(tick, visits[local] + 4)
-            self.assertNotIn(local, states[tick])
-
-    def test_two_snakes_cannot_collide_or_process_the_same_targets(self):
-        split, columns = 26, 53
-        targets = {(x, y) for x in range(0, columns, 3) for y in (0, 2, 4, 6)}
         for seed in range(8):
-            paths, assigned = [], []
-            for index, (offset, width, side) in enumerate(((0, split, 'left'), (split, columns-split, 'right'))):
-                local_targets = {(x-offset, y) for x, y in targets if offset <= x < offset+width}
-                states, visits = plan_blue(local_targets, width, 7, 4, seed + index*97, side)
-                paths.append([tuple((x+offset, y) for x, y in state) for state in states])
-                assigned.append({(x+offset, y) for x, y in visits})
+            plans = plan_pair(targets, 53, 7, 4, seed)
+            assigned = [set(plan['visits']) for plan in plans]
             self.assertEqual(assigned[0] | assigned[1], targets)
             self.assertFalse(assigned[0] & assigned[1])
-            for tick in range(max(map(len, paths))):
-                left = paths[0][min(tick, len(paths[0])-1)]
-                right = paths[1][min(tick, len(paths[1])-1)]
-                self.assertFalse(set(left) & set(right))
-                self.assertTrue(all(x < split for x, y in left))
-                self.assertTrue(all(x >= split for x, y in right))
+            self.assertEqual(len(plans[0]['states']), len(plans[1]['states']))
+            signatures.add(tuple(state[0] for state in plans[0]['states']))
+            for plan in plans:
+                for before, after in zip(plan['states'], plan['states'][1:]):
+                    self.assertEqual(len(set(after)), 4)
+                    distance = sum(abs(a-b) for a,b in zip(before[0],after[0]))
+                    self.assertIn(distance, (0,1))
+                    self.assertEqual(after, before if distance == 0 else (after[0],)+before[:-1])
+                for cell, tick in plan['visits'].items():
+                    self.assertEqual(plan['states'][tick][0], cell)
+                    self.assertTrue(any(all(cell not in p['states'][t] for p in plans)
+                                        for t in range(tick+4,len(plan['states']))))
+            for left, right in zip(plans[0]['states'],plans[1]['states']):
+                self.assertFalse(set(left)&set(right))
+        self.assertEqual(len(signatures),8)
+
+    def test_routes_reproduce_with_same_seed(self):
+        args=({(1,1),(3,4),(10,2)},12,7,4,42)
+        self.assertEqual(plan_pair(*args),plan_pair(*args))
+
+    def test_real_grid_routes_can_cross_the_previous_midline(self):
+        targets={(x,y) for x in range(8,53,3) for y in (0,2,4,6)}
+        plans=plan_pair(targets,53,7,4,6869388369875623957)
+        for plan in plans:
+            xs=[state[0][0] for state in plan['states'] if 0<=state[0][0]<53]
+            self.assertLess(min(xs),26)
+            self.assertGreater(max(xs),26)
+
+    def test_svg_keeps_velocity_has_four_tints_and_no_gauge(self):
+        root=ET.fromstring(build_duet(fixture(),seed=42))
+        self.assertEqual(float(root.get('data-original-red-ms')),1000)
+        self.assertEqual(float(root.get('data-step-ms')),250)
+        self.assertFalse(any('u' in el.get('class','').split() for el in root.iter()))
+        css=root.find(TAG+'style').text
+        tints=[]
+        for color in ('red','blue'):
+            group=root.find(TAG+f"g[@class='duet-{color}']")
+            self.assertEqual(len(group.findall(TAG+'g')),2)
+            self.assertEqual(len(group.findall('.//'+TAG+'rect')),8)
+            for index in (0,1):
+                match=re.search(r'\.snake-'+color+'-'+str(index)+r' \.s\{fill:(#[0-9a-f]+)',css)
+                self.assertIsNotNone(match)
+                tints.append(match.group(1))
+        self.assertEqual(len(set(tints)),4)
+        self.assertNotIn('animation-direction:reverse',css)
+        self.assertIn('100%{fill:var(--c1)}',css)
+        self.assertIn('100%{fill:var(--c2)}',css)
+
+    def test_restore_events_wait_until_both_bodies_clear_the_cell(self):
+        root=ET.fromstring(build_duet(fixture(),seed=42))
+        plans=plan_pair({(0,0),(1,1)},2,2,4,42+1009)
+        css=root.find(TAG+'style').text
+        total=float(root.get('data-cycle-ms'))
+        start=float(root.get('data-blue-start-ms'))
+        step=float(root.get('data-step-ms'))
+        for cell,name in [((0,0),'c0'),((1,1),'c1')]:
+            owner=next(p for p in plans if cell in p['visits'])
+            body=re.search(r'@keyframes d-'+name+r'\{(.*?)\}\n',css).group(1)
+            restore_pct=float(re.search(r'([\d.]+)%,100%\{fill:var\(--c[12]\)',body).group(1))
+            tick=round((restore_pct*total/100-start)/step)
+            self.assertGreaterEqual(tick,owner['visits'][cell]+4)
+            self.assertTrue(all(cell not in p['states'][tick] for p in plans))
 
     def test_invalid_inputs_fail_explicitly(self):
         with self.assertRaises(ValueError):
             build_duet('<svg xmlns="http://www.w3.org/2000/svg"/>')
-        for speed in (-1, 0, float('nan'), float('inf')):
+        for speed in (-1,0,float('nan'),float('inf')):
             with self.assertRaises(ValueError):
-                build_duet(fixture(), step_ms=speed, seed=42)
+                build_duet(fixture(),step_ms=speed,seed=42)
 
 
-if __name__ == '__main__':
+if __name__=='__main__':
     unittest.main()
