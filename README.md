@@ -5,20 +5,16 @@
     <img src="./assets/intro-animated.svg?v=32bfb5401640" width="800" alt="ryouy — University of Aizu, Computer Science, Azumino, developer, artist, hiker">
   </picture>
 </div>
-<!-- Wide desktop hero: 3:2 photo and Spotify Now Playing span nearly the full README width. -->
+<!-- Aligned 800px grid: 534px photo / 256px Spotify, with a 10px gutter.
+     Both hero images are 356px tall at their natural aspect ratios.
+     Weather and navigation cards share a 188.17px height. Keep tags adjacent
+     so HTML whitespace cannot introduce uneven horizontal gutters. -->
 <div align="center">
-  <img src="./assets/profile-current.webp?v=2ee8594dd52c" width="520" align="top" alt="Rotating profile photo, updated hourly">
-  &nbsp;
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="275" align="top" alt="Spotify Now Playing — album, song and animated equalizer"></a>
+<img src="./assets/profile-current.webp?v=2ee8594dd52c" width="534" align="top" alt="Rotating profile photo, updated hourly"><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="256" align="top" alt="Spotify Now Playing — album, song and animated equalizer"></a>
 </div>
-<!-- A quiet spacer between the hero and the second row. -->
 <div align="center"><sub>&nbsp;</sub></div>
-<!-- Wide second row: weather and photo share a 520px left edge; matching navigation cards on right. -->
 <div align="center">
-  <img src="./assets/weather-azumino.svg" width="520" align="top" alt="Azumino local weather, updated hourly">
-  &nbsp;
-  <a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=47ca59625943" width="137" align="top" alt="Projects"></a>
-  <a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=54a46814e4fb" width="137" align="top" alt="YouTube"></a>
+<img src="./assets/weather-azumino.svg" width="534" align="top" alt="Azumino local weather, updated hourly"><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=b12c9f339f88" width="123" align="top" alt="Projects"></a><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=868944fa3aa6" width="123" align="top" alt="YouTube"></a>
 </div>
 <!-- Contribution visuals: no redundant headings and minimal section margins. -->
 <div align="center">
