@@ -3,7 +3,7 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_motion
 
 
 def fixture():
@@ -38,10 +38,23 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertIsNotNone(message)
         actual = {(int(c.get('data-grid-x')), int(c.get('data-grid-y'))) for c in message}
         self.assertEqual(actual, pixels)
-        self.assertEqual(len({c.get('fill') for c in message}), 5)
+        self.assertEqual(len({c.get('fill') for c in message}), 2)
+        self.assertTrue(all(c.get('transform') for c in message))
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertLess(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
+
+    def test_message_thread_enters_settles_and_exits_before_blue(self):
+        for index in (0, 60, 119):
+            motion = restart_motion(index, 120, 1000, (200, 50), -40, 920, 48)
+            self.assertEqual(motion[0][1][0] + 200, -40)
+            self.assertEqual(motion[-1][1][0] + 200, 920)
+            self.assertAlmostEqual(motion[25][1][0], 0)
+            self.assertAlmostEqual(motion[25][1][1], 0)
+            self.assertEqual(motion[26][1], (0, 0))
+            self.assertGreaterEqual(motion[26][0]-motion[25][0], 1600)
+            self.assertLessEqual(motion[-1][0], 5360)
+            self.assertEqual([t for t, _ in motion], sorted(t for t, _ in motion))
 
     def test_shared_pool_coverage_and_collision_free_joint_routes(self):
         targets = {(x, y) for x in range(0, 53, 3) for y in (0, 2, 4, 6)}
