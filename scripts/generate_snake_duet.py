@@ -227,6 +227,80 @@ def restart_pixel_timing(index, count, start):
     return start + index*24, start + count*24 + 1600 + (count-1-index)*24
 
 
+def assemble_message(targets, columns, rows, seed):
+    """Simulate grid collisions, then route indistinguishable cells into letters."""
+    from collections import Counter, deque
+    rng = random.Random(seed)
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    # Plan outward from the complete word, then reverse the collision-safe paths.
+    # This guarantees exact assembly without particles becoming trapped in O/C loops.
+    positions = sorted(targets)
+    rng.shuffle(positions)
+    histories = [[p] for p in positions]
+    velocities = [(0, 1) if y < 0 else (0, -1) if y >= rows else
+                  (1, 0) if x < 0 else (-1, 0) if x >= columns else rng.choice(directions) for x, y in positions]
+    inside = lambda p: -2 <= p[0] <= columns+1 and -2 <= p[1] <= rows+1
+    collisions = 0
+    for tick in range(18):
+        occupied = set(positions)
+        proposed = []
+        for i, (x, y) in enumerate(positions):
+            if rng.random() < .22:
+                velocities[i] = rng.choice(directions)
+            if not (0 <= x < columns and 0 <= y < rows):
+                velocities[i] = min(directions, key=lambda d:
+                    abs(x+d[0]-(columns-1)/2)+abs(y+d[1]-(rows-1)/2))
+            dx, dy = velocities[i]
+            proposed.append((x+dx, y+dy))
+        counts = Counter(proposed)
+        for i, p in enumerate(proposed):
+            if p in occupied or counts[p] > 1 or not inside(p):
+                collisions += 1
+                dx, dy = velocities[i]
+                velocities[i] = rng.choice([(-dx, -dy), (-dy, dx), (dy, -dx)])
+            else:
+                positions[i] = p
+            histories[i].append(positions[i])
+    settled = set()
+    for tick in range(400):
+        for i, p in enumerate(positions):
+            if not (0 <= p[0] < columns and 0 <= p[1] < rows):
+                settled.add(i)
+        if len(settled) == len(positions):
+            break
+        occupied = set(positions)
+        reserved = set(positions)
+        for i in rng.sample(range(len(positions)), len(positions)):
+            if i in settled:
+                continue
+            start = positions[i]
+            blocked = (occupied | reserved) - {start}
+            queue, parents = deque([start]), {start: None}
+            goal = None
+            while queue:
+                p = queue.popleft()
+                if not (0 <= p[0] < columns and 0 <= p[1] < rows):
+                    goal = p
+                    break
+                options = list(directions)
+                rng.shuffle(options)
+                for dx, dy in options:
+                    nxt = (p[0]+dx, p[1]+dy)
+                    if inside(nxt) and nxt not in blocked and nxt not in parents:
+                        parents[nxt] = p
+                        queue.append(nxt)
+            if goal is not None:
+                while parents[goal] != start:
+                    goal = parents[goal]
+                positions[i] = goal
+                reserved.add(goal)
+        for i, p in enumerate(positions):
+            histories[i].append(p)
+    else:
+        raise ValueError('Message particles failed to reach grid edges')
+    return [list(reversed(path)) for path in histories], collisions
+
+
 def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
     root = ET.fromstring(source)
     style = root.find(TAG + 'style')
@@ -273,7 +347,9 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
     message_pixels = restart_pixels(columns, rows)
     message_start = red_ms + 350
-    message_end = message_start + len(message_pixels)*48 + 1600
+    particle_paths, collision_count = assemble_message(message_pixels, columns, rows, seed+7919) if message_pixels else ([], 0)
+    assembly_ms = (len(particle_paths[0])-1)*70 if particle_paths else 0
+    message_end = message_start + assembly_ms + 1600 + len(message_pixels)*24 + 50
     blue_start = message_end + 350 if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
     cycle_ms = blue_end + 1000
@@ -325,34 +401,38 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     if message_pixels:
         message = ET.SubElement(root, TAG+'g', {
             'class': 'restart-message', 'aria-label': 'ONCE MORE',
+            'clip-path': 'url(#message-grid)',
         })
-        palette = ('#279cff', '#279cff')
-        first_row = min(y for x, y in message_pixels)
-        # Column-wise serpentine ordering makes adjacent pixels follow as a thread.
-        ordered = sorted((c for c in cells if location(c) in message_pixels),
-                         key=lambda c: (location(c)[0], location(c)[1] *
-                                        (1 if location(c)[0] % 2 == 0 else -1)))
-        for index, cell in enumerate(ordered):
-            coord = location(cell)
-            if coord not in message_pixels:
-                continue
-            pixel = copy.deepcopy(cell)
-            pixel.set('class', 'restart-pixel')
+        defs = ET.SubElement(root, TAG+'defs')
+        clip = ET.SubElement(defs, TAG+'clipPath', {'id': 'message-grid'})
+        ET.SubElement(clip, TAG+'rect', {
+            'x': f'{xs[0]-.5:g}', 'y': f'{ys[0]-.5:g}',
+            'width': f'{xs[-1]-xs[0]+13:g}', 'height': f'{ys[-1]-ys[0]+13:g}',
+        })
+        cells_by_coord = {location(c): c for c in cells}
+        for index, path in enumerate(particle_paths):
+            coord = path[-1]
+            pixel = copy.deepcopy(cells_by_coord[coord])
+            pixel.set('class', f'restart-pixel restart-cell-{index}')
             pixel.set('width', '12'); pixel.set('height', '12')
-            pixel.set('fill', palette[0 if coord[1]-first_row < 3 else 1])
-            pixel.set('data-grid-x', str(coord[0]))
-            pixel.set('data-grid-y', str(coord[1]))
-            enter, leave = restart_pixel_timing(index, len(ordered), message_start)
+            pixel.set('fill', '#279cff')
+            pixel.set('data-grid-x', str(coord[0])); pixel.set('data-grid-y', str(coord[1]))
             animation = f'restart-cell-{index}'
-            pixel.set('class', 'restart-pixel ' + animation)
-            pixel.set('opacity', '0')
-            rules.append(f'@keyframes {animation}'+'{'
-                         f'0%,{pct(enter)}'+'{opacity:0}'
-                         f'{pct(enter+0.001)},{pct(leave)}'+'{opacity:1}'
-                         f'{pct(leave+0.001)},100%'+'{opacity:0}'+'}')
-            rules.append(f'.{animation}'+
-                         f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
+            initial = ((path[0][0]-coord[0])*pitch, (path[0][1]-coord[1])*pitch)
+            pixel.set('transform', f'translate({initial[0]:g} {initial[1]:g})')
+            motion = [(0, initial)] + [(message_start+tick*70,
+                       ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)) for tick,p in enumerate(path)]
+            # Discrete transforms preserve the contribution-grid cell rhythm.
+            declarations = ''.join(f'{pct(t)}'+'{'+f'transform:translate({p[0]:g}px,{p[1]:g}px);opacity:1'+'}'
+                                   for t,p in motion)
+            leave = message_start+assembly_ms+1600+index*24
+            declarations += f'{pct(leave)}'+'{transform:translate(0px,0px);opacity:1}'
+            declarations += f'{pct(leave+.001)},100%'+'{transform:translate(0px,0px);opacity:0}'
+            rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
+            rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
             message.append(pixel)
+        root.set('data-message-collisions', str(collision_count))
+        root.set('data-message-formed-ms', f'{message_start+assembly_ms:.3f}')
         rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
         rules.append(f'@keyframes restart-message{{0%,{pct(message_start)}{{opacity:0}}'
                      f'{pct(message_start+1)},{pct(message_end-1)}{{opacity:1}}'
