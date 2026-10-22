@@ -22,6 +22,13 @@
     <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="800">
   </picture>
 </div>
+<!-- Experimental duet is generated separately; keep the original snake above intact. -->
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg">
+    <img src="./assets/snake-duet.svg" alt="Experimental contribution snake: red eats, blue restores" width="800">
+  </picture>
+</div>
 <div align="center">
   <img src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub contribution calendar" width="800">
 </div>
