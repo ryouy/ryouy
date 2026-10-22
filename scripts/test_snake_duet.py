@@ -38,21 +38,29 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertIsNotNone(message)
         actual = {(int(c.get('data-grid-x')), int(c.get('data-grid-y'))) for c in message}
         self.assertEqual(actual, pixels)
-        self.assertEqual(len({c.get('fill') for c in message}), 2)
+        self.assertEqual({c.get('fill') for c in message}, {'#279cff'})
         self.assertTrue(all(c.get('transform') is None for c in message))
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertLess(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
 
-    def test_message_unpicks_from_edge_without_moving_off_grid(self):
+    def test_message_switches_one_cell_per_tick_without_fading(self):
         timings = [restart_pixel_timing(i, 120, 1000) for i in range(120)]
         self.assertEqual(timings[0][0], 1000)
-        self.assertEqual(timings[-1][0], 2450)
-        self.assertEqual(timings[-1][1], 4200)
-        self.assertEqual(timings[0][1] + 150, 5800)
-        self.assertTrue(all(a[0] < b[0] and a[1] > b[1]
+        self.assertTrue(all(b[0]-a[0] == 24 and a[1]-b[1] == 24
                             for a, b in zip(timings, timings[1:])))
-        self.assertGreaterEqual(min(t[1] for t in timings) - max(t[0]+150 for t in timings), 1600)
+        self.assertGreaterEqual(min(t[1] for t in timings) - max(t[0] for t in timings), 1600)
+
+    def test_snakes_wander_after_completion_then_fully_leave(self):
+        plans = plan_pair({(3, 2), (9, 4)}, 14, 7, 4, 42)
+        complete = max(t for p in plans for t in p['visits'].values())
+        for p in plans:
+            after = p['states'][complete+1:complete+18]
+            self.assertGreaterEqual(len(after), 16)
+            self.assertGreater(sum(0 <= b[0][0] < 14 and 0 <= b[0][1] < 7 for b in after), 10)
+            moves = [(b[0][0]-a[0][0], b[0][1]-a[0][1]) for a,b in zip(after,after[1:])]
+            self.assertGreater(len(set(moves)-{(0,0)}), 1)
+            self.assertTrue(all(x < 0 or x >= 14 or y < 0 or y >= 7 for x,y in p['states'][-1]))
 
     def test_shared_pool_coverage_and_collision_free_joint_routes(self):
         targets = {(x, y) for x in range(0, 53, 3) for y in (0, 2, 4, 6)}
