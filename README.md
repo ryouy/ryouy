@@ -1,8 +1,8 @@
 <!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
 <div align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/60aecbb61263fa672a59b1391d427fc8e698cad4/assets/intro-mobile.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/c2e1c08e32fe3308fb4efd29a84d9da06e131fb5/assets/intro-animated.svg" width="800" alt="ryouy — University of Aizu, Computer Science, Azumino, developer, artist, hiker">
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/ff7e539d26f068828dd98e104deafac23e1bb69d/assets/intro-mobile.svg">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/92d30ad0aee17ef815c1606fbd790e0509853eb2/assets/intro-animated.svg" width="800" alt="ryouy studies computer science at the University of Aizu; lives in Aizuwakamatsu and is heading to Azumino; explores LLMs, robotics, data science and the world; brings ideas to life; heads for the mountains; thinks about philosophy, economics and the future">
   </picture>
 </div>
 <!-- Shared columns keep photo/weather aligned and Spotify above the navigation/language panel. -->
