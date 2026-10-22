@@ -35,6 +35,7 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
+            python -m unittest discover -s scripts -p test_snake_duet.py
             python scripts/generate_snake_duet.py --repository "$REPOSITORY"
             git add assets/snake-duet.svg assets/snake-duet-dark.svg
             if git diff --cached --quiet; then
