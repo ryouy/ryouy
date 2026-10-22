@@ -11,15 +11,7 @@ from xml.sax.saxutils import escape
 
 LATITUDE, LONGITUDE = 36.3044, 137.9061
 OUTPUT = Path(__file__).resolve().parents[1] / 'assets/weather-azumino.svg'
-WEATHER_NAMES = {
-    0: '晴れ', 1: 'ほぼ晴れ', 2: '晴れ時々くもり', 3: 'くもり',
-    45: '霧', 48: '霧', 51: '霧雨', 53: '霧雨', 55: '強い霧雨',
-    56: '凍る霧雨', 57: '凍る霧雨', 61: '小雨', 63: '雨', 65: '強い雨',
-    66: '凍る雨', 67: '凍る雨', 71: '小雪', 73: '雪', 75: '強い雪',
-    77: '雪', 80: 'にわか雨', 81: 'にわか雨', 82: '強いにわか雨',
-    85: 'にわか雪', 86: '強いにわか雪', 95: '雷雨', 96: '雷雨・ひょう',
-    99: '雷雨・ひょう',
-}
+WEATHER_NAMES = {0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 56: 'Freezing drizzle', 57: 'Freezing drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Freezing rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Light showers', 81: 'Rain showers', 82: 'Heavy showers', 85: 'Snow showers', 86: 'Snow showers', 95: 'Thunderstorm', 96: 'Thunder + hail', 99: 'Thunder + hail'}
 
 
 def weather_icon(code: int, x: int, y: int, night: bool = False) -> str:
@@ -49,30 +41,34 @@ def render_card(payload: dict) -> str:
     current, daily = payload['current'], payload['daily']
     observed = datetime.fromisoformat(current['time'])
     tomorrow = observed.date() + timedelta(days=1)
+    today_index = daily['time'].index(observed.date().isoformat())
     index = daily['time'].index(tomorrow.isoformat())
     now_code = int(current['weather_code'])
     tomorrow_code = int(daily['weather_code'][index])
     temperature = f"{current['temperature_2m']:.0f}°"
     high = f"{daily['temperature_2m_max'][index]:.0f}°"
     low = f"{daily['temperature_2m_min'][index]:.0f}°"
-    now_name = WEATHER_NAMES.get(now_code, '天気不明')
-    tomorrow_name = WEATHER_NAMES.get(tomorrow_code, '予報なし')
-    description = escape(f'安曇野：現在 {temperature}C、{now_name}。明日 {tomorrow.month}/{tomorrow.day} {tomorrow_name}、最高 {high}、最低 {low}。')
+    today_high = f"{daily['temperature_2m_max'][today_index]:.0f}°"
+    today_low = f"{daily['temperature_2m_min'][today_index]:.0f}°"
+    now_name = WEATHER_NAMES.get(now_code, 'Unknown')
+    tomorrow_name = WEATHER_NAMES.get(tomorrow_code, 'Unavailable')
+    description = escape(f'Azumino: now {temperature}C, {now_name}. Today high {today_high}, low {today_low}. Tomorrow {tomorrow.month}/{tomorrow.day}: {tomorrow_name}, high {high}, low {low}.')
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewBox="0 0 420 148" role="img" aria-label="{description}">
   <title>{description}</title>
   <rect x="1" y="1" width="418" height="146" rx="13" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5"/>
-  <g font-family="Arial,'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif">
+  <g font-family="Arial,Helvetica,sans-serif">
     <text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</text>
     <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">{observed:%m/%d %H:%M}</text>
     <line x1="199" y1="45" x2="199" y2="128" stroke="#314558"/>
-    <text x="20" y="53" fill="#879fb2" font-size="11">現在</text>
-    <text x="18" y="102" fill="#f7fbff" font-size="52" font-weight="600">{temperature[:-1]}<tspan font-size="23">°C</tspan></text>
-    <text x="20" y="127" fill="#d2e1ed" font-size="14">{now_name}</text>
-    <text x="220" y="53" fill="#879fb2" font-size="11">明日 {tomorrow.month}/{tomorrow.day}</text>
-    <text x="260" y="87" fill="#f7fbff" font-size="16">{tomorrow_name}</text>
-    <text x="220" y="124" fill="#d2e1ed" font-size="16">最高 {high}  /  最低 {low}</text>
+    <text x="20" y="50" fill="#879fb2" font-size="10" letter-spacing="1">TODAY</text>
+    <text x="18" y="91" fill="#f7fbff" font-size="46" font-weight="600">{temperature[:-1]}<tspan font-size="23">°C</tspan></text>
+    <text x="20" y="112" fill="#d2e1ed" font-size="14">{now_name}</text>
+    <text x="20" y="132" fill="#b6cadb" font-size="14">High {today_high} / Low {today_low}</text>
+    <text x="220" y="50" fill="#879fb2" font-size="10" letter-spacing="1">TOMORROW</text>
+    <text x="260" y="87" fill="#f7fbff" font-size="14">{tomorrow_name}</text>
+    <text x="220" y="132" fill="#b6cadb" font-size="14">High {high} / Low {low}</text>
   </g>
-  {weather_icon(now_code, 145, 68, not bool(current['is_day']))}
+  {weather_icon(now_code, 145, 61, not bool(current['is_day']))}
   {weather_icon(tomorrow_code, 219, 64)}
 </svg>
 '''
