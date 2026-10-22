@@ -1,8 +1,8 @@
 <!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
 <div align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/4a58369be505ac42c4058bf31ffc4fcb36f9583d/assets/intro-mobile.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/852891fc3b6246c0919440c07373b79ba7e5e940/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy is based in Aizu → Azumino in 2027; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/f380b1d805e75e7ca4d1a105078f6e938dedec7a/assets/intro-mobile.svg">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/02570a6d40f9d11fc07ff0151a9b226f26cb5b91/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy is based in Aizu → Azumino in 2027; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
   </picture>
 </div>
 <!-- 800px border-free grid: 534 + 10 + 256. Photo and Spotify both render at 356px. -->
@@ -14,7 +14,7 @@
 <!-- Custom contribution snakes, generated from the read-only upstream route data. -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=cyan-thread">
-    <img src="./assets/snake-duet.svg?v=cyan-thread" alt="Two red snakes eat contributions, ONCE MORE appears in colored grid cells, then two blue snakes restore them" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=grid-unpick">
+    <img src="./assets/snake-duet.svg?v=grid-unpick" alt="Two red snakes eat contributions, ONCE MORE appears in colored grid cells, then two blue snakes restore them" width="800">
   </picture>
 </div>
