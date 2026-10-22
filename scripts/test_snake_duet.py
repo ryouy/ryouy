@@ -3,7 +3,7 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message
 
 
 def fixture():
@@ -39,17 +39,24 @@ class SnakeDuetTests(unittest.TestCase):
         actual = {(int(c.get('data-grid-x')), int(c.get('data-grid-y'))) for c in message}
         self.assertEqual(actual, pixels)
         self.assertEqual({c.get('fill') for c in message}, {'#279cff'})
-        self.assertTrue(all(c.get('transform') is None for c in message))
+        self.assertTrue(all(c.get('transform') for c in message))
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertLess(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
 
-    def test_message_switches_one_cell_per_tick_without_fading(self):
-        timings = [restart_pixel_timing(i, 120, 1000) for i in range(120)]
-        self.assertEqual(timings[0][0], 1000)
-        self.assertTrue(all(b[0]-a[0] == 24 and a[1]-b[1] == 24
-                            for a, b in zip(timings, timings[1:])))
-        self.assertGreaterEqual(min(t[1] for t in timings) - max(t[0] for t in timings), 1600)
+    def test_particles_collide_then_assemble_exact_letters_without_overlaps(self):
+        targets = restart_pixels(53, 7)
+        for seed in (42, 123, 7919):
+            paths, collisions = assemble_message(targets, 53, 7, seed)
+            self.assertGreater(collisions, 0)
+            self.assertEqual(len(paths), len(targets))
+            self.assertEqual({p[-1] for p in paths}, targets)
+            self.assertTrue(all(x < 0 or x >= 53 or y < 0 or y >= 7 for x,y in (p[0] for p in paths)))
+            for tick in range(len(paths[0])):
+                self.assertEqual(len({p[tick] for p in paths}), len(paths))
+            for p in paths:
+                self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(p,p[1:])))
+            self.assertEqual((paths, collisions), assemble_message(targets, 53, 7, seed))
 
     def test_snakes_wander_after_completion_then_fully_leave(self):
         plans = plan_pair({(3, 2), (9, 4)}, 14, 7, 4, 42)
