@@ -4,7 +4,7 @@
   <g text-anchor="middle" font-family="Arial,Helvetica,sans-serif">
     <text x="61.5" y="57" font-size="23" font-weight="600" fill="#f7fbff">YouTube</text>
     <text x="61.5" y="91" font-size="14" fill="#b4c7d7">Videos</text>
-    <text x="61.5" y="112" font-family="Georgia,serif" font-style="italic" font-size="18" fill="#6da9e8">&amp;</text>
+    <text x="61.5" y="112" font-size="14" fill="#8da6bb">&amp;</text>
     <text x="61.5" y="134" font-size="14" fill="#b4c7d7">Stories</text>
   </g>
   <path d="M49.5 155H73.5" stroke="#4593f8" stroke-width="2" stroke-linecap="round"/>
