@@ -213,6 +213,30 @@ def restart_pixels(columns, rows):
     return pixels
 
 
+def restart_motion(index, count, start, target, entry_x, exit_x, center_y):
+    """A staggered ribbon enters from the left, settles, then unthreads right."""
+    delay = index / max(1, count-1) * 480
+    enter = start + delay
+    leave = start + 1380 + 1600 + delay
+    tx, ty = target
+    entry = (entry_x-tx, center_y-ty)
+    exit = (exit_x-tx, center_y-ty)
+    points = [(0, entry), (enter, entry)]
+    bend = 18 * math.sin(index*.12)
+    for step in range(1, 25):
+        t = step/24
+        ease = t*t*(3-2*t)
+        points.append((enter+900*t, (entry[0]*(1-ease),
+                       entry[1]*(1-ease)+bend*math.sin(math.pi*t))))
+    points.append((leave, (0, 0)))
+    for step in range(1, 25):
+        t = step/24
+        ease = t*t*(3-2*t)
+        points.append((leave+900*t, (exit[0]*ease,
+                       exit[1]*ease-bend*math.sin(math.pi*t))))
+    return points
+
+
 def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
     root = ET.fromstring(source)
     style = root.find(TAG + 'style')
@@ -258,7 +282,8 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             }
     red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
     message_pixels = restart_pixels(columns, rows)
-    message_start, message_end = red_ms + 350, red_ms + 2950
+    message_start = red_ms + 350
+    message_end = message_start + 4360
     blue_start = message_end + 350 if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
     cycle_ms = blue_end + 1000
@@ -311,22 +336,40 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         message = ET.SubElement(root, TAG+'g', {
             'class': 'restart-message', 'aria-label': 'ONCE MORE',
         })
-        palette = ('#76b5ff', '#64a8ff', '#7b9cff', '#9b91fa', '#b28bf1')
+        palette = ('#20bfc7', '#28c8d0')
         first_row = min(y for x, y in message_pixels)
-        for cell in cells:
+        # Column-wise serpentine ordering makes adjacent pixels follow as a thread.
+        ordered = sorted((c for c in cells if location(c) in message_pixels),
+                         key=lambda c: (location(c)[0], location(c)[1] *
+                                        (1 if location(c)[0] % 2 == 0 else -1)))
+        box_x, _, box_width, _ = map(float, root.get('viewBox').split())
+        for index, cell in enumerate(ordered):
             coord = location(cell)
             if coord not in message_pixels:
                 continue
             pixel = copy.deepcopy(cell)
             pixel.set('class', 'restart-pixel')
             pixel.set('width', '12'); pixel.set('height', '12')
-            pixel.set('fill', palette[coord[1]-first_row])
+            pixel.set('fill', palette[0 if coord[1]-first_row < 3 else 1])
             pixel.set('data-grid-x', str(coord[0]))
             pixel.set('data-grid-y', str(coord[1]))
+            motion = restart_motion(index, len(ordered), message_start,
+                                    (float(cell.get('x')), float(cell.get('y'))),
+                                    box_x-24, box_x+box_width+24, (ys[0]+ys[-1])/2)
+            animation = f'restart-thread-{index}'
+            pixel.set('class', 'restart-pixel ' + animation)
+            initial = motion[0][1]
+            pixel.set('transform', f'translate({initial[0]:g} {initial[1]:g})')
+            declarations = ''.join(f'{pct(time)}{{transform:translate({p[0]:.3f}px,{p[1]:.3f}px)}}'
+                                   for time, p in motion)
+            end = motion[-1][1]
+            declarations += f'100%{{transform:translate({end[0]:.3f}px,{end[1]:.3f}px)}}'
+            rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
+            rules.append(f'.{animation}{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
             message.append(pixel)
-        rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms linear infinite}}')
+        rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
         rules.append(f'@keyframes restart-message{{0%,{pct(message_start)}{{opacity:0}}'
-                     f'{pct(message_start+220)},{pct(message_end-220)}{{opacity:1}}'
+                     f'{pct(message_start+1)},{pct(message_end-1)}{{opacity:1}}'
                      f'{pct(message_end)},100%{{opacity:0}}}}')
         root.set('data-message-start-ms', f'{message_start:.3f}')
         root.set('data-message-end-ms', f'{message_end:.3f}')
