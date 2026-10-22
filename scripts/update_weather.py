@@ -66,7 +66,7 @@ def render_card(payload: dict) -> str:
     <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">{observed:%m/%d %H:%M}</text>
     <line x1="199" y1="45" x2="199" y2="128" stroke="#314558"/>
     <text x="20" y="53" fill="#879fb2" font-size="11">現在</text>
-    <text x="18" y="102" fill="#f7fbff" font-size="52" font-weight="600">{temperature}<tspan font-size="23">C</tspan></text>
+    <text x="18" y="102" fill="#f7fbff" font-size="52" font-weight="600">{temperature[:-1]}<tspan font-size="23">°C</tspan></text>
     <text x="20" y="127" fill="#d2e1ed" font-size="14">{now_name}</text>
     <text x="220" y="53" fill="#879fb2" font-size="11">明日 {tomorrow.month}/{tomorrow.day}</text>
     <text x="260" y="87" fill="#f7fbff" font-size="16">{tomorrow_name}</text>
