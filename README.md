@@ -17,8 +17,8 @@
 <div align="center">
   <img src="./assets/weather-azumino.svg" width="520" align="top" alt="Azumino local weather, updated hourly">
   &nbsp;
-  <a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=e60abd764886" width="137" align="top" alt="Projects"></a>
-  <a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=44622adc89af" width="137" align="top" alt="YouTube"></a>
+  <a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=3dca50c57330" width="137" align="top" alt="Projects"></a>
+  <a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=02f2951e3b48" width="137" align="top" alt="YouTube"></a>
 </div>
 <!-- Contribution visuals: no redundant headings and minimal section margins. -->
 <div align="center">
