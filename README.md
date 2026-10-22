@@ -25,8 +25,8 @@
 <!-- Experimental duet is generated separately; keep the original snake above intact. -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg">
-    <img src="./assets/snake-duet.svg" alt="Experimental contribution snake: red eats, blue restores" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=parallel-2">
+    <img src="./assets/snake-duet.svg?v=parallel-2" alt="Experimental contribution snakes: two red eat, two blue restore" width="800">
   </picture>
 </div>
 <div align="center">
