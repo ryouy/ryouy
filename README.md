@@ -5,11 +5,11 @@
     <img src="./assets/intro-animated.svg?v=32bfb5401640" width="800" alt="ryouy — University of Aizu, Computer Science, Azumino, developer, artist, hiker">
   </picture>
 </div>
-<!-- Wide desktop hero: 3:2 photo and Spotify Compact span nearly the full README width. -->
+<!-- Wide desktop hero: 3:2 photo and Spotify Now Playing span nearly the full README width. -->
 <div align="center">
   <img src="./assets/profile-current.webp?v=2ee8594dd52c" width="520" align="top" alt="Rotating profile photo, updated hourly">
   &nbsp;
-  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=compact&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="275" align="top" alt="Spotify — current album and song"></a>
+  <a href="https://github.com/kittinan/spotify-github-profile"><img src="https://spotify-github-profile.kittinanx.com/api/view?uid=31ransghntv6c7ihvjpjkkn54uju&amp;cover_image=true&amp;theme=default&amp;show_offline=false&amp;background_color=101b2b&amp;interchange=false&amp;profanity=false&amp;hide_remaster=false" width="275" align="top" alt="Spotify Now Playing — album, song and animated equalizer"></a>
 </div>
 <!-- A quiet spacer between the hero and the second row. -->
 <div align="center"><sub>&nbsp;</sub></div>
@@ -17,8 +17,8 @@
 <div align="center">
   <img src="./assets/weather-azumino.svg" width="520" align="top" alt="Azumino local weather, updated hourly">
   &nbsp;
-  <a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=3dca50c57330" width="137" align="top" alt="Projects"></a>
-  <a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=02f2951e3b48" width="137" align="top" alt="YouTube"></a>
+  <a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="./assets/link-projects.svg?v=47ca59625943" width="137" align="top" alt="Projects"></a>
+  <a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="./assets/link-youtube.svg?v=54a46814e4fb" width="137" align="top" alt="YouTube"></a>
 </div>
 <!-- Contribution visuals: no redundant headings and minimal section margins. -->
 <div align="center">
