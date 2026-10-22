@@ -233,84 +233,86 @@ def restart_pixel_timing(index, count, start):
 
 
 def assemble_message(targets, columns, rows, seed):
-    """Simulate grid collisions, then route indistinguishable cells into letters."""
-    from collections import Counter, deque
+    """Forward four-sided particle simulation with elastic block contacts."""
     rng = random.Random(seed)
-    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-    # Plan outward from the complete word, then reverse the collision-safe paths.
-    # This guarantees exact assembly without particles becoming trapped in O/C loops.
-    positions = sorted(targets)
-    rng.shuffle(positions)
-    histories = [[p] for p in positions]
-    velocities = [(0, 1) if y < 0 else (0, -1) if y >= rows else
-                  (1, 0) if x < 0 else (-1, 0) if x >= columns else rng.choice(directions) for x, y in positions]
-    inside = lambda p: -2 <= p[0] <= columns+1 and -2 <= p[1] <= rows+1
+    goals = sorted(targets)
+    rng.shuffle(goals)
+    count = len(goals)
+    deadlines = list(range(count))
+    rng.shuffle(deadlines)
+    deadlines = [5500 + i*4000/max(1,count-1) for i in deadlines]
+    positions, velocities = [], []
+    for i in range(count):
+        side, lane = i%4, i//4
+        if side == 0:
+            p = [-1-lane//rows, (lane%rows)+rng.uniform(-.08,.08)]
+        elif side == 1:
+            p = [columns+lane//rows, (lane%rows)+rng.uniform(-.08,.08)]
+        elif side == 2:
+            p = [rng.uniform(0,columns-1), -1-rng.random()*2]
+        else:
+            p = [rng.uniform(0,columns-1), rows+rng.random()*2]
+        positions.append(p)
+        velocities.append([rng.uniform(-1,1),rng.uniform(-1,1)])
+    histories = [[tuple(p)] for p in positions]
     collisions = 0
-    release = [rng.randrange(31) for _ in positions]
-    for tick in range(44):
-        occupied = set(positions)
-        proposed = []
-        for i, (x, y) in enumerate(positions):
-            if tick < release[i]:
-                proposed.append((x, y))
+    dt = .04
+    frozen = [False]*count
+    for tick in range(1,239):
+        now = tick*40
+        for i,(p,v) in enumerate(zip(positions,velocities)):
+            if now >= deadlines[i]:
+                p[:] = goals[i];v[:] = [0,0];frozen[i]=True
                 continue
-            if rng.random() < .22:
-                velocities[i] = rng.choice(directions)
-            if not (0 <= x < columns and 0 <= y < rows):
-                velocities[i] = min(directions, key=lambda d:
-                    abs(x+d[0]-(columns-1)/2)+abs(y+d[1]-(rows-1)/2))
-            dx, dy = velocities[i]
-            proposed.append((x+dx, y+dy))
-        counts = Counter(proposed)
-        for i, p in enumerate(proposed):
-            if p == positions[i]:
-                histories[i].append(p)
-                continue
-            if p in occupied or counts[p] > 1 or not inside(p):
-                collisions += 1
-                dx, dy = velocities[i]
-                velocities[i] = rng.choice([(-dx, -dy), (-dx, -dy), (-dy, dx), (dy, -dx)])
+            if now < 2200:
+                # Opposing streams converge through a dense central collision zone.
+                aim = (columns/2 + math.sin(i*2.4)*columns*.24,
+                       rows/2 + math.cos(i*1.7)*1.5)
+                force = 3.5
             else:
-                positions[i] = p
-            histories[i].append(positions[i])
-    settled = set()
-    for tick in range(400):
-        for i, p in enumerate(positions):
-            if not (0 <= p[0] < columns and 0 <= p[1] < rows):
-                settled.add(i)
-        if len(settled) == len(positions):
-            break
-        occupied = set(positions)
-        reserved = set(positions)
-        for i in rng.sample(range(len(positions)), len(positions)):
-            if i in settled:
-                continue
-            start = positions[i]
-            blocked = (occupied | reserved) - {start}
-            queue, parents = deque([start]), {start: None}
-            goal = None
-            while queue:
-                p = queue.popleft()
-                if not (0 <= p[0] < columns and 0 <= p[1] < rows):
-                    goal = p
-                    break
-                options = list(directions)
-                rng.shuffle(options)
-                for dx, dy in options:
-                    nxt = (p[0]+dx, p[1]+dy)
-                    if inside(nxt) and nxt not in blocked and nxt not in parents:
-                        parents[nxt] = p
-                        queue.append(nxt)
-            if goal is not None:
-                while parents[goal] != start:
-                    goal = parents[goal]
-                positions[i] = goal
-                reserved.add(goal)
-        for i, p in enumerate(positions):
-            histories[i].append(p)
-    else:
-        raise ValueError('Message particles failed to reach grid edges')
-    return [list(reversed(path)) for path in histories], collisions
+                aim = goals[i]
+                force = 7 if deadlines[i]-now > 1000 else 22
+            v[0] = (v[0]+(aim[0]-p[0])*force*dt)*.84
+            v[1] = (v[1]+(aim[1]-p[1])*force*dt)*.84
+            speed = math.hypot(*v)
+            if speed > 11:
+                v[0] *= 11/speed;v[1] *= 11/speed
+            p[0] += v[0]*dt;p[1] += v[1]*dt
+        # Repeated separation and normal impulses create actual visible impacts.
+        for sweep in range(3):
+            for i in range(count):
+                for j in range(i):
+                    dx,dy = positions[i][0]-positions[j][0],positions[i][1]-positions[j][1]
+                    if abs(dx)>=.78 or abs(dy)>=.78 or (frozen[i] and frozen[j]):
+                        continue
+                    axis = 0 if abs(dx)>abs(dy) else 1
+                    delta = dx if axis==0 else dy
+                    sign = 1 if delta>=0 else -1
+                    overlap = .78-abs(delta)
+                    wi,wj = (0 if frozen[i] else 1),(0 if frozen[j] else 1)
+                    total=wi+wj
+                    positions[i][axis] += sign*overlap*wi/total
+                    positions[j][axis] -= sign*overlap*wj/total
+                    relative=(velocities[i][axis]-velocities[j][axis])*sign
+                    if relative < 0:
+                        impulse=-relative*1.8/total
+                        velocities[i][axis]+=sign*impulse*wi
+                        velocities[j][axis]-=sign*impulse*wj
+                        if sweep==0:collisions+=1
+        for i,p in enumerate(positions):
+            remaining = deadlines[i]-now
+            if 0 < remaining <= 1600:
+                blend = min(1, 40/remaining)
+                p[0] += (goals[i][0]-p[0])*blend
+                p[1] += (goals[i][1]-p[1])*blend
+            if frozen[i]:p[:]=goals[i]
+            histories[i].append(tuple(p))
+    # Exact final grid coordinates; subsequent timing maps first/last arrivals to 4s.
+    for i,p in enumerate(goals):
+        histories[i][-1]=p
+    last_change = max(max(i for i in range(1,len(path)) if path[i] != path[i-1]) for path in histories)
+    histories = [path[:last_change+1] for path in histories]
+    return histories,collisions
 
 
 def assembly_timeline(paths):
@@ -402,7 +404,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                    tuple((2*columns//3+i, rows//2) for i in range(len(segments)))] if message_pixels else None
     plans = {}
     for phase, color in enumerate(('red', 'blue')):
-        plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009,
+        plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009 + (17041 if color == 'red' and columns >= 8 else 0),
                                  blue_bodies if color == 'blue' else None,
                                  (0, max(1, round(1000/step_ms))) if color == 'red' and columns >= 8 else None)
         for plan in plans[color]:
@@ -416,11 +418,11 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     message_start = red_ms + 350
     particle_paths, collision_count = assemble_message(message_pixels, columns, rows, seed+7919) if message_pixels else ([], 0)
     assembly_times, settle_ticks = assembly_timeline(particle_paths) if particle_paths else ([], [])
-    bumps = particle_contacts(particle_paths, settle_ticks) if particle_paths else []
+    bumps = [{} for _ in particle_paths]
     assembly_ms = assembly_times[-1] if particle_paths else 0
     morphs = morph_message(particle_paths, blue_bodies) if message_pixels else []
     morph_start = message_start + assembly_ms + 1600
-    morph_ms = max((len(points)-1)*300 + (i%4)*160 for i,(_,_,points) in enumerate(morphs)) if morphs else 0
+    morph_ms = 5600 if morphs else 0
     message_end = morph_start + morph_ms + 150
     blue_start = message_end if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
@@ -456,6 +458,10 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 rect = copy.deepcopy(segment)
                 animation = f'{color}-{snake_index}-{index}'
                 rect.set('class', 's ' + animation)
+                if color == 'blue':
+                    shades = (('#4593f8','#3e87e6','#377bd4','#306fc2'),
+                              ('#69a5ed','#609be0','#5791d3','#4e87c6'))
+                    rules.append(f'.snake-blue-{snake_index} .{animation}'+f'{{fill:{shades[snake_index][index]}}}')
                 motion = [(start_ms + tick * step_ms,
                            ((body[index][0] + plan['offset']) * pitch, body[index][1] * pitch))
                           for tick, body in enumerate(plan['states'])]
@@ -495,31 +501,42 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             animation = f'restart-cell-{index}'
             initial = ((path[0][0]-coord[0])*pitch, (path[0][1]-coord[1])*pitch)
             pixel.set('transform', f'translate({initial[0]:g} {initial[1]:g})')
-            motion = [(0, initial)]
-            for tick,p in enumerate(path):
-                t = message_start+assembly_times[tick]
-                base = ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)
-                motion.append((t,base))
-                if tick in bumps[index]:
-                    duration = assembly_times[tick+1]-assembly_times[tick]
-                    dx,dy = bumps[index][tick]
-                    motion.append((t+duration*.3,(base[0]+dx,base[1]+dy)))
-                    motion.append((t+duration*.6,base))
-            motion.append((morph_start, (0, 0)))
-            for tick, p in enumerate(gathering):
-                offset = ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)
-                motion.append((morph_start+(index%4)*160+tick*300, offset))
-            final = ((target[0]-coord[0])*pitch + float(segments[0].get('x','1'))-xs[0],
-                     (target[1]-coord[1])*pitch + float(segments[0].get('y','1'))-ys[0])
-            motion.append((message_end-50, final))
-            declarations = ''.join(f'{pct(t)}'+'{'+f'transform:translate({p[0]:g}px,{p[1]:g}px);opacity:1'+'}'
+            motion = [(0, initial)] + [(message_start+assembly_times[tick],
+                       ((p[0]-coord[0])*pitch,(p[1]-coord[1])*pitch)) for tick,p in enumerate(path)]
+            declarations = ''.join(f'{pct(t)}'+'{'+f'transform:translate({p[0]:.2f}px,{p[1]:.2f}px)'+'}'
                                    for t,p in motion)
-            declarations += '100%{'+f'transform:translate({final[0]:g}px,{final[1]:g}px);opacity:1'+'}'
+            slot = list(blue_bodies[owner]).index(target)
+            segment = segments[slot]
+            final = ((target[0]-coord[0])*pitch+float(segment.get('x'))-xs[0],
+                     (target[1]-coord[1])*pitch+float(segment.get('y'))-ys[0])
+            shades = (('#4593f8','#3e87e6','#377bd4','#306fc2'),
+                      ('#69a5ed','#609be0','#5791d3','#4e87c6'))
+            base_color = ('#4593f8','#69a5ed')[owner]
+            end_color = shades[owner][slot]
+            rgb = lambda color: tuple(int(color[i:i+2],16) for i in (1,3,5))
+            begin_rgb,end_rgb = rgb(base_color),rgb(end_color)
+            begin = morph_start+(index%7)*50
+            declarations += f'{pct(morph_start)}'+'{transform:translate(0px,0px);width:12px;height:12px;rx:2px;ry:2px;fill:'+base_color+'}'
+            for frame in range(41):
+                t = frame/40
+                u = t*t*(3-2*t)
+                # One continuous curved flow, without vertical/horizontal sections.
+                arc = math.sin(math.pi*u)*(coord[1]-rows/2)*2.5
+                px,py = final[0]*u,final[1]*u+arc
+                width = 12+(float(segment.get('width'))-12)*u
+                height = 12+(float(segment.get('height'))-12)*u
+                radius = 2+(float(segment.get('rx','3'))-2)*u
+                fill = '#'+''.join(f'{round(a+(b-a)*u):02x}' for a,b in zip(begin_rgb,end_rgb))
+                declarations += f'{pct(begin+t*5200)}'+'{'+f'transform:translate({px:.3f}px,{py:.3f}px);width:{width:.3f}px;height:{height:.3f}px;rx:{radius:.3f}px;ry:{radius:.3f}px;fill:{fill};opacity:1'+'}'
+            declarations += '100%{'+f'transform:translate({final[0]:.3f}px,{final[1]:.3f}px);width:{segment.get("width")}px;height:{segment.get("height")}px;rx:{segment.get("rx")}px;ry:{segment.get("ry")}px;fill:{end_color};opacity:1'+'}'
+            pixel.set('data-morph-slot',str(slot))
             rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
-            rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
+            rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
             message.append(pixel)
+        root.set('data-message-model', 'forward-elastic-four-sides')
+        root.set('data-red-route-salt', '17041')
         root.set('data-message-collisions', str(collision_count))
-        root.set('data-message-visible-contacts', str(sum(len(b) for b in bumps)//2))
+        root.set('data-message-visible-contacts', str(collision_count))
         root.set('data-message-first-settled-ms', f'{message_start+min(assembly_times[t] for t in settle_ticks):.3f}')
         root.set('data-message-settle-span-ms', '4000')
         root.set('data-message-morph-duration-ms', f'{morph_ms:.3f}')
