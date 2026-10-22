@@ -99,6 +99,8 @@ def plan_pair(targets, columns, rows, length, seed):
     pending, claims = set(targets), [{}, {}]
     goals, exits = [None, None], [None, None]
     stall = 0
+    wander = [rng.randint(20, 32) for _ in (0, 1)]
+    final_exit = [False, False]
 
     def exit_goal(head):
         x, y = min(max(head[0], 0), columns-1), min(max(head[1], 0), rows-1)
@@ -135,7 +137,7 @@ def plan_pair(targets, columns, rows, length, seed):
         return result
 
     for tick in range(1, columns*rows*40+200):
-        if not pending and all(bodies[i][0] == exits[i] for i in (0,1)):
+        if not pending and all(final_exit[i] and bodies[i][0] == exits[i] for i in (0,1)):
             break
         if pending:
             for index in rng.sample((0,1), 2):
@@ -149,8 +151,15 @@ def plan_pair(targets, columns, rows, length, seed):
                     goals[index] = rng.choice(nearby[:min(choices,len(nearby))])
         else:
             for index in (0,1):
-                if exits[index] is None:
+                if wander[index] > 0:
+                    head = bodies[index][0]
+                    if exits[index] is None or head == exits[index] or wander[index] % 6 == 0:
+                        exits[index] = (min(columns-1, max(0, head[0]+rng.randint(-5, 5))),
+                                        min(rows-1, max(0, head[1]+rng.randint(-3, 3))))
+                    wander[index] -= 1
+                elif not final_exit[index]:
                     exits[index] = exit_goal(bodies[index][0])
+                    final_exit[index] = True
         pairs = []
         candidates = [options(0), options(1)]
         for score0, state0 in candidates[0]:
@@ -214,9 +223,8 @@ def restart_pixels(columns, rows):
 
 
 def restart_pixel_timing(index, count, start):
-    """Trace cells from the left edge; unpick the same thread from the right."""
-    fraction = index / max(1, count-1)
-    return start + fraction*1450, start + 3200 + (1-fraction)*1450
+    """Each cell switches independently, in a visible 24ms grid cadence."""
+    return start + index*24, start + count*24 + 1600 + (count-1-index)*24
 
 
 def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
@@ -265,7 +273,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
     message_pixels = restart_pixels(columns, rows)
     message_start = red_ms + 350
-    message_end = message_start + 4800
+    message_end = message_start + len(message_pixels)*48 + 1600
     blue_start = message_end + 350 if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
     cycle_ms = blue_end + 1000
@@ -318,7 +326,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         message = ET.SubElement(root, TAG+'g', {
             'class': 'restart-message', 'aria-label': 'ONCE MORE',
         })
-        palette = ('#20bfc7', '#28c8d0')
+        palette = ('#279cff', '#279cff')
         first_row = min(y for x, y in message_pixels)
         # Column-wise serpentine ordering makes adjacent pixels follow as a thread.
         ordered = sorted((c for c in cells if location(c) in message_pixels),
@@ -340,10 +348,10 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             pixel.set('opacity', '0')
             rules.append(f'@keyframes {animation}'+'{'
                          f'0%,{pct(enter)}'+'{opacity:0}'
-                         f'{pct(enter+150)},{pct(leave)}'+'{opacity:1}'
-                         f'{pct(leave+150)},100%'+'{opacity:0}'+'}')
+                         f'{pct(enter+0.001)},{pct(leave)}'+'{opacity:1}'
+                         f'{pct(leave+0.001)},100%'+'{opacity:0}'+'}')
             rules.append(f'.{animation}'+
-                         f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
+                         f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
             message.append(pixel)
         rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
         rules.append(f'@keyframes restart-message{{0%,{pct(message_start)}{{opacity:0}}'
@@ -361,6 +369,9 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     root.set('data-seed', str(seed))
     root.set('data-snakes-per-color', '2')
     box = root.get('viewBox').split()
+    box[0] = f'{xs[0]-.5:g}'
+    box[2] = f'{xs[-1]-xs[0]+13:g}'
+    root.set('width', box[2])
     box[3] = str(float(ys[-1]) + 28 - float(box[1]))
     root.set('viewBox', ' '.join(box));root.set('height', box[3])
     title = root.find(TAG + 'title')
