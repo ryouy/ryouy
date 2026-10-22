@@ -2,7 +2,7 @@
 """Independent Snake experiment: two red snakes eat, two blue snakes restore.
 
 Read-only inputs are Platane/snk's existing output-branch SVGs. Each color has
-two snakes working in disjoint left/right regions. Routes choose nearby targets
+two snakes sharing the entire grid. Routes choose nearby targets
 randomly and use body-aware A*. Blue restores cells after its tail clears them.
 All four snakes use the original animation's time per grid step. Only stdlib is
 required. Outputs never include the original collection/progress bars.
@@ -47,9 +47,10 @@ def point(declaration: str) -> tuple[float, float]:
     return tuple(map(float, match.groups()))
 
 
-def route_to(body, target, columns, rows, painted, rng, bounds=None):
+def route_to(body, target, columns, rows, painted, rng, bounds=None, blocked=None):
     """Find adjacent moves without crossing the current four-segment body."""
     length = len(body)
+    blocked = blocked or set()
     if bounds is None:
         bounds = (-length - 2, columns + length + 1, -length - 2, rows + length + 1)
     distance = lambda p: abs(p[0] - target[0]) + abs(p[1] - target[1])
@@ -73,7 +74,7 @@ def route_to(body, target, columns, rows, painted, rng, bounds=None):
             if not (bounds[0] <= head[0] <= bounds[1] and bounds[2] <= head[1] <= bounds[3]):
                 continue
             # Moving into the old tail position is safe: it vacates this step.
-            if head in state[:-1]:
+            if head in state[:-1] or head in blocked:
                 continue
             following = (head,) + state[:-1]
             following_cost = cost + 1 + (0.25 if head in painted else 0)
@@ -86,38 +87,91 @@ def route_to(body, target, columns, rows, painted, rng, bounds=None):
     raise ValueError(f'No body-safe path to {target}')
 
 
-def plan_blue(targets, columns, rows, length, seed, side=None):
-    """Return full body states plus the first head visit to every colored cell."""
+def plan_pair(targets, columns, rows, length, seed):
+    """Two roaming snakes share one target pool, with collision-safe joint moves."""
     rng = random.Random(seed)
-    row = rng.randrange(rows)
-    from_left = side == 'left' if side else rng.choice((True, False))
-    bounds = None
-    if side:
-        bounds = ((-length - 2, columns - 1, -length - 2, rows + length + 1)
-                  if from_left else (0, columns + length + 1, -length - 2, rows + length + 1))
-    body = tuple((-1 - i, row) if from_left else (columns + i, row) for i in range(length))
-    states, visits = [body], {}
-    pending = set(targets)
+    bounds = (-length-4, columns+length+3, -length-4, rows+length+3)
+    # A body must start as a straight, connected snake, not random individual cells.
+    left_row, right_row = rng.randrange(rows), rng.randrange(rows)
+    bodies = [tuple((-1-i, left_row) for i in range(length)),
+              tuple((columns+i, right_row) for i in range(length))]
+    histories = [[body] for body in bodies]
+    pending, claims = set(targets), [{}, {}]
+    goals, exits = [None, None], [None, None]
+    stall = 0
 
-    def follow(path):
-        for state in path:
-            states.append(state)
-            if state[0] in pending:
-                visits[state[0]] = len(states) - 1
-                pending.remove(state[0])
+    def exit_goal(head):
+        x, y = min(max(head[0], 0), columns-1), min(max(head[1], 0), rows-1)
+        choices = [(-length-2, y), (columns+length+1, y),
+                   (x, -length-3), (x, rows+length+2)]
+        return min(choices, key=lambda p: abs(p[0]-head[0])+abs(p[1]-head[1])+rng.random()*4)
 
-    while pending:
-        head = states[-1][0]
-        nearby = sorted(pending, key=lambda p: (abs(p[0] - head[0]) + abs(p[1] - head[1]), p))
-        # Randomness has local intent, avoiding repeated full-width zigzags.
-        target = rng.choice(nearby[:min(4, len(nearby))])
-        follow(route_to(states[-1], target, columns, rows, set(visits), rng, bounds))
-    exit_x = (-length - 1 if from_left else columns + length) if side else (columns + length if from_left else -length - 1)
-    follow(route_to(states[-1], (exit_x, rng.randrange(rows)), columns, rows, set(visits), rng, bounds))
-    if any(visit + length >= len(states) for visit in visits.values()):
-        raise ValueError('Blue must leave enough steps for its tail to restore every cell')
-    return states, visits
+    def options(index):
+        body, other = bodies[index], bodies[1-index]
+        target = goals[index] if pending else exits[index]
+        if not pending and body[0] == target:
+            return [(0, body)]
+        try:
+            preferred = route_to(body, target, columns, rows, set(targets)-pending,
+                                 rng, bounds, set(other))
+            preferred = preferred[0] if preferred else body
+        except ValueError:
+            preferred = None
+        result = []
+        for dx, dy in ((1,0), (-1,0), (0,1), (0,-1)):
+            head = (body[0][0]+dx, body[0][1]+dy)
+            if not(bounds[0]<=head[0]<=bounds[1] and bounds[2]<=head[1]<=bounds[3]):
+                continue
+            if head in body[:-1]:
+                continue
+            state = (head,)+body[:-1]
+            distance = abs(head[0]-target[0])+abs(head[1]-target[1])
+            score = distance + (0 if state == preferred else 4) + rng.random()*.25
+            if head in pending:
+                score -= 2
+            result.append((score, state))
+        # Waiting is a last resort, allowing the other snake to clear the way.
+        result.append((abs(body[0][0]-target[0])+abs(body[0][1]-target[1])+20, body))
+        return result
 
+    for tick in range(1, columns*rows*40+200):
+        if not pending and all(bodies[i][0] == exits[i] for i in (0,1)):
+            break
+        if pending:
+            for index in rng.sample((0,1), 2):
+                if goals[index] not in pending or goals[index] == goals[1-index] or stall>60:
+                    available = pending - {goals[1-index]}
+                    available = available or pending
+                    head = bodies[index][0]
+                    nearby = sorted(available, key=lambda p:(abs(p[0]-head[0])+abs(p[1]-head[1]),p))
+                    # Usually stay purposeful; occasionally choose a broader detour.
+                    choices = 14 if rng.random()<.12 else 5
+                    goals[index] = rng.choice(nearby[:min(choices,len(nearby))])
+        else:
+            for index in (0,1):
+                if exits[index] is None:
+                    exits[index] = exit_goal(bodies[index][0])
+        pairs = []
+        candidates = [options(0), options(1)]
+        for score0, state0 in candidates[0]:
+            for score1, state1 in candidates[1]:
+                if set(state0).isdisjoint(state1):
+                    pairs.append((score0+score1, state0, state1))
+        if not pairs:
+            raise ValueError('No collision-safe joint step')
+        _, first, second = min(pairs, key=lambda p:p[0])
+        bodies = [first, second]
+        removed = 0
+        for index, body in enumerate(bodies):
+            histories[index].append(body)
+            if body[0] in pending:
+                claims[index][body[0]] = tick
+                pending.remove(body[0]);removed += 1
+        stall = 0 if removed else stall+1
+    else:
+        raise ValueError('Shared-route planning exceeded its step budget')
+    return [{'states':histories[i], 'visits':claims[i], 'offset':0, 'width':columns}
+            for i in (0,1)]
 
 def compact_motion(points):
     """Keep turns and endpoints while dropping redundant constant-speed frames."""
@@ -167,20 +221,15 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         signature = repr(sorted(colored)) + date.today().isoformat()
         seed = int(hashlib.sha256(signature.encode()).hexdigest()[:16], 16)
 
-    # Separate territories prevent both body/head collisions and duplicated work.
-    split = columns // 2
-    plans = {'red': [], 'blue': []}
+    plans = {}
     for phase, color in enumerate(('red', 'blue')):
-        for index, (offset, width, side) in enumerate(((0, split, 'left'), (split, columns - split, 'right'))):
-            targets = {(x - offset, y) for x, y in colored if offset <= x < offset + width}
-            states, visits = plan_blue(targets, width, rows, len(segments), seed + phase * 1009 + index * 97, side)
-            restoration = {
-                coord: next(tick for tick in range(visit + len(segments), len(states))
-                            if coord not in states[tick])
-                for coord, visit in visits.items()
+        plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009)
+        for plan in plans[color]:
+            plan['restore'] = {
+                coord: next(tick for tick in range(visit+len(segments), len(plan['states']))
+                            if all(coord not in snake['states'][tick] for snake in plans[color]))
+                for coord, visit in plan['visits'].items()
             }
-            plans[color].append({'states': states, 'visits': visits, 'restore': restoration,
-                                 'offset': offset, 'width': width})
     red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
     blue_start = red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
@@ -190,18 +239,18 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     rules = [variables,
              f'.c{{shape-rendering:geometricPrecision;fill:var(--ce);stroke-width:1px;stroke:var(--cb);width:12px;height:12px;animation-duration:{cycle_ms:.3f}ms;animation-timing-function:linear;animation-iteration-count:infinite}}',
              f'.s{{shape-rendering:geometricPrecision;animation-duration:{cycle_ms:.3f}ms;animation-timing-function:linear;animation-iteration-count:infinite}}',
-             '.duet-red .s{fill:#ef5350}', '.duet-blue .s{fill:#4593f8}',
+             '.snake-red-0 .s{fill:#ef5350}', '.snake-red-1 .s{fill:#f06b68}',
+             '.snake-blue-0 .s{fill:#4593f8}', '.snake-blue-1 .s{fill:#69a5ed}',
              f'.duet-red{{animation:red-phase {cycle_ms:.3f}ms steps(1,end) infinite}}',
              f'.duet-blue{{opacity:0;animation:blue-phase {cycle_ms:.3f}ms steps(1,end) infinite}}',
              f'@keyframes red-phase{{0%{{opacity:1}}{pct(red_ms)},100%{{opacity:0}}}}',
              f'@keyframes blue-phase{{0%{{opacity:0}}{pct(blue_start)}{{opacity:1}}{pct(blue_end)},100%{{opacity:0}}}}']
     for coord, name in colored.items():
         level = re.search(r'var\(--(c\d+)\)', frames[name][min(frames[name])]).group(1)
-        territory = 0 if coord[0] < split else 1
-        red_plan, blue_plan = plans['red'][territory], plans['blue'][territory]
-        local = (coord[0] - red_plan['offset'], coord[1])
-        eat = red_plan['visits'][local] * step_ms
-        restore = blue_start + blue_plan['restore'][local] * step_ms
+        red_plan = next(plan for plan in plans['red'] if coord in plan['visits'])
+        blue_plan = next(plan for plan in plans['blue'] if coord in plan['visits'])
+        eat = red_plan['visits'][coord] * step_ms
+        restore = blue_start + blue_plan['restore'][coord] * step_ms
         rules.append(f'@keyframes d-{name}{{0%,{pct(eat - 5)}{{fill:var(--{level})}}{pct(eat)},{pct(restore - 5)}{{fill:var(--ce)}}{pct(restore)},100%{{fill:var(--{level})}}}}')
         rules.append(f'.c.{name}{{fill:var(--{level});animation-name:d-{name}}}')
     for el in list(root):
@@ -250,7 +299,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     if desc is not None:
         desc.text = ('Independent experiment based on https://github.com/Platane/snk. '
                      'Two red snakes eat in parallel; two blue snakes restore original '
-                     'colors behind their tails. Disjoint territories, independent '
+                     'colors behind their tails. Shared grid, independent '
                      'randomized body-safe paths, original movement speed, no gauge.')
     return ET.tostring(root, encoding='unicode') + '\n'
 
