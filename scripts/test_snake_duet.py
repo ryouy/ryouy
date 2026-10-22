@@ -3,7 +3,7 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts
 
 
 def fixture():
@@ -58,6 +58,17 @@ class SnakeDuetTests(unittest.TestCase):
             for p in paths:
                 self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(p,p[1:])))
             self.assertEqual((paths, collisions), assemble_message(targets, 53, 7, seed))
+
+    def test_settling_spans_four_seconds_and_contacts_stop_after_arrival(self):
+        paths,_ = assemble_message(restart_pixels(53,7),53,7,42)
+        times,stops = assembly_timeline(paths)
+        self.assertAlmostEqual(max(times[t] for t in stops)-min(times[t] for t in stops),4000)
+        self.assertGreater(len(set(stops)),10)
+        bumps = particle_contacts(paths,stops)
+        self.assertGreater(sum(len(b) for b in bumps),100)
+        for i,b in enumerate(bumps):
+            self.assertTrue(all(t < stops[i] for t in b))
+            self.assertTrue(all(abs(dx)+abs(dy)==2 for dx,dy in b.values()))
 
     def test_message_merges_into_exact_blue_bodies(self):
         bodies = [tuple((17-i, 3) for i in range(4)), tuple((35+i, 3) for i in range(4))]
