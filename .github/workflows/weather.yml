@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - scripts/update_weather.py
+      - scripts/profile_slices.py
       - .github/workflows/weather.yml
   workflow_dispatch:
 
@@ -40,7 +41,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python scripts/update_weather.py
-            git add assets/weather-azumino.svg
+            git add assets/weather-azumino*.svg
             if git diff --cached --quiet; then
               echo "Weather card is already up to date"
               exit 0
