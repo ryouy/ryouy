@@ -15,8 +15,6 @@ ET.register_namespace('', NS)
 
 def customize_svg(svg: str) -> str:
     source = ET.fromstring(svg)
-    if source.get('id') == 'ryouy-language-card':
-        return ET.tostring(source, encoding='unicode') + '\n'
     # Identify the donut by its titled language slices, independently of position.
     donut = next((g for g in source.iter(TAG+'g')
                   if len(g.findall(TAG+'path/'+TAG+'title')) >= 2), None)
@@ -29,25 +27,27 @@ def customize_svg(svg: str) -> str:
     if legend is None:
         raise ValueError('Could not identify the upstream language legend')
     root = ET.Element(TAG+'svg', {
-        'id': 'ryouy-language-card', 'width': '534', 'height': '458',
-        'viewBox': '0 0 534 458', 'role': 'img', 'aria-label': 'GitHub language distribution',
+        'id': 'ryouy-language-card', 'width': '134', 'height': '188.1714',
+        'viewBox': '0 0 134 188.1714', 'role': 'img', 'aria-label': 'GitHub language distribution',
     })
     ET.SubElement(root, TAG+'title').text = 'Languages'
     ET.SubElement(root, TAG+'style').text = (
         'text{font-family:Arial,Helvetica,sans-serif}.fill-fg{fill:#b4c7d7}'
         '.stroke-bg{stroke:#101b2b}'
     )
-    ET.SubElement(root, TAG+'rect', {'x': '.75', 'y': '.75', 'width': '532.5',
-        'height': '456.5', 'rx': '16', 'fill': '#101b2b', 'stroke': '#2a3e54', 'stroke-width': '1.5'})
-    ET.SubElement(root, TAG+'text', {'x': '30', 'y': '46', 'fill': '#f7fbff',
-        'font-size': '23', 'font-weight': '600'}).text = 'Languages'
+    ET.SubElement(root, TAG+'rect', {'x': '.75', 'y': '.75', 'width': '132.5',
+        'height': '186.6714', 'rx': '12', 'fill': '#101b2b', 'stroke': '#2a3e54', 'stroke-width': '1.5'})
+    ET.SubElement(root, TAG+'text', {'x': '67', 'y': '22', 'text-anchor': 'middle', 'fill': '#f7fbff',
+        'font-size': '14', 'font-weight': '600'}).text = 'Languages'
     # Preserve all upstream slices, labels and tooltips; only their placement changes.
     chart = copy.deepcopy(donut)
-    chart.set('transform', 'translate(143 244) scale(.94)')
+    chart.set('transform', 'translate(67 65) scale(.28)')
     labels = copy.deepcopy(legend)
-    labels.set('transform', 'translate(281 114)')
-    for text in labels.findall(TAG+'text'):
-        text.set('font-size', '17px')
+    labels.set('transform', 'translate(13 101)')
+    for index, (box, text) in enumerate(zip(labels.findall(TAG+'rect'), labels.findall(TAG+'text'))):
+        box.attrib.update(x='0', y=f'{index*12.4:g}', width='7', height='7')
+        text.attrib.update(x='12', y=f'{index*12.4+3.5:g}')
+        text.set('font-size', '9px')
     root.extend([chart, labels])
     # A stable final frame avoids the old delayed fade on mobile SVG renderers.
     for parent in root.iter():
