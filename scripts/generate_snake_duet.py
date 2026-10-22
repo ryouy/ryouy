@@ -87,7 +87,7 @@ def route_to(body, target, columns, rows, painted, rng, bounds=None, blocked=Non
     raise ValueError(f'No body-safe path to {target}')
 
 
-def plan_pair(targets, columns, rows, length, seed):
+def plan_pair(targets, columns, rows, length, seed, start_bodies=None):
     """Two roaming snakes share one target pool, with collision-safe joint moves."""
     rng = random.Random(seed)
     bounds = (-length-4, columns+length+3, -length-4, rows+length+3)
@@ -95,6 +95,8 @@ def plan_pair(targets, columns, rows, length, seed):
     left_row, right_row = rng.randrange(rows), rng.randrange(rows)
     bodies = [tuple((-1-i, left_row) for i in range(length)),
               tuple((columns+i, right_row) for i in range(length))]
+    if start_bodies is not None:
+        bodies = list(start_bodies)
     histories = [[body] for body in bodies]
     pending, claims = set(targets), [{}, {}]
     goals, exits = [None, None], [None, None]
@@ -241,7 +243,7 @@ def assemble_message(targets, columns, rows, seed):
                   (1, 0) if x < 0 else (-1, 0) if x >= columns else rng.choice(directions) for x, y in positions]
     inside = lambda p: -2 <= p[0] <= columns+1 and -2 <= p[1] <= rows+1
     collisions = 0
-    for tick in range(18):
+    for tick in range(44):
         occupied = set(positions)
         proposed = []
         for i, (x, y) in enumerate(positions):
@@ -257,7 +259,7 @@ def assemble_message(targets, columns, rows, seed):
             if p in occupied or counts[p] > 1 or not inside(p):
                 collisions += 1
                 dx, dy = velocities[i]
-                velocities[i] = rng.choice([(-dx, -dy), (-dy, dx), (dy, -dx)])
+                velocities[i] = rng.choice([(-dx, -dy), (-dx, -dy), (-dy, dx), (dy, -dx)])
             else:
                 positions[i] = p
             histories[i].append(positions[i])
@@ -301,6 +303,27 @@ def assemble_message(targets, columns, rows, seed):
     return [list(reversed(path)) for path in histories], collisions
 
 
+def morph_message(paths, bodies):
+    """Merge letter cells into the exact eight initial blue-snake segments."""
+    counts = [0, 0]
+    result = []
+    for path in paths:
+        x, y = path[-1]
+        owner = min((0, 1), key=lambda i: abs(x-bodies[i][0][0])+abs(y-bodies[i][0][1]))
+        target = bodies[owner][counts[owner] % len(bodies[owner])]
+        counts[owner] += 1
+        points = [(x, y)]
+        # Straight grid lanes visibly gather the word into two small bodies.
+        while y != target[1]:
+            y += 1 if target[1] > y else -1
+            points.append((x, y))
+        while x != target[0]:
+            x += 1 if target[0] > x else -1
+            points.append((x, y))
+        result.append((owner, target, points))
+    return result
+
+
 def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
     root = ET.fromstring(source)
     style = root.find(TAG + 'style')
@@ -335,9 +358,13 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         signature = repr(sorted(colored)) + date.today().isoformat()
         seed = int(hashlib.sha256(signature.encode()).hexdigest()[:16], 16)
 
+    message_pixels = restart_pixels(columns, rows)
+    blue_bodies = [tuple((columns//3-i, rows//2) for i in range(len(segments))),
+                   tuple((2*columns//3+i, rows//2) for i in range(len(segments)))] if message_pixels else None
     plans = {}
     for phase, color in enumerate(('red', 'blue')):
-        plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009)
+        plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009,
+                                 blue_bodies if color == 'blue' else None)
         for plan in plans[color]:
             plan['restore'] = {
                 coord: next(tick for tick in range(visit+len(segments), len(plan['states']))
@@ -345,12 +372,14 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 for coord, visit in plan['visits'].items()
             }
     red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
-    message_pixels = restart_pixels(columns, rows)
     message_start = red_ms + 350
     particle_paths, collision_count = assemble_message(message_pixels, columns, rows, seed+7919) if message_pixels else ([], 0)
     assembly_ms = (len(particle_paths[0])-1)*70 if particle_paths else 0
-    message_end = message_start + assembly_ms + 1600 + len(message_pixels)*24 + 50
-    blue_start = message_end + 350 if message_pixels else red_ms + 700
+    morphs = morph_message(particle_paths, blue_bodies) if message_pixels else []
+    morph_start = message_start + assembly_ms + 1600
+    morph_ms = max((len(points)-1)*55 + (i%4)*35 for i,(_,_,points) in enumerate(morphs)) if morphs else 0
+    message_end = morph_start + morph_ms + 150
+    blue_start = message_end if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
     cycle_ms = blue_end + 1000
     pct = lambda time: f'{time / cycle_ms * 100:.7f}%'
@@ -415,7 +444,10 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             pixel = copy.deepcopy(cells_by_coord[coord])
             pixel.set('class', f'restart-pixel restart-cell-{index}')
             pixel.set('width', '12'); pixel.set('height', '12')
-            pixel.set('fill', '#279cff')
+            owner, target, gathering = morphs[index]
+            pixel.set('fill', ('#4593f8', '#69a5ed')[owner])
+            pixel.set('data-morph-x', str(target[0])); pixel.set('data-morph-y', str(target[1]))
+            pixel.set('data-blue-snake', str(owner))
             pixel.set('data-grid-x', str(coord[0])); pixel.set('data-grid-y', str(coord[1]))
             animation = f'restart-cell-{index}'
             initial = ((path[0][0]-coord[0])*pitch, (path[0][1]-coord[1])*pitch)
@@ -425,13 +457,21 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             # Discrete transforms preserve the contribution-grid cell rhythm.
             declarations = ''.join(f'{pct(t)}'+'{'+f'transform:translate({p[0]:g}px,{p[1]:g}px);opacity:1'+'}'
                                    for t,p in motion)
-            leave = message_start+assembly_ms+1600+index*24
-            declarations += f'{pct(leave)}'+'{transform:translate(0px,0px);opacity:1}'
-            declarations += f'{pct(leave+.001)},100%'+'{transform:translate(0px,0px);opacity:0}'
+            motion.append((morph_start, (0, 0)))
+            for tick, p in enumerate(gathering):
+                offset = ((p[0]-coord[0])*pitch, (p[1]-coord[1])*pitch)
+                motion.append((morph_start+(index%4)*35+tick*55, offset))
+            final = ((target[0]-coord[0])*pitch + float(segments[0].get('x','1'))-xs[0],
+                     (target[1]-coord[1])*pitch + float(segments[0].get('y','1'))-ys[0])
+            motion.append((message_end-50, final))
+            declarations = ''.join(f'{pct(t)}'+'{'+f'transform:translate({p[0]:g}px,{p[1]:g}px);opacity:1'+'}'
+                                   for t,p in motion)
+            declarations += '100%{'+f'transform:translate({final[0]:g}px,{final[1]:g}px);opacity:1'+'}'
             rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
             rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
             message.append(pixel)
         root.set('data-message-collisions', str(collision_count))
+        root.set('data-message-morph-start-ms', f'{morph_start:.3f}')
         root.set('data-message-formed-ms', f'{message_start+assembly_ms:.3f}')
         rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
         rules.append(f'@keyframes restart-message{{0%,{pct(message_start)}{{opacity:0}}'
