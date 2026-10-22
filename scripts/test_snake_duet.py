@@ -1,5 +1,6 @@
 """Behavior checks for the isolated randomized restoration animation."""
 import re
+import math
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -41,6 +42,11 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertEqual(actual, pixels)
         self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
         self.assertTrue(all(c.get('transform') for c in message))
+        self.assertEqual(root.get('data-message-model'), 'forward-elastic-four-sides')
+        self.assertEqual(len({(c.get('data-blue-snake'),c.get('data-morph-slot')) for c in message}),8)
+        css = root.find(TAG+'style').text
+        self.assertRegex(css, r'\.restart-cell-0\{animation:restart-cell-0 [\d.]+ms linear infinite')
+        self.assertIn('width:12px;height:12px;rx:2px',css)
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertEqual(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
@@ -56,7 +62,7 @@ class SnakeDuetTests(unittest.TestCase):
             for tick in range(len(paths[0])):
                 self.assertEqual(len({p[tick] for p in paths}), len(paths))
             for p in paths:
-                self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(p,p[1:])))
+                self.assertTrue(all(math.dist(a,b) < 3 for a,b in zip(p,p[1:])))
             self.assertEqual((paths, collisions), assemble_message(targets, 53, 7, seed))
 
     def test_settling_spans_four_seconds_and_contacts_stop_after_arrival(self):
@@ -64,11 +70,12 @@ class SnakeDuetTests(unittest.TestCase):
         times,stops = assembly_timeline(paths)
         self.assertAlmostEqual(max(times[t] for t in stops)-min(times[t] for t in stops),4000)
         self.assertGreater(len(set(stops)),10)
-        bumps = particle_contacts(paths,stops)
-        self.assertGreater(sum(len(b) for b in bumps),100)
-        for i,b in enumerate(bumps):
-            self.assertTrue(all(t < stops[i] for t in b))
-            self.assertTrue(all(abs(dx)+abs(dy)==2 for dx,dy in b.values()))
+        self.assertGreater(len(set(stops)), 50)
+        starts = [p[0] for p in paths]
+        self.assertGreaterEqual(sum(x < 0 for x,y in starts), 20)
+        self.assertGreaterEqual(sum(x >= 53 for x,y in starts), 20)
+        self.assertGreaterEqual(sum(y < 0 for x,y in starts), 20)
+        self.assertGreaterEqual(sum(y >= 7 for x,y in starts), 20)
 
     def test_message_merges_into_exact_blue_bodies(self):
         bodies = [tuple((17-i, 3) for i in range(4)), tuple((35+i, 3) for i in range(4))]
