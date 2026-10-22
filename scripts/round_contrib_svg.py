@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+from profile_slices import write_slices
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -58,7 +59,9 @@ def customize_svg(svg: str) -> str:
 
 
 def apply_rounding() -> None:
-    TARGET.write_text(customize_svg(TARGET.read_text(encoding='utf-8')), encoding='utf-8')
+    svg = customize_svg(TARGET.read_text(encoding='utf-8'))
+    TARGET.write_text(svg, encoding='utf-8')
+    write_slices(svg, TARGET)
     print('Updated language-only profile card')
 
 
