@@ -47,7 +47,7 @@ def customize_svg(svg: str) -> str:
     labels.set('transform', 'translate(124 37)')
     for index, (box, text) in enumerate(zip(labels.findall(TAG+'rect'), labels.findall(TAG+'text'))):
         box.attrib.update(x='0', y=f'{index*16:g}', width='8', height='8')
-        text.attrib.update(x='12', y=f'{index*12.4+3.5:g}')
+        text.attrib.update(x='12', y=f'{index*16+4:g}')
         text.set('font-size', '11px')
         if text.text == 'Jupyter Notebook':
             text.text = 'Jupyter'
