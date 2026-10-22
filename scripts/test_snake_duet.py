@@ -3,7 +3,7 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels
 
 
 def fixture():
@@ -20,6 +20,29 @@ def fixture():
 
 
 class SnakeDuetTests(unittest.TestCase):
+    def test_restart_message_uses_grid_cells_only_between_snake_phases(self):
+        pixels = restart_pixels(53, 7)
+        self.assertGreater(len(pixels), 90)
+        self.assertTrue(all(0 <= x < 53 and 0 <= y < 7 for x, y in pixels))
+        self.assertFalse(restart_pixels(2, 2))
+        source = ET.fromstring(fixture())
+        for cell in list(source):
+            if 'c' in cell.get('class', '').split():
+                source.remove(cell)
+        for x in range(53):
+            for y in range(7):
+                cls = 'c c0' if (x, y) == (1, 1) else 'c'
+                ET.SubElement(source, TAG+'rect', {'class': cls, 'x': str(2+16*x), 'y': str(2+16*y)})
+        root = ET.fromstring(build_duet(ET.tostring(source, encoding='unicode'), seed=42))
+        message = root.find(TAG+"g[@class='restart-message']")
+        self.assertIsNotNone(message)
+        actual = {(int(c.get('data-grid-x')), int(c.get('data-grid-y'))) for c in message}
+        self.assertEqual(actual, pixels)
+        self.assertEqual(len({c.get('fill') for c in message}), 5)
+        self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
+        self.assertLess(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
+        self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
+
     def test_shared_pool_coverage_and_collision_free_joint_routes(self):
         targets = {(x, y) for x in range(0, 53, 3) for y in (0, 2, 4, 6)}
         signatures = set()
