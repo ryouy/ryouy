@@ -1,8 +1,8 @@
 <!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
 <div align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/fad0922c9d94cf63c8b88fdfbb98a1cc739c9ce0/assets/intro-mobile.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/e3f87333fcd4fb56b9d3de8170e262713653d763/assets/intro-animated.svg" width="800" alt="ryouy studies computer science at the University of Aizu; lives in Aizu and is heading to Azumino; explores LLMs, robotics, data science and the world; brings ideas to life; heads for the mountains; thinks about philosophy, economics and the future">
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/e2feef126edbb778c7e471ca707db8278124c412/assets/intro-mobile.svg">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/fdf22ab4e7f72418b214cb30554665178375a15f/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy calls Aizu home / next stop: Azumino; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
   </picture>
 </div>
 <!-- 800px border-free grid: 534 + 10 + 256. Photo and Spotify both render at 356px. -->
