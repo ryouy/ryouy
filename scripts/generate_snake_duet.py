@@ -187,6 +187,32 @@ def compact_motion(points):
     return kept + [points[-1]]
 
 
+def restart_pixels(columns, rows):
+    """Center a five-row ONCE MORE message on actual contribution-grid cells."""
+    glyphs = {
+        'O': ('01110', '10001', '10001', '10001', '01110'),
+        'N': ('10001', '11001', '10101', '10011', '10001'),
+        'C': ('01111', '10000', '10000', '10000', '01111'),
+        'E': ('11111', '10000', '11110', '10000', '11111'),
+        'M': ('10001', '11011', '10101', '10001', '10001'),
+        'R': ('11110', '10001', '11110', '10100', '10010'),
+    }
+    phrase = 'ONCE MORE'
+    width = sum(3 if char == ' ' else 6 for char in phrase) - 1
+    if columns < width or rows < 5:
+        return set()
+    x, y = (columns-width)//2, (rows-5)//2
+    pixels = set()
+    for char in phrase:
+        if char == ' ':
+            x += 3
+            continue
+        for row, bits in enumerate(glyphs[char]):
+            pixels.update((x+col, y+row) for col, bit in enumerate(bits) if bit == '1')
+        x += 6
+    return pixels
+
+
 def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
     root = ET.fromstring(source)
     style = root.find(TAG + 'style')
@@ -231,7 +257,9 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 for coord, visit in plan['visits'].items()
             }
     red_ms = max(len(p['states']) - 1 for p in plans['red']) * step_ms
-    blue_start = red_ms + 700
+    message_pixels = restart_pixels(columns, rows)
+    message_start, message_end = red_ms + 350, red_ms + 2950
+    blue_start = message_end + 350 if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
     cycle_ms = blue_end + 1000
     pct = lambda time: f'{time / cycle_ms * 100:.7f}%'
@@ -279,7 +307,30 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 rules.append(f'@keyframes {animation}' + '{' + declarations + '}')
                 rules.append(f'.s.{animation}{{animation-name:{animation}}}')
                 snake.append(rect)
-    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue{animation:none;opacity:0}}')
+    if message_pixels:
+        message = ET.SubElement(root, TAG+'g', {
+            'class': 'restart-message', 'aria-label': 'ONCE MORE',
+        })
+        palette = ('#76b5ff', '#64a8ff', '#7b9cff', '#9b91fa', '#b28bf1')
+        first_row = min(y for x, y in message_pixels)
+        for cell in cells:
+            coord = location(cell)
+            if coord not in message_pixels:
+                continue
+            pixel = copy.deepcopy(cell)
+            pixel.set('class', 'restart-pixel')
+            pixel.set('width', '12'); pixel.set('height', '12')
+            pixel.set('fill', palette[coord[1]-first_row])
+            pixel.set('data-grid-x', str(coord[0]))
+            pixel.set('data-grid-y', str(coord[1]))
+            message.append(pixel)
+        rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms linear infinite}}')
+        rules.append(f'@keyframes restart-message{{0%,{pct(message_start)}{{opacity:0}}'
+                     f'{pct(message_start+220)},{pct(message_end-220)}{{opacity:1}}'
+                     f'{pct(message_end)},100%{{opacity:0}}}}')
+        root.set('data-message-start-ms', f'{message_start:.3f}')
+        root.set('data-message-end-ms', f'{message_end:.3f}')
+    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}}')
     style.text = '\n'.join(rules)
     root.set('role', 'img')
     root.set('aria-label', 'Two red snakes eat contributions; two blue snakes restore them along independent randomized routes')
