@@ -16,13 +16,7 @@
 <img src="./assets/layout-gap.svg" width="800" height="10" align="left" alt=""><img src="./assets/weather-azumino.svg" width="534" align="top" alt="安曇野の現在の天気と明日の予報（毎時更新）"><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://ryouyplayground.vercel.app/#projects" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/ryouy/ryouy/710fc9fa47bbd2a4ad950162be9cea156faad76c/assets/link-projects.svg" width="123" align="top" alt="Projects"></a><img src="./assets/layout-gap.svg" width="10" height="1" alt=""><a href="https://www.youtube.com/@sun_voyager" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/ryouy/ryouy/e54c6ffa2692e75ab5586bbf668c2bb28ba1f405/assets/link-youtube.svg" width="123" align="top" alt="YouTube"></a>
 </div>
 <!-- Contribution visuals: no redundant headings and minimal section margins. -->
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake-dark.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/output/github-contribution-grid-snake.svg" alt="Animated GitHub contribution snake" width="800">
-  </picture>
-</div>
-<!-- Experimental duet is generated separately; keep the original snake above intact. -->
+<!-- Custom contribution snakes, generated from the read-only upstream route data. -->
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-duet-dark.svg?v=roaming-2">
