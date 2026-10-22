@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="123" height="188.1714285714" viewBox="0 0 123 188.1714285714" role="img" aria-label="Projects: Apps and Experiments">
-  <title>Projects</title>
-  <rect x="0.75" y="0.75" width="121.5" height="186.6714285714" rx="12" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5"/>
-  <g text-anchor="middle" font-family="Arial,Helvetica,sans-serif">
-    <text x="61.5" y="57" font-size="23" font-weight="600" fill="#f7fbff">Projects</text>
-    <text x="61.5" y="91" font-size="14" fill="#b4c7d7">Apps</text>
-    <text x="61.5" y="112" font-size="14" fill="#8da6bb">&amp;</text>
-    <text x="61.5" y="134" font-size="14" fill="#b4c7d7">Experiments</text>
-  </g>
-  <path d="M49.5 155H73.5" stroke="#4593f8" stroke-width="2" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="188.1714" viewBox="0 0 256 188.1714" role="img" aria-label="Projects: Apps and Experiments"><title>Projects</title><rect x=".75" y="0.75" width="254.5" height="186.6714" rx="12" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5"/><g text-anchor="middle" font-family="Arial,Helvetica,sans-serif"><text x="128" y="54" font-size="23" font-weight="600" fill="#f7fbff">Projects</text><text x="128" y="88" font-size="14" fill="#b4c7d7">Apps</text><text x="128" y="109" font-size="14" fill="#8da6bb">&amp;</text><text x="128" y="131" font-size="14" fill="#b4c7d7">Experiments</text></g></svg>
