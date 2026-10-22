@@ -1,17 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewBox="0 0 420 148" role="img" aria-label="安曇野：現在 9°C、ほぼ晴れ。明日 10/24 雨、最高 14°、最低 12°。">
-  <title>安曇野：現在 9°C、ほぼ晴れ。明日 10/24 雨、最高 14°、最低 12°。</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewBox="0 0 420 148" role="img" aria-label="Azumino: now 9°C, Mainly clear. Today high 21°, low 7°. Tomorrow 10/24: Rain, high 14°, low 12°.">
+  <title>Azumino: now 9°C, Mainly clear. Today high 21°, low 7°. Tomorrow 10/24: Rain, high 14°, low 12°.</title>
   <rect x="1" y="1" width="418" height="146" rx="13" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5"/>
-  <g font-family="Arial,'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif">
+  <g font-family="Arial,Helvetica,sans-serif">
     <text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</text>
     <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">10/23 00:00</text>
     <line x1="199" y1="45" x2="199" y2="128" stroke="#314558"/>
-    <text x="20" y="53" fill="#879fb2" font-size="11">現在</text>
-    <text x="18" y="102" fill="#f7fbff" font-size="52" font-weight="600">9<tspan font-size="23">°C</tspan></text>
-    <text x="20" y="127" fill="#d2e1ed" font-size="14">ほぼ晴れ</text>
-    <text x="220" y="53" fill="#879fb2" font-size="11">明日 10/24</text>
-    <text x="260" y="87" fill="#f7fbff" font-size="16">雨</text>
-    <text x="220" y="124" fill="#d2e1ed" font-size="16">最高 14°  /  最低 12°</text>
+    <text x="20" y="50" fill="#879fb2" font-size="10" letter-spacing="1">TODAY</text>
+    <text x="18" y="91" fill="#f7fbff" font-size="46" font-weight="600">9<tspan font-size="23">°C</tspan></text>
+    <text x="20" y="112" fill="#d2e1ed" font-size="14">Mainly clear</text>
+    <text x="20" y="132" fill="#b6cadb" font-size="14">High 21° / Low 7°</text>
+    <text x="220" y="50" fill="#879fb2" font-size="10" letter-spacing="1">TOMORROW</text>
+    <text x="260" y="87" fill="#f7fbff" font-size="14">Rain</text>
+    <text x="220" y="132" fill="#b6cadb" font-size="14">High 14° / Low 12°</text>
   </g>
-  <g transform="translate(145 68)" fill="none" stroke="#8abfe5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M25 21A12 12 0 0 1 11 5a12 12 0 1 0 14 16Z"/></g>
+  <g transform="translate(145 61)" fill="none" stroke="#8abfe5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M25 21A12 12 0 0 1 11 5a12 12 0 1 0 14 16Z"/></g>
   <g transform="translate(219 64)" fill="none" stroke="#8abfe5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 23h17a6 6 0 0 0 0-12 9 9 0 0 0-17-1 6.5 6.5 0 0 0 0 13Z"/><path d="m10 27-2 4m10-4-2 4m10-4-2 4"/></g>
 </svg>
