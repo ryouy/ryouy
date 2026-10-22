@@ -37,7 +37,7 @@ def render_card(payload: dict) -> str:
   <g font-family="Arial,Helvetica,sans-serif">
     <text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</text>
     <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">{observed:%m/%d %H:%M}</text>
-    <text x="18" y="101" fill="#f7fbff" font-size="57" font-weight="600">{temperature[:-1]}<tspan font-size="30">°C</tspan></text>
+    <text x="81.5" y="88" text-anchor="middle" dominant-baseline="central" fill="#f7fbff" font-size="57" font-weight="600">{temperature[:-1]}<tspan font-size="30">°C</tspan></text>
     <line x1="163" y1="45" x2="163" y2="131" stroke="#314558"/>
     <text x="180" y="58" fill="#f7fbff" font-size="17">{now_name}</text>
     <text x="180" y="83" fill="#d2e1ed" font-size="15">High {today_high} / Low {today_low}</text>
