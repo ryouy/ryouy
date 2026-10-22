@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/3d-contrib.yml
       - scripts/round_contrib_svg.py
+      - scripts/profile_slices.py
   schedule:
     - cron: '0 18 * * *'
   workflow_dispatch:
@@ -33,7 +34,7 @@ jobs:
         run: python scripts/round_contrib_svg.py
       - name: Remove unused 3D export variants
         run: |
-          find profile-3d-contrib -maxdepth 1 -type f ! -name 'profile-night-view.svg' -delete
+          find profile-3d-contrib -maxdepth 1 -type f ! -name 'profile-night-view*.svg' -delete
       - name: Commit generated contribution images
         run: |
           git config user.name 'github-actions[bot]'
