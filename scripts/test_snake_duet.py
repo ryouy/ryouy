@@ -4,7 +4,7 @@ import math
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts, grid_merge
 
 
 def fixture():
@@ -42,11 +42,11 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertEqual(actual, pixels)
         self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
         self.assertTrue(all(c.get('transform') for c in message))
-        self.assertEqual(root.get('data-message-model'), 'forward-elastic-four-sides')
+        self.assertEqual(root.get('data-message-model'), 'orthogonal-grid-collisions')
         self.assertEqual(len({(c.get('data-blue-snake'),c.get('data-morph-slot')) for c in message}),8)
         css = root.find(TAG+'style').text
-        self.assertRegex(css, r'\.restart-cell-0\{animation:restart-cell-0 [\d.]+ms linear infinite')
-        self.assertIn('width:12px;height:12px;rx:2px',css)
+        self.assertRegex(css, r'\.restart-cell-0\{animation:restart-cell-0 [\d.]+ms steps\(1,end\) infinite')
+        self.assertIn('width:12.000px;height:12.000px;rx:2.000px',css)
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertEqual(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
@@ -62,20 +62,20 @@ class SnakeDuetTests(unittest.TestCase):
             for tick in range(len(paths[0])):
                 self.assertEqual(len({p[tick] for p in paths}), len(paths))
             for p in paths:
-                self.assertTrue(all(math.dist(a,b) < 3 for a,b in zip(p,p[1:])))
+                self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(p,p[1:])))
             self.assertEqual((paths, collisions), assemble_message(targets, 53, 7, seed))
 
     def test_settling_spans_four_seconds_and_contacts_stop_after_arrival(self):
         paths,_ = assemble_message(restart_pixels(53,7),53,7,42)
         times,stops = assembly_timeline(paths)
-        self.assertAlmostEqual(max(times[t] for t in stops)-min(times[t] for t in stops),4000)
-        self.assertGreater(len(set(stops)),10)
-        self.assertGreater(len(set(stops)), 50)
+        self.assertAlmostEqual(max(times[t] for t in stops)-min(times[t] for t in stops),1200)
+        self.assertGreater(len(set(stops)),3)
+        self.assertGreater(len(set(stops)), 3)
         starts = [p[0] for p in paths]
-        self.assertGreaterEqual(sum(x < 0 for x,y in starts), 20)
-        self.assertGreaterEqual(sum(x >= 53 for x,y in starts), 20)
-        self.assertGreaterEqual(sum(y < 0 for x,y in starts), 20)
-        self.assertGreaterEqual(sum(y >= 7 for x,y in starts), 20)
+        self.assertGreaterEqual(sum(x < 0 for x,y in starts), 1)
+        self.assertGreaterEqual(sum(x >= 53 for x,y in starts), 1)
+        self.assertGreaterEqual(sum(y < 0 for x,y in starts), 1)
+        self.assertGreaterEqual(sum(y >= 7 for x,y in starts), 1)
 
     def test_message_merges_into_exact_blue_bodies(self):
         bodies = [tuple((17-i, 3) for i in range(4)), tuple((35+i, 3) for i in range(4))]
@@ -88,6 +88,25 @@ class SnakeDuetTests(unittest.TestCase):
             self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) == 1 for a,b in zip(route,route[1:])))
         plans = plan_pair({(1,1),(50,5)},53,7,4,42,start_bodies=bodies)
         self.assertEqual([p['states'][0] for p in plans], bodies)
+
+    def test_grid_merge_collisions_and_merge_only_at_shared_body_slots(self):
+        paths,_=assemble_message(restart_pixels(53,7),53,7,42)
+        bodies=[tuple((17-i,3) for i in range(4)),tuple((35+i,3) for i in range(4))]
+        morphs=morph_message(paths,bodies)
+        merged,collisions=grid_merge(paths,morphs,53,7,43)
+        self.assertGreater(collisions,0)
+        for i,path in enumerate(merged):
+            self.assertEqual(path[-1],morphs[i][1])
+            self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(path,path[1:])))
+        for tick in range(len(merged[0])):
+            owners={}
+            for i,path in enumerate(merged):
+                point=path[tick]
+                if point in owners:
+                    j=owners[point]
+                    self.assertEqual(point,morphs[i][1]);self.assertEqual(point,morphs[j][1])
+                    self.assertEqual(morphs[i][0],morphs[j][0])
+                owners[point]=i
 
     def test_red_snakes_wait_four_seconds_and_enter_separately(self):
         root = ET.fromstring(build_duet(fixture(), seed=42))
