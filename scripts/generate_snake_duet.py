@@ -88,7 +88,7 @@ def route_to(body, target, columns, rows, painted, rng, bounds=None, blocked=Non
 
 
 def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_delays=None):
-    """Two roaming snakes share one target pool, with collision-safe joint moves."""
+    """Each roaming snake reserves a separate goal, with collision-safe joint moves."""
     rng = random.Random(seed)
     entry_delays = entry_delays or (0, 0)
     bounds = (-length-4, columns+length+3, -length-4, rows+length+3)
@@ -99,6 +99,7 @@ def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_del
     if start_bodies is not None:
         bodies = list(start_bodies)
     histories = [[body] for body in bodies]
+    goal_histories = [[None], [None]]
     pending, claims = set(targets), [{}, {}]
     goals, exits = [None, None], [None, None]
     stall = 0
@@ -116,11 +117,15 @@ def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_del
         if tick <= entry_delays[index]:
             return [(0, body)]
         target = goals[index] if pending else exits[index]
+        if target is None:
+            target = max([(-length-2,-length-2),(columns+length+1,rows+length+1)],
+                         key=lambda p:abs(p[0]-bodies[1-index][0][0])+abs(p[1]-bodies[1-index][0][1]))
+        reserved_goal = {goals[1-index]} & pending
         if not pending and body[0] == target:
             return [(0, body)]
         try:
             preferred = route_to(body, target, columns, rows, set(targets)-pending,
-                                 rng, bounds, set(other))
+                                 rng, bounds, set(other) | reserved_goal)
             preferred = preferred[0] if preferred else body
         except ValueError:
             preferred = None
@@ -129,7 +134,7 @@ def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_del
             head = (body[0][0]+dx, body[0][1]+dy)
             if not(bounds[0]<=head[0]<=bounds[1] and bounds[2]<=head[1]<=bounds[3]):
                 continue
-            if head in body[:-1]:
+            if head in body[:-1] or head in reserved_goal:
                 continue
             state = (head,)+body[:-1]
             distance = abs(head[0]-target[0])+abs(head[1]-target[1])
@@ -146,9 +151,11 @@ def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_del
             break
         if pending:
             for index in rng.sample((0,1), 2):
-                if goals[index] not in pending or goals[index] == goals[1-index] or stall>60:
+                if goals[index] not in pending or stall > 30:
                     available = pending - {goals[1-index]}
-                    available = available or pending
+                    if not available:
+                        goals[index] = None
+                        continue
                     head = bodies[index][0]
                     nearby = sorted(available, key=lambda p:(abs(p[0]-head[0])+abs(p[1]-head[1]),p))
                     # Usually stay purposeful; occasionally choose a broader detour.
@@ -178,13 +185,14 @@ def plan_pair(targets, columns, rows, length, seed, start_bodies=None, entry_del
         removed = 0
         for index, body in enumerate(bodies):
             histories[index].append(body)
+            goal_histories[index].append(goals[index] if pending else None)
             if body[0] in pending:
                 claims[index][body[0]] = tick
                 pending.remove(body[0]);removed += 1
         stall = 0 if removed else stall+1
     else:
         raise ValueError('Shared-route planning exceeded its step budget')
-    return [{'states':histories[i], 'visits':claims[i], 'offset':0, 'width':columns}
+    return [{'states':histories[i], 'goals':goal_histories[i], 'visits':claims[i], 'offset':0, 'width':columns}
             for i in (0,1)]
 
 def compact_motion(points):
@@ -247,12 +255,17 @@ def assemble_message(targets, columns, rows, seed):
     velocity = [rng.choice(directions) for _ in positions]
     collisions = 0
     release = [rng.randrange(12) for _ in positions]
-    for tick in range(16):
+    for tick in range(28):
         old = set(positions)
         proposed = []
         for i,p in enumerate(positions):
             if tick < release[i]:proposed.append(p);continue
-            if rng.random()<.18:velocity[i]=rng.choice(directions)
+            # Reverse playback turns two compressed pressure cores into an outward
+            # impact that resolves into the word, instead of a random drizzle.
+            core=(columns//3 if p[0]<columns//2 else 2*columns//3, rows//2)
+            if tick%4==0 or rng.random()<.12:
+                options=list(directions);rng.shuffle(options)
+                velocity[i]=min(options,key=lambda d:abs(p[0]+d[0]-core[0])+abs(p[1]+d[1]-core[1]))
             dx,dy=velocity[i];proposed.append((p[0]+dx,p[1]+dy))
         counts=Counter(proposed)
         for i,p in enumerate(proposed):
@@ -344,8 +357,12 @@ def assembly_timeline(paths):
     """A brisk 3.4-second assembly with a short staggered final settling phase."""
     stops = [max(i for i in range(1,len(p)) if p[i] != p[i-1]) for p in paths]
     first,last=min(stops),max(stops)
-    times=[tick*2200/max(1,first) if tick<=first else
-           2200+(tick-first)*1200/max(1,last-first) for tick in range(len(paths[0]))]
+    weights=[3.0 if i % 4 == 0 else 1.0 for i in range(len(paths[0])-1)]
+    cumulative=[0]
+    for w in weights:cumulative.append(cumulative[-1]+w)
+    pivot=cumulative[first]
+    times=[v*2200/max(1,pivot) if i<=first else
+           2200+(v-pivot)*1200/max(1,cumulative[last]-pivot) for i,v in enumerate(cumulative)]
     return times,stops
 
 
@@ -353,6 +370,8 @@ def particle_contacts(paths, stops):
     """Pair neighboring unsettled blocks for a small, visible contact/recoil."""
     bumps = [{} for _ in paths]
     for tick in range(len(paths[0])-1):
+        if tick % 4 != 0:
+            continue
         occupied = {path[tick]: i for i,path in enumerate(paths)}
         used = set()
         for i, path in enumerate(paths):
@@ -449,7 +468,10 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     morph_start = message_start + assembly_ms + 1600
     merge_paths, merge_collisions = grid_merge(particle_paths,morphs,columns,rows,seed+19433) if morphs else ([],0)
     morph_ms = 5000 if morphs else 0
-    merge_times = [i*morph_ms/max(1,len(merge_paths[0])-1) for i in range(len(merge_paths[0]))] if morphs else []
+    merge_times = [0]
+    if morphs:
+        for i in range(len(merge_paths[0])-1):merge_times.append(merge_times[-1]+(3 if i%4==0 else 1))
+        merge_times=[t*morph_ms/merge_times[-1] for t in merge_times]
     merge_stops = [max((i for i in range(1,len(p)) if p[i]!=p[i-1]),default=0) for p in merge_paths]
     merge_bumps = particle_contacts(merge_paths,merge_stops) if morphs else []
     message_end = morph_start + morph_ms + 150
@@ -538,10 +560,10 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             end_color = shades[owner][slot]
             rgb = lambda c:tuple(int(c[j:j+2],16) for j in (1,3,5))
             start_rgb,end_rgb=rgb(base_color),rgb(end_color)
-            def frame(t,cell_point,size=12,radius=2,fill=base_color):
+            def frame(t,cell_point,size=12,radius=2,fill=base_color,lean=(0,0)):
                 # The block center always follows orthogonal grid edges.
-                offset=((cell_point[0]-coord[0])*pitch+(12-size)/2,
-                        (cell_point[1]-coord[1])*pitch+(12-size)/2)
+                offset=((cell_point[0]-coord[0])*pitch+(12-size)/2+lean[0],
+                        (cell_point[1]-coord[1])*pitch+(12-size)/2+lean[1])
                 return f'{pct(t)}'+'{'+f'transform:translate({offset[0]:.3f}px,{offset[1]:.3f}px);width:{size:.3f}px;height:{size:.3f}px;rx:{radius:.3f}px;ry:{radius:.3f}px;fill:{fill};opacity:1'+'}'
             declarations=frame(0,path[0])
             for tick,cell_point in enumerate(path):
@@ -549,11 +571,16 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 declarations+=frame(t,cell_point)
                 if tick in bumps[index]:
                     interval=assembly_times[tick+1]-assembly_times[tick]
-                    declarations+=frame(t+interval*.3,cell_point,16,3)
-                    declarations+=frame(t+interval*.6,cell_point)
+                    dx,dy=bumps[index][tick]
+                    declarations+=frame(t+interval*.28,cell_point,fill='#c4eaff',lean=(dx,dy))
+                    declarations+=frame(t+interval*.48,cell_point,lean=(-dx*.5,-dy*.5))
+                    declarations+=frame(t+interval*.7,cell_point)
+            # The completed word briefly charges as one object after the scattered impacts.
+            declarations+=frame(message_start+assembly_ms+70,coord,fill='#b8e5ff')
+            declarations+=frame(message_start+assembly_ms+240,coord)
             declarations+=frame(morph_start,coord)
             for tick,cell_point in enumerate(merge_paths[index]):
-                u=tick/max(1,len(merge_paths[index])-1)
+                u=max(0,min(1,(tick-merge_stops[index])/3))
                 smooth=u*u*(3-2*u)
                 size=12+(float(segment.get('width'))-12)*smooth
                 radius=2+(float(segment.get('rx'))-2)*smooth
@@ -562,16 +589,18 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 declarations+=frame(t,cell_point,size,radius,fill)
                 if tick in merge_bumps[index]:
                     interval=merge_times[tick+1]-merge_times[tick]
-                    declarations+=frame(t+interval*.3,cell_point,16,3,fill)
-                    declarations+=frame(t+interval*.6,cell_point,size,radius,fill)
+                    dx,dy=merge_bumps[index][tick]
+                    declarations+=frame(t+interval*.28,cell_point,fill='#c4eaff',lean=(dx,dy))
+                    declarations+=frame(t+interval*.48,cell_point,lean=(-dx*.5,-dy*.5))
+                    declarations+=frame(t+interval*.7,cell_point,size,radius,fill)
             final=((target[0]-coord[0])*pitch+float(segment.get('x'))-xs[0],
                    (target[1]-coord[1])*pitch+float(segment.get('y'))-ys[0])
-            declarations+='100%{'+f'transform:translate({final[0]:.3f}px,{final[1]:.3f}px);width:{segment.get("width")}px;height:{segment.get("height")}px;rx:{segment.get("rx")}px;ry:{segment.get("ry")}px;fill:{end_color};opacity:1'+'}'
+            declarations+=f'{pct(morph_start+morph_ms+100)},100%'+'{'+f'transform:translate({final[0]:.3f}px,{final[1]:.3f}px);width:{segment.get("width")}px;height:{segment.get("height")}px;rx:{segment.get("rx")}px;ry:{segment.get("ry")}px;fill:{end_color};opacity:1'+'}'
             pixel.set('data-morph-slot',str(slot))
             rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
-            rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms steps(1,end) infinite}}')
+            rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
             message.append(pixel)
-        root.set('data-message-model', 'orthogonal-grid-collisions')
+        root.set('data-message-model', 'contact-recoil-grid')
         root.set('data-red-route-salt', '17041')
         root.set('data-message-collisions', str(collision_count))
         root.set('data-message-visible-contacts', str(sum(len(b) for b in bumps)//2))
@@ -598,6 +627,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     root.set('data-red-second-entry-delay-ms', str(max(1, round(1000/step_ms))*step_ms if columns >= 8 else 0))
     root.set('data-seed', str(seed))
     root.set('data-snakes-per-color', '2')
+    root.set('data-target-policy', 'exclusive-reservations')
     box = root.get('viewBox').split()
     box[0] = f'{xs[0]-.5:g}'
     box[2] = f'{xs[-1]-xs[0]+13:g}'
