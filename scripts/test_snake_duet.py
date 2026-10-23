@@ -42,10 +42,10 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertEqual(actual, pixels)
         self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
         self.assertTrue(all(c.get('transform') for c in message))
-        self.assertEqual(root.get('data-message-model'), 'orthogonal-grid-collisions')
+        self.assertEqual(root.get('data-message-model'), 'contact-recoil-grid')
         self.assertEqual(len({(c.get('data-blue-snake'),c.get('data-morph-slot')) for c in message}),8)
         css = root.find(TAG+'style').text
-        self.assertRegex(css, r'\.restart-cell-0\{animation:restart-cell-0 [\d.]+ms steps\(1,end\) infinite')
+        self.assertRegex(css, r'\.restart-cell-0\{animation:restart-cell-0 [\d.]+ms linear infinite')
         self.assertIn('width:12.000px;height:12.000px;rx:2.000px',css)
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertEqual(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
@@ -65,7 +65,7 @@ class SnakeDuetTests(unittest.TestCase):
                 self.assertTrue(all(abs(a[0]-b[0])+abs(a[1]-b[1]) in (0,1) for a,b in zip(p,p[1:])))
             self.assertEqual((paths, collisions), assemble_message(targets, 53, 7, seed))
 
-    def test_settling_spans_four_seconds_and_contacts_stop_after_arrival(self):
+    def test_settling_is_brisk_and_contacts_are_synchronized(self):
         paths,_ = assemble_message(restart_pixels(53,7),53,7,42)
         times,stops = assembly_timeline(paths)
         self.assertAlmostEqual(max(times[t] for t in stops)-min(times[t] for t in stops),1200)
@@ -151,6 +151,33 @@ class SnakeDuetTests(unittest.TestCase):
             for left, right in zip(plans[0]['states'],plans[1]['states']):
                 self.assertFalse(set(left)&set(right))
         self.assertEqual(len(signatures),8)
+
+    def test_each_snake_reserves_its_own_goal_without_stealing(self):
+        targets={(x,y) for x in range(1,18,2) for y in (1,3,5)}
+        for seed in range(4):
+            plans=plan_pair(targets,20,7,4,seed)
+            for tick in range(1,len(plans[0]['states'])):
+                goals=[p['goals'][tick] for p in plans]
+                if all(g is not None for g in goals):self.assertNotEqual(*goals)
+                for i in (0,1):
+                    other=goals[1-i]
+                    if other is not None:self.assertNotEqual(plans[i]['states'][tick][0],other)
+
+    def test_contacts_reach_exactly_touching_edges_and_recoil(self):
+        paths,_=assemble_message(restart_pixels(53,7),53,7,42)
+        _,stops=assembly_timeline(paths)
+        contacts=particle_contacts(paths,stops)
+        count=0
+        for i,events in enumerate(contacts):
+            for tick,(dx,dy) in events.items():
+                self.assertEqual(tick%4,0)
+                neighbor=(paths[i][tick][0]+dx/2,paths[i][tick][1]+dy/2)
+                j=next(j for j,p in enumerate(paths) if p[tick]==neighbor)
+                self.assertEqual(contacts[j][tick],(-dx,-dy))
+                # Centers 16px apart close by 2px on each side: 12px square edges touch.
+                self.assertEqual(16-abs(dx)-abs(dy)-abs(contacts[j][tick][0])-abs(contacts[j][tick][1]),12)
+                count+=1
+        self.assertGreater(count,20)
 
     def test_routes_reproduce_with_same_seed(self):
         args=({(1,1),(3,4),(10,2)},12,7,4,42)
