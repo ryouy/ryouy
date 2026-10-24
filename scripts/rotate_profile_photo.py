@@ -40,6 +40,8 @@ def valid_photo(path: Path) -> bool:
 
 
 def select_photo() -> Path | None:
+    if not IMAGES.is_dir():
+        return None
     candidates = [
         photo for photo in sorted(IMAGES.iterdir())
         if photo.is_file()
@@ -55,6 +57,7 @@ def select_photo() -> Path | None:
 
 
 def render_photo(source: Path) -> None:
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     with Image.open(source) as original:
         oriented = ImageOps.exif_transpose(original)
         rgba = oriented.convert("RGBA")
@@ -128,3 +131,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
