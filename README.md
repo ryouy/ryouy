@@ -14,7 +14,7 @@
 <!-- Custom contribution snakes, generated from the read-only upstream route data. -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet-dark.svg?v=pressure-contact-recoil">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet.svg?v=pressure-contact-recoil" alt="Red snakes eat contributions; colliding blue cells form ONCE MORE, merge into two blue snakes, and restore the grid" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet-dark.svg?v=progressive-body-growth">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet.svg?v=progressive-body-growth" alt="Red snakes eat contributions; colliding blue cells form ONCE MORE, merge into two blue snakes, and restore the grid" width="800">
   </picture>
 </div>

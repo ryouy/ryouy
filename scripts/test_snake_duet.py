@@ -4,7 +4,7 @@ import math
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts, grid_merge
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts, grid_merge, body_formation
 
 
 def fixture():
@@ -43,6 +43,10 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
         self.assertTrue(all(c.get('transform') for c in message))
         self.assertEqual(root.get('data-message-model'), 'contact-recoil-grid')
+        self.assertEqual(root.get('data-message-body-formation'),'mass-and-staggered-growth')
+        body=root.find(TAG+"g[@class='forming-snakes']")
+        self.assertEqual(len(body),8)
+        self.assertTrue(all(c.get('width')=='0' and c.get('opacity')=='0' for c in body))
         self.assertEqual(len({(c.get('data-blue-snake'),c.get('data-morph-slot')) for c in message}),8)
         css = root.find(TAG+'style').text
         self.assertRegex(css, r'\.restart-cell-0\{animation:restart-cell-0 [\d.]+ms linear infinite')
@@ -50,6 +54,41 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertLess(float(root.get('data-red-ms')), float(root.get('data-message-start-ms')))
         self.assertEqual(float(root.get('data-message-end-ms')), float(root.get('data-blue-start-ms')))
         self.assertIn('.restart-message{animation:none;opacity:0}', root.find(TAG+'style').text)
+        animations={name:{float(k.strip().rstrip('%')):d
+                          for keys,d in re.findall(r'([^{}]+)\{([^{}]+)\}',body)
+                          for k in keys.split(',')}
+                    for name,body in re.findall(r'@keyframes ([\w-]+)\{((?:[^{}]*\{[^{}]*\})+)\}',css)}
+        morph=float(root.get('data-message-morph-start-ms'))
+        cycle=float(root.get('data-cycle-ms'))
+        midpoint=(morph+2500)/cycle*100
+        for node in body:
+            frames=animations[node.get('class')]
+            samples=[(t,d) for t,d in sorted(frames.items()) if morph/cycle*100<=t<=midpoint]
+            self.assertTrue(samples)
+            self.assertLess(max(float(re.search(r'width:([\d.]+)px',d)[1]) for _,d in samples),7.2)
+            before=[d for t,d in frames.items() if t<morph/cycle*100]
+            self.assertTrue(all('opacity:0.0000' in d for d in before))
+            reds=[int(re.search(r'fill:#([0-9a-f]{2})',d)[1],16) for t,d in sorted(frames.items())]
+            self.assertEqual(reds,sorted(reds,reverse=True))
+        for node in message:
+            self.assertIn('opacity:0.0000',animations[node.get('class').split()[-1]][100])
+
+
+    def test_body_grows_progressively_and_tail_does_not_finish_early(self):
+        times=[0,500,1000,2000,3000,4000,5000,5100]
+        arrivals=[0,500,1500,3500,5000]
+        head=body_formation(arrivals,times,0,5000)
+        tail=body_formation(arrivals,times,3,5000)
+        for frames in [head,tail]:
+            progress=[p for _,p,_ in frames]
+            self.assertEqual(progress,sorted(progress))
+            self.assertEqual(progress[0],0)
+            self.assertEqual(progress[-1],1)
+            self.assertLess(progress[3],.25)
+            self.assertLess(progress[-3],1)
+        self.assertEqual(tail[3][1],0)
+        self.assertLess(tail[4][1],head[4][1])
+        self.assertTrue(all(p==0 and mass==0 for _,p,mass in body_formation([],times,0,5000)))
 
     def test_particles_collide_then_assemble_exact_letters_without_overlaps(self):
         targets = restart_pixels(53, 7)
@@ -236,3 +275,4 @@ class SnakeDuetTests(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+

@@ -409,6 +409,17 @@ def morph_message(paths, bodies):
     return result
 
 
+def body_formation(arrival_times, times, slot, duration):
+    """Accumulate mass, growing head-to-tail rather than showing finished segments."""
+    result=[]
+    delay=slot*.16
+    for time in times:
+        mass=sum(arrival<=time for arrival in arrival_times)/max(1,len(arrival_times))
+        stage=max(0,min(1,(time/duration-delay)/(1-delay)))
+        result.append((time,mass*stage**1.3,mass))
+    return result
+
+
 def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
     root = ET.fromstring(source)
     style = root.find(TAG + 'style')
@@ -528,6 +539,43 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 rules.append(f'.s.{animation}{{animation-name:{animation}}}')
                 snake.append(rect)
     if message_pixels:
+        forming = ET.SubElement(root, TAG+'g', {
+            'class': 'forming-snakes', 'clip-path': 'url(#message-grid)',
+            'aria-label': 'Blue snakes gradually forming',
+        })
+        shades = (('#4593f8','#3e87e6','#377bd4','#306fc2'),
+                  ('#69a5ed','#609be0','#5791d3','#4e87c6'))
+        pale = ('#91bff5','#a1cdf7')
+        for owner, body in enumerate(blue_bodies):
+            for slot, target in enumerate(body):
+                segment=segments[slot]
+                arrivals=[merge_times[merge_stops[i]] for i,m in enumerate(morphs)
+                          if m[0]==owner and m[1]==target]
+                timeline=sorted(set(merge_times+[morph_ms+100]))
+                formation=body_formation(arrivals,timeline,slot,morph_ms)
+                animation=f'forming-{owner}-{slot}'
+                rect=ET.SubElement(forming,TAG+'rect',{
+                    'class': animation, 'x':'0','y':'0','width':'0','height':'0',
+                    'fill':pale[owner], 'opacity':'0',
+                    'data-blue-snake':str(owner),'data-morph-slot':str(slot),
+                })
+                rgb=lambda c:tuple(int(c[j:j+2],16) for j in (1,3,5))
+                start_rgb,end_rgb=rgb(pale[owner]),rgb(shades[owner][slot])
+                def body_frame(time,progress,mass):
+                    width=0 if mass==0 else 2+(float(segment.get('width'))-2)*progress
+                    height=0 if mass==0 else 2+(float(segment.get('height'))-2)*progress
+                    radius=float(segment.get('rx'))*progress
+                    fill='#'+''.join(f'{round(a+(b-a)*progress):02x}' for a,b in zip(start_rgb,end_rgb))
+                    alpha=0 if mass==0 else .22+.78*progress
+                    x=target[0]*pitch+float(segment.get('x'))+(float(segment.get('width'))-width)/2
+                    y=target[1]*pitch+float(segment.get('y'))+(float(segment.get('height'))-height)/2
+                    return '{'+f'transform:translate({x:.3f}px,{y:.3f}px);width:{width:.3f}px;height:{height:.3f}px;rx:{radius:.3f}px;ry:{radius:.3f}px;fill:{fill};opacity:{alpha:.4f}'+'}'
+                declarations='0%'+body_frame(0,0,0)+pct(morph_start-1)+body_frame(0,0,0)
+                declarations+=''.join(pct(morph_start+t)+body_frame(t,progress,mass)
+                                      for t,progress,mass in formation)
+                declarations+='100%'+body_frame(morph_ms,1,1)
+                rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
+                rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
         message = ET.SubElement(root, TAG+'g', {
             'class': 'restart-message', 'aria-label': 'ONCE MORE',
             'clip-path': 'url(#message-grid)',
@@ -560,11 +608,11 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             end_color = shades[owner][slot]
             rgb = lambda c:tuple(int(c[j:j+2],16) for j in (1,3,5))
             start_rgb,end_rgb=rgb(base_color),rgb(end_color)
-            def frame(t,cell_point,size=12,radius=2,fill=base_color,lean=(0,0)):
+            def frame(t,cell_point,size=12,radius=2,fill=base_color,lean=(0,0),opacity=1):
                 # The block center always follows orthogonal grid edges.
                 offset=((cell_point[0]-coord[0])*pitch+(12-size)/2+lean[0],
                         (cell_point[1]-coord[1])*pitch+(12-size)/2+lean[1])
-                return f'{pct(t)}'+'{'+f'transform:translate({offset[0]:.3f}px,{offset[1]:.3f}px);width:{size:.3f}px;height:{size:.3f}px;rx:{radius:.3f}px;ry:{radius:.3f}px;fill:{fill};opacity:1'+'}'
+                return f'{pct(t)}'+'{'+f'transform:translate({offset[0]:.3f}px,{offset[1]:.3f}px);width:{size:.3f}px;height:{size:.3f}px;rx:{radius:.3f}px;ry:{radius:.3f}px;fill:{fill};opacity:{opacity:.4f}'+'}'
             declarations=frame(0,path[0])
             for tick,cell_point in enumerate(path):
                 t=message_start+assembly_times[tick]
@@ -579,28 +627,33 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             declarations+=frame(message_start+assembly_ms+70,coord,fill='#b8e5ff')
             declarations+=frame(message_start+assembly_ms+240,coord)
             declarations+=frame(morph_start,coord)
+            arrival=merge_times[merge_stops[index]]
             for tick,cell_point in enumerate(merge_paths[index]):
-                u=max(0,min(1,(tick-merge_stops[index])/3))
-                smooth=u*u*(3-2*u)
-                size=12+(float(segment.get('width'))-12)*smooth
-                radius=2+(float(segment.get('rx'))-2)*smooth
-                fill='#'+''.join(f'{round(a+(b-a)*smooth):02x}' for a,b in zip(start_rgb,end_rgb))
-                t=morph_start+merge_times[tick]
-                declarations+=frame(t,cell_point,size,radius,fill)
+                elapsed=merge_times[tick]
+                absorbed=max(0,min(1,(elapsed-arrival)/140))
+                size=12-10*absorbed
+                radius=2*(1-absorbed)
+                lightening=min(1,elapsed/250)
+                pale_rgb=rgb(pale[owner])
+                fill='#'+''.join(f'{round(a+(b-a)*lightening):02x}' for a,b in zip(start_rgb,pale_rgb))
+                t=morph_start+elapsed
+                declarations+=frame(t,cell_point,size,radius,fill,opacity=1-absorbed)
                 if tick in merge_bumps[index]:
                     interval=merge_times[tick+1]-merge_times[tick]
                     dx,dy=merge_bumps[index][tick]
-                    declarations+=frame(t+interval*.28,cell_point,fill='#c4eaff',lean=(dx,dy))
-                    declarations+=frame(t+interval*.48,cell_point,lean=(-dx*.5,-dy*.5))
-                    declarations+=frame(t+interval*.7,cell_point,size,radius,fill)
-            final=((target[0]-coord[0])*pitch+float(segment.get('x'))-xs[0],
-                   (target[1]-coord[1])*pitch+float(segment.get('y'))-ys[0])
-            declarations+=f'{pct(morph_start+morph_ms+100)},100%'+'{'+f'transform:translate({final[0]:.3f}px,{final[1]:.3f}px);width:{segment.get("width")}px;height:{segment.get("height")}px;rx:{segment.get("rx")}px;ry:{segment.get("ry")}px;fill:{end_color};opacity:1'+'}'
+                    declarations+=frame(t+interval*.28,cell_point,fill='#e2f2ff',lean=(dx,dy))
+                    declarations+=frame(t+interval*.48,cell_point,fill=fill,lean=(-dx*.5,-dy*.5))
+                    declarations+=frame(t+interval*.7,cell_point,fill=fill)
+            # Arrived letter pixels become mass in the separate growing body.
+            # They never remain as finished segments underneath later arrivals.
+            declarations+=frame(morph_start+arrival+140,target,2,0,pale[owner],opacity=0)
+            declarations+=frame(cycle_ms,target,2,0,pale[owner],opacity=0)
             pixel.set('data-morph-slot',str(slot))
             rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
             rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
             message.append(pixel)
         root.set('data-message-model', 'contact-recoil-grid')
+        root.set('data-message-body-formation', 'mass-and-staggered-growth')
         root.set('data-red-route-salt', '17041')
         root.set('data-message-collisions', str(collision_count))
         root.set('data-message-visible-contacts', str(sum(len(b) for b in bumps)//2))
@@ -610,13 +663,13 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         root.set('data-message-morph-duration-ms', f'{morph_ms:.3f}')
         root.set('data-message-morph-start-ms', f'{morph_start:.3f}')
         root.set('data-message-formed-ms', f'{message_start+assembly_ms:.3f}')
-        rules.append(f'.restart-message{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
+        rules.append(f'.restart-message,.forming-snakes{{opacity:0;animation:restart-message {cycle_ms:.3f}ms steps(1,end) infinite}}')
         rules.append(f'@keyframes restart-message{{0%,{pct(message_start)}{{opacity:0}}'
                      f'{pct(message_start+1)},{pct(message_end-1)}{{opacity:1}}'
                      f'{pct(message_end)},100%{{opacity:0}}}}')
         root.set('data-message-start-ms', f'{message_start:.3f}')
         root.set('data-message-end-ms', f'{message_end:.3f}')
-    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}}')
+    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}}')
     style.text = '\n'.join(rules)
     root.set('role', 'img')
     root.set('aria-label', 'Two red snakes eat contributions; two blue snakes restore them along independent randomized routes')
@@ -682,3 +735,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
