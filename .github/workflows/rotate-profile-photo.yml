@@ -33,8 +33,6 @@ jobs:
           python-version: '3.12'
       - name: Install image processing
         run: python -m pip install 'Pillow>=11,<13' 'pillow-heif>=1.0,<2'
-      - name: Randomize photo and normalize its dimensions
-        run: python scripts/rotate_profile_photo.py
       - name: Commit selected photo
         run: |
           git config user.name 'github-actions[bot]'
@@ -56,3 +54,4 @@ jobs:
             echo "Main changed during update; retrying ($attempt/3)"
           done
           exit 1
+
