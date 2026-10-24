@@ -1,13 +1,6 @@
 name: Generate contribution motif cycle
+# Kept available as an opt-in experiment; the profile displays snakes only.
 on:
-  push:
-    branches: [main]
-    paths:
-      - scripts/generate_motif_cycle.py
-      - scripts/generate_snake_duet.py
-      - .github/workflows/motif-cycle.yml
-  schedule:
-    - cron: '17 1 * * *'
   workflow_dispatch:
 permissions:
   contents: write

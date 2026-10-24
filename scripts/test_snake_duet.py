@@ -4,7 +4,7 @@ import math
 import unittest
 import xml.etree.ElementTree as ET
 
-from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts, grid_merge, body_formation
+from generate_snake_duet import TAG, build_duet, plan_pair, restart_pixels, restart_pixel_timing, assemble_message, morph_message, assembly_timeline, particle_contacts, grid_merge, body_formation, physical_particles
 
 
 def fixture():
@@ -42,7 +42,7 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertEqual(actual, pixels)
         self.assertEqual({c.get('fill') for c in message}, {'#4593f8', '#69a5ed'})
         self.assertTrue(all(c.get('transform') for c in message))
-        self.assertEqual(root.get('data-message-model'), 'contact-recoil-grid')
+        self.assertEqual(root.get('data-message-model'), 'damped-square-particle-physics')
         self.assertEqual(root.get('data-message-body-formation'),'mass-and-staggered-growth')
         body=root.find(TAG+"g[@class='forming-snakes']")
         self.assertEqual(len(body),8)
@@ -73,6 +73,20 @@ class SnakeDuetTests(unittest.TestCase):
         for node in message:
             self.assertIn('opacity:0.0000',animations[node.get('class').split()[-1]][100])
 
+
+    def test_physics_converges_without_grid_sized_teleports(self):
+        starts=[(-4,0),(8,0),(2,-4),(3,7)]
+        goals=[(2,2),(3,2),(2,3),(3,3)]
+        paths,times,stops,contacts=physical_particles(starts,goals,42,4200)
+        self.assertEqual([p[-1] for p in paths],goals)
+        for path in paths:
+            self.assertLess(max(math.dist(a,b) for a,b in zip(path,path[1:])),.65)
+        self.assertTrue(any(abs(x-round(x))>.01 for p in paths for x,y in p))
+        self.assertEqual((paths,times,stops,contacts),physical_particles(starts,goals,42,4200))
+    def test_physics_can_absorb_many_blocks_into_the_same_body_slot(self):
+        paths,times,_,_=physical_particles([(-3,0),(3,0),(0,-3),(0,3)],[(0,0)]*4,2,5000,True)
+        self.assertTrue(all(p[-1]==(0,0) for p in paths))
+        self.assertLessEqual(times[-1],9000)
 
     def test_body_grows_progressively_and_tail_does_not_finish_early(self):
         times=[0,500,1000,2000,3000,4000,5000,5100]
@@ -275,4 +289,5 @@ class SnakeDuetTests(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+
 

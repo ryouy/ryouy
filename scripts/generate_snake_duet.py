@@ -416,6 +416,79 @@ def morph_message(paths, bodies):
     return result
 
 
+def physical_particles(starts, goals, seed, duration_ms, absorb=False, guides=None, scatter=False, sinks=None):
+    """120Hz damped springs and equal-mass square collision impulses; sampled at 30Hz."""
+    rng=random.Random(seed);positions=[list(p) for p in starts];velocities=[[0.,0.] for _ in starts]
+    release=[rng.uniform(0,1.2 if scatter else .85 if absorb else .18) for _ in starts]
+    arrivals=[None]*len(starts);paths=[[tuple(p)] for p in positions];times=[0.];contacts=0
+    dt=1/120;minimum=duration_ms/1000;limit=minimum+4
+    for tick in range(1,round(limit/dt)+1):
+        time=tick*dt
+        for i,(p,v,target) in enumerate(zip(positions,velocities,goals)):
+            if arrivals[i] is not None:
+                blend=1-math.exp(-18*dt)
+                p[0]+=(target[0]-p[0])*blend;p[1]+=(target[1]-p[1])*blend
+                continue
+            if time<release[i]:continue
+            dx,dy=target[0]-p[0],target[1]-p[1]
+            if scatter:dx,dy=target[0]*6,target[1]*6
+            capture=min(sinks[i],key=lambda q:math.dist(p,q)) if sinks else target
+            if absorb and math.dist(p,capture)<.8 and time>.3:
+                goals[i]=capture
+                arrivals[i]=time*1000;continue
+            if guides:
+                path=guides[i]
+                phase=max(0,min(1,(time-release[i])/max(.5,minimum-1.1)))
+                cursor=phase*(len(path)-1);j=min(len(path)-2,int(cursor));u=cursor-j
+                guide=tuple(path[j][axis]*(1-u)+path[j+1][axis]*u for axis in (0,1))
+                dx,dy=guide[0]-p[0],guide[1]-p[1]
+            ax,ay=60*dx-15*v[0],60*dy-15*v[1]
+            force=max(1,math.hypot(ax,ay)/100);ax/=force;ay/=force
+            v[0]+=ax*dt;v[1]+=ay*dt
+            speed=max(1,math.hypot(*v)/18);v[0]/=speed;v[1]/=speed
+            p[0]+=v[0]*dt;p[1]+=v[1]*dt
+        # Broad phase spatial hashing avoids an all-pairs solver.
+        buckets={}
+        for i,p in enumerate(positions):
+            if arrivals[i] is not None:continue
+            key=(math.floor(p[0]),math.floor(p[1]));buckets.setdefault(key,[]).append(i)
+        for _ in range(2):
+            for i,p in enumerate(positions):
+                if arrivals[i] is not None:continue
+                x,y=math.floor(p[0]),math.floor(p[1])
+                for bx in range(x-1,x+2):
+                    for by in range(y-1,y+2):
+                        for j in buckets.get((bx,by),[]):
+                            if j<=i:continue
+                            q=positions[j];dx,dy=q[0]-p[0],q[1]-p[1]
+                            px,py=.75-abs(dx),.75-abs(dy)
+                            if px<=0 or py<=0:continue
+                            axis=0 if px<py else 1;normal=1 if (dx if axis==0 else dy)>=0 else -1
+                            penetration=min(px,py)
+                            p[axis]-=normal*penetration*.5;q[axis]+=normal*penetration*.5
+                            relative=(velocities[j][axis]-velocities[i][axis])*normal
+                            if relative<0:
+                                impulse=-(1+.28)*relative*.5
+                                velocities[i][axis]-=normal*impulse;velocities[j][axis]+=normal*impulse;contacts+=1
+        if tick%4==0:
+            times.append(time*1000)
+            for i,p in enumerate(positions):paths[i].append(tuple(p))
+            settled=all(arrivals[i] is not None and math.dist(p,goals[i])<.004 if absorb else
+                        math.dist(p,goals[i])<.006 and math.hypot(*velocities[i])<.035
+                        for i,p in enumerate(positions))
+            if (absorb and settled) or (time>=minimum and (settled or scatter)):break
+    else:raise ValueError('Physical particle simulation did not settle: '+str([(i,tuple(round(x,2) for x in p),goals[i]) for i,p in enumerate(positions) if math.dist(p,goals[i])>.01][:8]))
+    # Final correction is under a tenth of a pixel for the non-absorbing phase.
+    if not scatter:
+        for i,path in enumerate(paths):path[-1]=tuple(goals[i])
+    stops=[max((k for k in range(1,len(p)) if math.dist(p[k],p[k-1])>1e-7),default=0) for p in paths]
+    if absorb:
+        stops=[min(len(times)-1,round(t/(dt*4*1000))) for t in arrivals]
+        scale=duration_ms/times[-1]
+        times=[t*scale for t in times]
+    return paths,times,stops,contacts
+
+
 def body_formation(arrival_times, times, slot, duration):
     """Accumulate mass, growing head-to-tail rather than showing finished segments."""
     result=[]
@@ -483,20 +556,30 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     intro_ms = 4000
     red_ms = intro_ms + max(len(p['states']) - 1 for p in plans['red']) * step_ms
     message_start = red_ms + 350
-    particle_paths, collision_count = assemble_message(message_pixels, columns, rows, seed+7919) if message_pixels else ([], 0)
-    assembly_times, settle_ticks = assembly_timeline(particle_paths) if particle_paths else ([], [])
-    bumps = particle_contacts(particle_paths, settle_ticks) if particle_paths else []
-    assembly_ms = assembly_times[-1] if particle_paths else 0
-    morphs = morph_message(particle_paths, blue_bodies) if message_pixels else []
-    morph_start = message_start + assembly_ms + 1600
-    merge_paths, merge_collisions = grid_merge(particle_paths,morphs,columns,rows,seed+19433) if morphs else ([],0)
-    morph_ms = 5000 if morphs else 0
-    merge_times = [0]
+    particle_paths,collision_count=([[p] for p in sorted(message_pixels)],0) if message_pixels else ([],0)
+    if particle_paths:
+        targets=[p[-1] for p in particle_paths]
+        rng=random.Random(seed+271)
+        outward=[]
+        for x,y in targets:
+            dx=(x-(columns-1)/2);dy=(y-(rows-1)/2)*8
+            angle=math.atan2(dy,dx)+rng.uniform(-.16,.16)
+            outward.append((math.cos(angle),math.sin(angle)))
+        emitted,assembly_times,_,collision_count=physical_particles(targets,outward,seed+271,4200,scatter=True)
+        particle_paths=[list(reversed(p)) for p in emitted]
+        settle_ticks=[max((i for i in range(1,len(p)) if math.dist(p[i],p[i-1])>1e-7),default=0) for p in particle_paths]
+    else:assembly_times,settle_ticks=[],[]
+    bumps=[]
+    assembly_ms=assembly_times[-1] if particle_paths else 0
+    morphs=morph_message(particle_paths,blue_bodies) if message_pixels else []
+    morph_start=message_start+assembly_ms+1100
     if morphs:
-        for i in range(len(merge_paths[0])-1):merge_times.append(merge_times[-1]+(3 if i%4==0 else 1))
-        merge_times=[t*morph_ms/merge_times[-1] for t in merge_times]
-    merge_stops = [max((i for i in range(1,len(p)) if p[i]!=p[i-1]),default=0) for p in merge_paths]
-    merge_bumps = particle_contacts(merge_paths,merge_stops) if morphs else []
+        merge_paths,merge_times,merge_stops,merge_collisions=physical_particles(
+            [p[-1] for p in particle_paths],[m[1] for m in morphs],seed+19433,5000,True,sinks=[blue_bodies[m[0]] for m in morphs])
+        morphs=[(m[0],merge_paths[i][-1],m[2]) for i,m in enumerate(morphs)]
+    else:merge_paths,merge_times,merge_stops,merge_collisions=[],[0],[],0
+    morph_ms=merge_times[-1] if morphs else 0
+    merge_bumps=[]
     message_end = morph_start + morph_ms + 150
     blue_start = message_end if message_pixels else red_ms + 700
     blue_end = blue_start + max(len(p['states']) - 1 for p in plans['blue']) * step_ms
@@ -562,7 +645,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             for slot, target in enumerate(body):
                 segment=segments[slot]
                 arrivals=[merge_times[merge_stops[i]] for i,m in enumerate(morphs)
-                          if m[0]==owner and m[1]==target]
+                          if m[0]==owner]
                 timeline=sorted(set(merge_times+[morph_ms+100]))
                 formation=body_formation(arrivals,timeline,slot,morph_ms)
                 animation=f'forming-{owner}-{slot}'
@@ -620,58 +703,48 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             end_color = shades[owner][slot]
             rgb = lambda c:tuple(int(c[j:j+2],16) for j in (1,3,5))
             start_rgb,end_rgb=rgb(base_color),rgb(end_color)
-            def frame(t,cell_point,size=12,radius=2,fill=base_color,lean=(0,0),opacity=1):
-                # The block center always follows orthogonal grid edges.
+            def frame(t,cell_point,size=12,radius=2,fill=base_color,lean=(0,0),opacity=1,motion_only=False):
+                # Continuous motion; only the final letter positions align with the grid.
                 offset=((cell_point[0]-coord[0])*pitch+(12-size)/2+lean[0],
                         (cell_point[1]-coord[1])*pitch+(12-size)/2+lean[1])
+                if motion_only:return f'{pct(t)}'+'{'+f'transform:translate({offset[0]:.3f}px,{offset[1]:.3f}px)'+'}'
                 return f'{pct(t)}'+'{'+f'transform:translate({offset[0]:.3f}px,{offset[1]:.3f}px);width:{size:.3f}px;height:{size:.3f}px;rx:{radius:.3f}px;ry:{radius:.3f}px;fill:{fill};opacity:{opacity:.4f}'+'}'
             declarations=frame(0,path[0])
             for tick,cell_point in enumerate(path):
-                t=message_start+assembly_times[tick]
-                declarations+=frame(t,cell_point)
-                if tick in bumps[index]:
-                    interval=assembly_times[tick+1]-assembly_times[tick]
-                    dx,dy=bumps[index][tick]
-                    declarations+=frame(t+interval*.28,cell_point,fill='#c4eaff',lean=(dx,dy))
-                    declarations+=frame(t+interval*.48,cell_point,lean=(-dx*.5,-dy*.5))
-                    declarations+=frame(t+interval*.7,cell_point)
-            # The completed word briefly charges as one object after the scattered impacts.
-            declarations+=frame(message_start+assembly_ms+70,coord,fill='#b8e5ff')
-            declarations+=frame(message_start+assembly_ms+240,coord)
+                if 0<tick<len(path)-1 and cell_point==path[tick-1]==path[tick+1]:continue
+                declarations+=frame(message_start+assembly_times[tick],cell_point,motion_only=tick not in (0,len(path)-1))
             declarations+=frame(morph_start,coord)
             arrival=merge_times[merge_stops[index]]
             for tick,cell_point in enumerate(merge_paths[index]):
                 elapsed=merge_times[tick]
-                absorbed=max(0,min(1,(elapsed-arrival)/140))
+                absorbed=max(0,min(1,(elapsed-arrival)/260))
                 size=12-10*absorbed
                 radius=2*(1-absorbed)
                 lightening=min(1,elapsed/250)
                 pale_rgb=rgb(pale[owner])
                 fill='#'+''.join(f'{round(a+(b-a)*lightening):02x}' for a,b in zip(start_rgb,pale_rgb))
                 t=morph_start+elapsed
-                declarations+=frame(t,cell_point,size,radius,fill,opacity=1-absorbed)
-                if tick in merge_bumps[index]:
-                    interval=merge_times[tick+1]-merge_times[tick]
-                    dx,dy=merge_bumps[index][tick]
-                    declarations+=frame(t+interval*.28,cell_point,fill='#e2f2ff',lean=(dx,dy))
-                    declarations+=frame(t+interval*.48,cell_point,fill=fill,lean=(-dx*.5,-dy*.5))
-                    declarations+=frame(t+interval*.7,cell_point,fill=fill)
+                if tick==0 or tick==merge_stops[index] or absorbed>0 or elapsed<300:
+                    declarations+=frame(t,cell_point,size,radius,fill,opacity=1-absorbed)
+                elif tick==len(merge_paths[index])-1 or cell_point!=merge_paths[index][tick-1]:
+                    declarations+=frame(t,cell_point,motion_only=True)
             # Arrived letter pixels become mass in the separate growing body.
             # They never remain as finished segments underneath later arrivals.
-            declarations+=frame(morph_start+arrival+140,target,2,0,pale[owner],opacity=0)
+            declarations+=frame(morph_start+arrival+260,target,2,0,pale[owner],opacity=0)
             declarations+=frame(cycle_ms,target,2,0,pale[owner],opacity=0)
             pixel.set('data-morph-slot',str(slot))
             rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
             rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
             message.append(pixel)
-        root.set('data-message-model', 'contact-recoil-grid')
+        root.set('data-message-model', 'damped-square-particle-physics')
+        root.set('data-physics-hz','120')
         root.set('data-message-body-formation', 'mass-and-staggered-growth')
         root.set('data-red-route-salt', '17041')
         root.set('data-message-collisions', str(collision_count))
-        root.set('data-message-visible-contacts', str(sum(len(b) for b in bumps)//2))
+        root.set('data-message-visible-contacts', str(collision_count))
         root.set('data-message-merge-collisions', str(merge_collisions))
         root.set('data-message-first-settled-ms', f'{message_start+min(assembly_times[t] for t in settle_ticks):.3f}')
-        root.set('data-message-settle-span-ms', '1200')
+        root.set('data-message-settle-span-ms', f'{max(assembly_times[t] for t in settle_ticks)-min(assembly_times[t] for t in settle_ticks):.3f}')
         root.set('data-message-morph-duration-ms', f'{morph_ms:.3f}')
         root.set('data-message-morph-start-ms', f'{morph_start:.3f}')
         root.set('data-message-formed-ms', f'{message_start+assembly_ms:.3f}')
@@ -747,5 +820,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
