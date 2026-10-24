@@ -209,9 +209,17 @@ def compact_motion(points):
     return kept + [points[-1]]
 
 
-def restart_pixels(columns, rows):
+def restart_pixels(columns, rows, phrase='ONCE MORE'):
     """Center a five-row ONCE MORE message on actual contribution-grid cells."""
     glyphs = {
+        'A': ('01110','10001','11111','10001','10001'),
+        'G': ('01111','10000','10111','10001','01110'),
+        'I': ('11111','00100','00100','00100','11111'),
+        'S': ('01111','10000','01110','00001','11110'),
+        'T': ('11111','00100','00100','00100','00100'),
+        'P': ('11110','10001','11110','10000','10000'),
+        'L': ('10000','10000','10000','10000','11111'),
+        'Y': ('10001','01010','00100','00100','00100'),
         'O': ('01110', '10001', '10001', '10001', '01110'),
         'N': ('10001', '11001', '10101', '10011', '10001'),
         'C': ('01111', '10000', '10000', '10000', '01111'),
@@ -219,7 +227,6 @@ def restart_pixels(columns, rows):
         'M': ('10001', '11011', '10101', '10001', '10001'),
         'R': ('11110', '10001', '11110', '10100', '10010'),
     }
-    phrase = 'ONCE MORE'
     width = sum(3 if char == ' ' else 6 for char in phrase) - 1
     if columns < width or rows < 5:
         return set()
@@ -420,7 +427,7 @@ def body_formation(arrival_times, times, slot, duration):
     return result
 
 
-def build_duet(source: str, step_ms: float | None = None, seed: int | None = None) -> str:
+def build_duet(source: str, step_ms: float | None = None, seed: int | None = None, phrase: str = 'ONCE MORE', route_cache=None) -> str:
     root = ET.fromstring(source)
     style = root.find(TAG + 'style')
     if style is None or not style.text:
@@ -454,14 +461,19 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         signature = repr(sorted(colored)) + date.today().isoformat()
         seed = int(hashlib.sha256(signature.encode()).hexdigest()[:16], 16)
 
-    message_pixels = restart_pixels(columns, rows)
+    message_pixels = restart_pixels(columns, rows, phrase)
     blue_bodies = [tuple((columns//3-i, rows//2) for i in range(len(segments))),
                    tuple((2*columns//3+i, rows//2) for i in range(len(segments)))] if message_pixels else None
     plans = {}
     for phase, color in enumerate(('red', 'blue')):
-        plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009 + (17041 if color == 'red' and columns >= 8 else 0),
-                                 blue_bodies if color == 'blue' else None,
-                                 (0, max(1, round(1000/step_ms))) if color == 'red' and columns >= 8 else None)
+        cache_key=(tuple(sorted(colored)),columns,rows,len(segments),seed,phase,bool(message_pixels))
+        if route_cache is not None and cache_key in route_cache:
+            plans[color]=copy.deepcopy(route_cache[cache_key])
+        else:
+            plans[color] = plan_pair(colored, columns, rows, len(segments), seed + phase*1009 + (17041 if color == 'red' and columns >= 8 else 0),
+                                     blue_bodies if color == 'blue' else None,
+                                     (0, max(1, round(1000/step_ms))) if color == 'red' and columns >= 8 else None)
+            if route_cache is not None:route_cache[cache_key]=copy.deepcopy(plans[color])
         for plan in plans[color]:
             plan['restore'] = {
                 coord: next(tick for tick in range(visit+len(segments), len(plan['states']))
@@ -577,7 +589,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                 rules.append(f'@keyframes {animation}'+'{'+declarations+'}')
                 rules.append(f'.{animation}'+f'{{animation:{animation} {cycle_ms:.3f}ms linear infinite}}')
         message = ET.SubElement(root, TAG+'g', {
-            'class': 'restart-message', 'aria-label': 'ONCE MORE',
+            'class': 'restart-message', 'aria-label': phrase,
             'clip-path': 'url(#message-grid)',
         })
         defs = ET.SubElement(root, TAG+'defs')
@@ -735,4 +747,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
