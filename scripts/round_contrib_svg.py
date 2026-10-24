@@ -17,11 +17,13 @@ ET.register_namespace('', NS)
 def customize_svg(svg: str) -> str:
     source = ET.fromstring(svg)
     # Identify the donut by its titled language slices, independently of position.
+    parents = {child: parent for parent in source.iter() for child in parent}
     donut = next((g for g in source.iter(TAG+'g')
-                  if len(g.findall(TAG+'path/'+TAG+'title')) >= 2), None)
+                  if g.findall(TAG+'path/'+TAG+'title')
+                  and any(sibling is not g and sibling.findall(TAG+'text')
+                          for sibling in parents[g].findall(TAG+'g'))), None)
     if donut is None:
         raise ValueError('Could not identify the upstream language donut')
-    parents = {child: parent for parent in source.iter() for child in parent}
     language = parents[donut]
     legend = next((g for g in language.findall(TAG+'g') if g is not donut
                    and g.findall(TAG+'text')), None)
@@ -69,3 +71,4 @@ def apply_rounding() -> None:
 
 if __name__ == '__main__':
     apply_rounding()
+
