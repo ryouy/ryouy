@@ -1,0 +1,42 @@
+name: Generate contribution motif cycle
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/generate_motif_cycle.py
+      - scripts/generate_snake_duet.py
+      - .github/workflows/motif-cycle.yml
+  schedule:
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: contribution-motif-cycle
+  cancel-in-progress: false
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate and publish six complete motif rounds
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python -m unittest discover -s scripts -p test_motif_cycle.py
+            python scripts/generate_motif_cycle.py --repository "$REPOSITORY"
+            git add assets/motif-cycle.svg assets/motif-cycle-dark.svg
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m 'chore: refresh contribution motif cycle'
+            if git push origin HEAD:main; then exit 0; fi
+          done
+          exit 1
