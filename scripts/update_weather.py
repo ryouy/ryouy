@@ -4,6 +4,7 @@
 The 420:148 canvas ratio matches the profile's aligned layout.
 """
 import json
+import math
 from profile_slices import write_slices
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -15,21 +16,30 @@ OUTPUT = Path(__file__).resolve().parents[1] / 'assets/weather-azumino.svg'
 WEATHER_NAMES = {0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 56: 'Freezing drizzle', 57: 'Freezing drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Freezing rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Light showers', 81: 'Rain showers', 82: 'Heavy showers', 85: 'Snow showers', 86: 'Snow showers', 95: 'Thunderstorm', 96: 'Thunder + hail', 99: 'Thunder + hail'}
 
 
+def format_temperature(value) -> str:
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+        return f"{value:.0f}°"
+    return '—'
+
+
 def render_card(payload: dict) -> str:
-    current, daily = payload['current'], payload['daily']
+    current, daily = payload['current'], payload.get('daily') or {}
     observed = datetime.fromisoformat(current['time'])
     tomorrow = observed.date() + timedelta(days=1)
-    today_index = daily['time'].index(observed.date().isoformat())
-    index = daily['time'].index(tomorrow.isoformat())
-    now_code = int(current['weather_code'])
-    tomorrow_code = int(daily['weather_code'][index])
-    temperature = f"{current['temperature_2m']:.0f}°"
-    high = f"{daily['temperature_2m_max'][index]:.0f}°"
-    low = f"{daily['temperature_2m_min'][index]:.0f}°"
-    today_high = f"{daily['temperature_2m_max'][today_index]:.0f}°"
-    today_low = f"{daily['temperature_2m_min'][today_index]:.0f}°"
-    now_name = WEATHER_NAMES.get(now_code, 'Unknown')
-    tomorrow_name = WEATHER_NAMES.get(tomorrow_code, 'Unavailable')
+    dates = daily.get('time') or []
+    def forecast(field, day):
+        values = daily.get(field) or []
+        if day.isoformat() not in dates:
+            return None
+        index = dates.index(day.isoformat())
+        return values[index] if index < len(values) else None
+    temperature = format_temperature(current.get('temperature_2m'))
+    high = format_temperature(forecast('temperature_2m_max', tomorrow))
+    low = format_temperature(forecast('temperature_2m_min', tomorrow))
+    today_high = format_temperature(forecast('temperature_2m_max', observed.date()))
+    today_low = format_temperature(forecast('temperature_2m_min', observed.date()))
+    now_name = WEATHER_NAMES.get(current.get('weather_code'), 'Unavailable')
+    tomorrow_name = WEATHER_NAMES.get(forecast('weather_code', tomorrow), 'Unavailable')
     description = escape(f'Azumino: now {temperature}C, {now_name}. Today high {today_high}, low {today_low}. Tomorrow {tomorrow.month}/{tomorrow.day}: {tomorrow_name}, high {high}, low {low}.')
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewBox="0 0 420 148" role="img" aria-label="{description}">
   <title>{description}</title>
@@ -37,7 +47,7 @@ def render_card(payload: dict) -> str:
   <g font-family="Arial,Helvetica,sans-serif">
     <text x="20" y="28" fill="#8abfe5" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</text>
     <text x="400" y="28" text-anchor="end" fill="#879fb2" font-size="11">{observed:%m/%d %H:%M}</text>
-    <text x="81.5" y="88" text-anchor="middle" dominant-baseline="central" fill="#f7fbff" font-size="57" font-weight="600">{temperature[:-1]}<tspan font-size="30">°C</tspan></text>
+    <text x="81.5" y="88" text-anchor="middle" dominant-baseline="central" fill="#f7fbff" font-size="57" font-weight="600">{temperature.removesuffix('°')}<tspan font-size="30">°C</tspan></text>
     <line x1="163" y1="45" x2="163" y2="131" stroke="#314558"/>
     <text x="180" y="58" fill="#f7fbff" font-size="17">{now_name}</text>
     <text x="180" y="83" fill="#d2e1ed" font-size="15">High {today_high} / Low {today_low}</text>
@@ -70,3 +80,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
