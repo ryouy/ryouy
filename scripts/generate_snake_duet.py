@@ -802,16 +802,19 @@ def main() -> None:
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'assets')
     parser.add_argument('--step-ms', type=float, help='Defaults to the original Snake velocity')
     parser.add_argument('--seed', type=int, help='Optional reproducible route seed')
+    parser.add_argument('--calendar-file',type=Path,help='Offline GitHub calendar HTML fixture')
     args = parser.parse_args()
     if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', args.repository):
         parser.error('Expected owner/repository')
+    from contribution_calendar import fetch_calendar,parse_calendar,add_calendar_labels
+    calendar=parse_calendar(args.calendar_file.read_text()) if args.calendar_file else fetch_calendar(args.repository.split('/')[0])
     inputs = {p.resolve() for p in (args.source_light, args.source_dark) if p}
     outputs = []
     for dark, local in ((False, args.source_light), (True, args.source_dark)):
         output = args.output_dir / ('snake-duet-dark.svg' if dark else 'snake-duet.svg')
         if output.resolve() in inputs:
             parser.error('Output must not overwrite a source SVG')
-        outputs.append((output, build_duet(load_source(local, args.repository, dark), args.step_ms, args.seed)))
+        outputs.append((output, add_calendar_labels(build_duet(load_source(local, args.repository, dark), args.step_ms, args.seed),calendar,dark)))
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for output, svg in outputs:
         output.write_text(svg, encoding='utf-8')
@@ -820,6 +823,7 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
 
