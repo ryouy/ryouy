@@ -33,7 +33,7 @@ class CalendarParser(HTMLParser):
         if not match or not self.days or not self.months or any(not m['label'] for m in self.months):
             raise ValueError('GitHub contribution calendar markup was not recognized')
         return {'heading':heading,'total':int(match[1].replace(',','')),'months':self.months,
-                'columns':self.week,'days':self.days}
+                'columns':max(d['week'] for d in self.days)+1,'days':self.days}
 
 def parse_calendar(html):
     parser=CalendarParser();parser.feed(html);return parser.result()
