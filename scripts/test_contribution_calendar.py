@@ -18,6 +18,10 @@ class CalendarTests(unittest.TestCase):
         c=parse_calendar(HTML)
         self.assertEqual(c['total'],1234)
         self.assertEqual(c['months'],[{'week':0,'label':'Dec'},{'week':2,'label':'Jan'}])
+    def test_unlabeled_partial_month_does_not_shorten_the_grid(self):
+        # GitHub may omit the short first month's header, while retaining its day cells.
+        html=HTML.replace('data-ix="2"', 'data-ix="3"')
+        self.assertEqual(parse_calendar(html)['columns'],4)
     def test_only_requested_labels_and_total_are_visible(self):
         for dark in [False,True]:
             root=ET.fromstring(add_calendar_labels(source(),parse_calendar(HTML),dark))
