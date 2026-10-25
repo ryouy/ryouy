@@ -48,6 +48,14 @@ def add_calendar_labels(svg,calendar,dark=False):
     cells=[e for e in root.findall(TAG+'rect') if 'c' in e.get('class','').split()]
     xs=sorted({float(e.get('x')) for e in cells});ys=sorted({float(e.get('y')) for e in cells})
     if len(xs)!=calendar['columns'] or len(ys)!=7:raise ValueError('Calendar labels do not match the snake grid dimensions')
+    # Match the default dark calendar, rather than Platane/snk's teal palette.
+    if dark:
+        style=root.find(TAG+'style')
+        if style is not None and style.text:
+            palette={'--cb':'#0104090d','--ce':'#151b23','--c0':'#151b23',
+                     '--c1':'#033a16','--c2':'#196c2e','--c3':'#2ea043','--c4':'#56d364'}
+            for name,color in palette.items():
+                style.text=re.sub(re.escape(name)+r':[^;}]+',name+':'+color,style.text)
     old_view=list(map(float,root.get('viewBox').split()));left=xs[0]-40;top=ys[0]-56
     right=old_view[0]+old_view[2];bottom=old_view[1]+old_view[3]
     root.set('viewBox',f'{left:g} {top:g} {right-left:g} {bottom-top:g}')
@@ -70,6 +78,6 @@ def add_calendar_labels(svg,calendar,dark=False):
     for row,name in [(1,'Mon'),(3,'Wed'),(5,'Fri')]:
         ET.SubElement(labels,TAG+'text',{'x':str(left+2),'y':str(ys[row]+10)}).text=name
     for month in calendar['months']:
-        ET.SubElement(labels,TAG+'text',{'x':str(xs[month['week']]),'y':str(ys[0]-12)}).text=month['label']
+        ET.SubElement(labels,TAG+'text',{'x':str(xs[month['week']]),'y':str(ys[0]-12),'fill':'#f0f6fc' if dark else '#1f2328'}).text=month['label']
     ET.SubElement(root,TAG+'desc').text=calendar['heading']+'. Months and Mon, Wed, Fri labels follow the GitHub calendar.'
     return ET.tostring(root,encoding='unicode')+'\n'
