@@ -5,7 +5,7 @@ The 420:148 canvas ratio matches the profile's aligned layout.
 """
 import json
 import math
-from profile_slices import write_slices
+from profile_slices import write_slices, style_card
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -41,7 +41,7 @@ def render_card(payload: dict) -> str:
     now_name = WEATHER_NAMES.get(current.get('weather_code'), 'Unavailable')
     tomorrow_name = WEATHER_NAMES.get(forecast('weather_code', tomorrow), 'Unavailable')
     description = escape(f'Azumino: now {temperature}C, {now_name}. Today high {today_high}, low {today_low}. Tomorrow {tomorrow.month}/{tomorrow.day}: {tomorrow_name}, high {high}, low {low}.')
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewBox="0 0 420 148" role="img" aria-label="{description}">
+    return style_card(f'''<svg xmlns="http://www.w3.org/2000/svg" width="420" height="148" viewBox="0 0 420 148" role="img" aria-label="{description}">
   <title>{description}</title>
   <rect x="1" y="1" width="418" height="146" rx="13" fill="#101b2b" stroke="#2a3e54" stroke-width="1.5"/>
   <g font-family="Arial,Helvetica,sans-serif">
@@ -56,7 +56,7 @@ def render_card(payload: dict) -> str:
     <text x="180" y="132" fill="#b6cadb" font-size="15">High {high} / Low {low}</text>
   </g>
 </svg>
-'''
+''')
 
 
 
@@ -80,4 +80,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 

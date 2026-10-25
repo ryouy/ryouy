@@ -3,6 +3,39 @@ import copy
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+def style_card(svg: str) -> str:
+    """Give the profile cards a quiet shared surface and a small alpine signature."""
+    tag = '{http://www.w3.org/2000/svg}'
+    root = ET.fromstring(svg)
+    if root.find(".//" + tag + "linearGradient[@id='profile-card-surface']") is not None:
+        return svg
+    background = next((el for el in root.iter(tag+'rect')
+                       if el.get('fill') == '#101b2b' and el.get('stroke')), None)
+    if background is None:
+        raise ValueError('Profile card background was not found')
+    defs = ET.Element(tag+'defs')
+    for name, stops in [('surface', [('#132235', '0%'), ('#0e1826', '100%')]),
+                        ('rim', [('#354c62', '0%'), ('#223449', '100%')])]:
+        gradient = ET.SubElement(defs, tag+'linearGradient', {
+            'id': 'profile-card-'+name, 'x1': '0%', 'y1': '0%', 'x2': '100%', 'y2': '100%'})
+        for color, offset in stops:
+            ET.SubElement(gradient, tag+'stop', {'offset': offset, 'stop-color': color})
+    root.insert(0, defs)
+    background.set('fill', 'url(#profile-card-surface)')
+    background.set('stroke', 'url(#profile-card-rim)')
+    background.set('stroke-width', '1')
+    right = float(background.get('x', '0')) + float(background.get('width'))
+    top = float(background.get('y', '0'))
+    # A tiny ridge fits above every card's existing content.
+    ridge = ET.Element(tag+'polyline', {
+        'points': f'{right-40:g},{top+11:g} {right-33:g},{top+5:g} {right-28:g},{top+9:g} {right-23:g},{top+6:g} {right-16:g},{top+11:g}',
+        'fill': 'none', 'stroke': '#8db7ca', 'stroke-width': '.85',
+        'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'opacity': '.48',
+        'aria-hidden': 'true'})
+    parent = next(el for el in root.iter() if background in list(el))
+    parent.insert(list(parent).index(background)+1, ridge)
+    return ET.tostring(root, encoding='unicode') + '\n'
+
 def write_slices(svg: str, target: Path) -> None:
     root = ET.fromstring(svg)
     x, y, width, height = map(float, root.get('viewBox').split())
@@ -13,3 +46,4 @@ def write_slices(svg: str, target: Path) -> None:
         panel.set('height', f'{height / 2:g}')
         target.with_name(target.stem + '-' + name + target.suffix).write_text(
             ET.tostring(panel, encoding='unicode') + '\n', encoding='utf-8')
+

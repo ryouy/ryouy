@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import copy
-from profile_slices import write_slices
+from profile_slices import write_slices, style_card
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -59,7 +59,7 @@ def customize_svg(svg: str) -> str:
         for child in list(parent):
             if child.tag in {TAG+'animate', TAG+'animateTransform'}:
                 parent.remove(child)
-    return ET.tostring(root, encoding='unicode') + '\n'
+    return style_card(ET.tostring(root, encoding='unicode'))
 
 
 def apply_rounding() -> None:
@@ -71,4 +71,5 @@ def apply_rounding() -> None:
 
 if __name__ == '__main__':
     apply_rounding()
+
 
