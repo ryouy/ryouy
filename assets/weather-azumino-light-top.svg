@@ -1,15 +1,15 @@
-<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" width="420" height="74" viewBox="0 0 420 74" role="img" aria-label="Azumino: now 18°C, Partly cloudy. Today high 18°, low 9°. Tomorrow 11/1: Partly cloudy, high 17°, low 8°.">
-  <ns0:defs><ns0:linearGradient id="profile-card-surface" x1="0%" y1="0%" x2="100%" y2="100%"><ns0:stop offset="0%" stop-color="#ffffff" /><ns0:stop offset="100%" stop-color="#f6f8fa" /></ns0:linearGradient><ns0:linearGradient id="profile-card-rim" x1="0%" y1="0%" x2="100%" y2="100%"><ns0:stop offset="0%" stop-color="#d0d7de" /><ns0:stop offset="100%" stop-color="#d8dee4" /></ns0:linearGradient></ns0:defs><ns0:title>Azumino: now 18°C, Partly cloudy. Today high 18°, low 9°. Tomorrow 11/1: Partly cloudy, high 17°, low 8°.</ns0:title>
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" width="420" height="74" viewBox="0 0 420 74" role="img" aria-label="Azumino: now 16°C, Clear sky. Today high 18°, low 9°. Tomorrow 11/1: Overcast, high 16°, low 8°.">
+  <ns0:defs><ns0:linearGradient id="profile-card-surface" x1="0%" y1="0%" x2="100%" y2="100%"><ns0:stop offset="0%" stop-color="#ffffff" /><ns0:stop offset="100%" stop-color="#f6f8fa" /></ns0:linearGradient><ns0:linearGradient id="profile-card-rim" x1="0%" y1="0%" x2="100%" y2="100%"><ns0:stop offset="0%" stop-color="#d0d7de" /><ns0:stop offset="100%" stop-color="#d8dee4" /></ns0:linearGradient></ns0:defs><ns0:title>Azumino: now 16°C, Clear sky. Today high 18°, low 9°. Tomorrow 11/1: Overcast, high 16°, low 8°.</ns0:title>
   <ns0:rect x="1" y="1" width="418" height="146" rx="13" fill="url(#profile-card-surface)" stroke="url(#profile-card-rim)" stroke-width="1" />
   <ns0:polyline points="379,12 386,6 391,10 396,7 403,12" fill="none" stroke="#6c9db9" stroke-width=".85" stroke-linecap="round" stroke-linejoin="round" opacity=".48" aria-hidden="true" /><ns0:g font-family="Arial,Helvetica,sans-serif">
     <ns0:text x="20" y="28" fill="#0969da" font-size="15" font-weight="600" letter-spacing="1.2">AZUMINO</ns0:text>
-    <ns0:text x="400" y="28" text-anchor="end" fill="#57606a" font-size="11">10/31 13:00</ns0:text>
-    <ns0:text x="81.5" y="88" text-anchor="middle" dominant-baseline="central" fill="#24292f" font-size="57" font-weight="600">18<ns0:tspan font-size="30">°C</ns0:tspan></ns0:text>
+    <ns0:text x="400" y="28" text-anchor="end" fill="#57606a" font-size="11">10/31 16:15</ns0:text>
+    <ns0:text x="81.5" y="88" text-anchor="middle" dominant-baseline="central" fill="#24292f" font-size="57" font-weight="600">16<ns0:tspan font-size="30">°C</ns0:tspan></ns0:text>
     <ns0:line x1="163" y1="45" x2="163" y2="131" stroke="#d0d7de" />
-    <ns0:text x="180" y="58" fill="#24292f" font-size="17">Partly cloudy</ns0:text>
+    <ns0:text x="180" y="58" fill="#24292f" font-size="17">Clear sky</ns0:text>
     <ns0:text x="180" y="83" fill="#424a53" font-size="15">High 18° / Low 9°</ns0:text>
     <ns0:text x="180" y="110" fill="#57606a" font-size="12">Tomorrow</ns0:text>
-    <ns0:text x="248" y="110" fill="#424a53" font-size="14">Partly cloudy</ns0:text>
-    <ns0:text x="180" y="132" fill="#57606a" font-size="15">High 17° / Low 8°</ns0:text>
+    <ns0:text x="248" y="110" fill="#424a53" font-size="14">Overcast</ns0:text>
+    <ns0:text x="180" y="132" fill="#57606a" font-size="15">High 16° / Low 8°</ns0:text>
   </ns0:g>
 </ns0:svg>
