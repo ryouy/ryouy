@@ -36,6 +36,29 @@ def style_card(svg: str) -> str:
     parent.insert(list(parent).index(background)+1, ridge)
     return ET.tostring(root, encoding='unicode') + '\n'
 
+
+def light_card(svg: str) -> str:
+    """Use a readable light palette while retaining the dark card's geometry."""
+    palette = {
+        '#132235': '#ffffff',
+        '#0e1826': '#f6f8fa',
+        '#354c62': '#d0d7de',
+        '#223449': '#d8dee4',
+        '#8db7ca': '#6c9db9',
+        '#f7fbff': '#24292f',
+        '#8abfe5': '#0969da',
+        '#879fb2': '#57606a',
+        '#314558': '#d0d7de',
+        '#d2e1ed': '#424a53',
+        '#b6cadb': '#57606a',
+        '#b4c7d7': '#57606a',
+        '#101b2b': '#ffffff',
+        '#2a3e54': '#d0d7de',
+    }
+    for dark, light in palette.items():
+        svg = svg.replace(dark, light)
+    return svg
+
 def write_slices(svg: str, target: Path) -> None:
     root = ET.fromstring(svg)
     x, y, width, height = map(float, root.get('viewBox').split())
