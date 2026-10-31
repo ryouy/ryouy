@@ -5,7 +5,7 @@ The 420:148 canvas ratio matches the profile's aligned layout.
 """
 import json
 import math
-from profile_slices import write_slices, style_card
+from profile_slices import write_slices, style_card, light_card
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -75,7 +75,11 @@ def main() -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(svg, encoding='utf-8')
     write_slices(svg, OUTPUT)
-    print(f'Updated {OUTPUT.name}: current conditions and tomorrow forecast')
+    light_output = OUTPUT.with_name('weather-azumino-light.svg')
+    light_svg = light_card(svg)
+    light_output.write_text(light_svg, encoding='utf-8')
+    write_slices(light_svg, light_output)
+    print(f'Updated both themes for {OUTPUT.name}: current conditions and tomorrow forecast')
 
 
 if __name__ == '__main__':

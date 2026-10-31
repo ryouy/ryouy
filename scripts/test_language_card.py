@@ -1,6 +1,7 @@
 import unittest
 import xml.etree.ElementTree as ET
 from round_contrib_svg import customize_svg, TAG
+from profile_slices import light_card
 
 def source(names):
     chart=''.join(f'<path d="M0 0 L10 0 L0 10Z" fill="#4593f8"><title>{n}</title></path>' for n in names)
@@ -20,3 +21,11 @@ class LanguageCardTests(unittest.TestCase):
         self.assertIn('Jupyter',labels)
     def test_missing_chart_fails_before_publishing(self):
         with self.assertRaisesRegex(ValueError,'donut'):customize_svg(source([]))
+
+    def test_light_palette_preserves_language_data(self):
+        light = light_card(customize_svg(source(['Python', 'JavaScript'])))
+        self.assertIn('.fill-fg{fill:#57606a}', light)
+        self.assertIn('.stroke-bg{stroke:#ffffff}', light)
+        self.assertIn('fill="#24292f"', light)
+        self.assertIn('Python', light)
+        ET.fromstring(light)

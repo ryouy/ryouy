@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import copy
-from profile_slices import write_slices, style_card
+from profile_slices import write_slices, style_card, light_card
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -66,7 +66,11 @@ def apply_rounding() -> None:
     svg = customize_svg(TARGET.read_text(encoding='utf-8'))
     TARGET.write_text(svg, encoding='utf-8')
     write_slices(svg, TARGET)
-    print('Updated language-only profile card')
+    light_target = TARGET.with_name('profile-night-view-light.svg')
+    light_svg = light_card(svg)
+    light_target.write_text(light_svg, encoding='utf-8')
+    write_slices(light_svg, light_target)
+    print('Updated language-only profile cards for both themes')
 
 
 if __name__ == '__main__':
