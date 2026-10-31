@@ -2,6 +2,7 @@ import copy
 import unittest
 import xml.etree.ElementTree as ET
 from update_weather import render_card, format_temperature
+from profile_slices import light_card
 
 PAYLOAD = {
     'current': {'time': '2026-12-31T23:45', 'temperature_2m': -2.5, 'weather_code': 71},
@@ -22,3 +23,11 @@ class WeatherTests(unittest.TestCase):
     def test_nonfinite_temperatures_are_not_published(self):
         for value in [None,float('nan'),float('inf'),True,'12']:
             self.assertEqual(format_temperature(value),'—')
+
+    def test_light_palette_and_forecast(self):
+        light = light_card(render_card(PAYLOAD))
+        self.assertIn('stop-color="#ffffff"', light)
+        self.assertIn('fill="#24292f"', light)
+        self.assertIn('High 3° / Low -4°', light)
+        self.assertNotIn('stop-color="#132235"', light)
+        ET.fromstring(light)
