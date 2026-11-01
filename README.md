@@ -1,8 +1,8 @@
 <!-- Transparent typing header. Desktop and mobile use purpose-built SVGs; no background. -->
 <div align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/b28022b280dbf34c659a2a715efd07062138e9f7/assets/intro-mobile.svg">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/b28022b280dbf34c659a2a715efd07062138e9f7/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy is based in Aizu → Azumino in 2027; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
+    <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/cab6a0ca254588ed7dc518abf930934986c78466/assets/intro-mobile.svg">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/cab6a0ca254588ed7dc518abf930934986c78466/assets/intro-animated.svg" width="800" alt="ryouy studies CS at the University of Aizu; ryouy is based in Aizu → Azumino in 2027; ryouy explores LLMs / data / robotics / the world; ryouy brings ideas to life; ryouy gazes at mountains / heads for the peaks; ryouy ponders philosophy / economics / the future">
   </picture>
 </div>
 <!-- 800px border-free grid: 534 + 10 + 256. Photo and Spotify both render at 356px. The Spotify proxy shows the live card and falls back to the latest healthy SVG during ads. -->
