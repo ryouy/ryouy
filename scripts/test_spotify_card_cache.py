@@ -1,6 +1,6 @@
 import unittest
 
-from cache_spotify_card import MAX_BYTES, is_valid_svg
+from cache_spotify_card import MAX_BYTES, is_valid_svg, is_playing_card
 
 
 class SpotifyCardCacheTests(unittest.TestCase):
@@ -15,3 +15,10 @@ class SpotifyCardCacheTests(unittest.TestCase):
 
     def test_oversized_response_is_rejected(self):
         self.assertFalse(is_valid_svg(b'x' * (MAX_BYTES + 1), "image/svg+xml"))
+
+    def test_offline_cards_are_never_saved(self):
+        live = b'<svg xmlns="http://www.w3.org/2000/svg"><div class="artist">Artist</div><div class="song">Song</div></svg>'
+        offline = b'<svg xmlns="http://www.w3.org/2000/svg"><div class="artist">Offline</div><div class="song">Currently not playing on Spotify</div></svg>'
+        self.assertTrue(is_playing_card(live, "image/svg+xml"))
+        self.assertFalse(is_playing_card(offline, "image/svg+xml"))
+        self.assertFalse(is_playing_card(b'<svg xmlns="http://www.w3.org/2000/svg"/>', "image/svg+xml"))

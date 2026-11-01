@@ -36,14 +36,27 @@ def is_valid_svg(body: bytes, content_type: str) -> bool:
     return root.tag == "svg" or root.tag.endswith("}svg")
 
 
+def is_playing_card(body: bytes, content_type: str) -> bool:
+    """Only cache real song cards, never the provider's offline view."""
+    if not is_valid_svg(body, content_type):
+        return False
+    if b'class="artist">' not in body or b'class="song">' not in body:
+        return False
+    return not any(marker in body for marker in (
+        b"Currently not playing on Spotify",
+        b"Nothing playing on Spotify",
+        b'class="artist">Offline</div>',
+    ))
+
+
 def refresh_card() -> bool:
     request = Request(SOURCE, headers={"User-Agent": "ryouy-profile-card-cache/1.0"})
     try:
         with urlopen(request, timeout=12) as response:
             body = response.read(MAX_BYTES + 1)
             content_type = response.headers.get("Content-Type", "")
-            if response.status != 200 or not is_valid_svg(body, content_type):
-                print("Provider did not return a valid Spotify SVG; keeping last good card")
+            if response.status != 200 or not is_playing_card(body, content_type):
+                print("Provider returned an offline/invalid Spotify view; keeping the last played song")
                 return False
     except (HTTPError, URLError, TimeoutError, OSError) as error:
         print(f"Spotify temporarily unavailable ({type(error).__name__}); keeping last good card")
