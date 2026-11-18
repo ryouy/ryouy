@@ -151,14 +151,33 @@ def main() -> None:
         '&timezone=Asia%2FTokyo&forecast_days=2'
     )
     request = Request(query, headers={'User-Agent': 'ryouy-github-readme-weather/2.0'})
-    with urlopen(request, timeout=25) as response:
-        payload = json.load(response)
-    svg = add_background(render_card(payload), animated_sky(light=False))
+    import time
+    payload = None
+    for attempt in range(3):
+        try:
+            with urlopen(request, timeout=18) as response:
+                payload = json.load(response)
+            break
+        except Exception as exc:
+            print(f'Weather fetch attempt {attempt + 1}/3 failed: {exc}')
+            if attempt < 2:
+                time.sleep(2 * (attempt + 1))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    light_output = OUTPUT.with_name('weather-azumino-light.svg')
+    if payload is not None:
+        dark_source = render_card(payload)
+        light_source = light_card(dark_source)
+    elif OUTPUT.exists() and light_output.exists():
+        # Keep the last valid observed conditions during temporary API outages.
+        dark_source = OUTPUT.read_text(encoding='utf-8')
+        light_source = light_output.read_text(encoding='utf-8')
+        print('Using last successfully generated weather data')
+    else:
+        raise RuntimeError('Weather service unavailable and no cached cards exist')
+    svg = dark_source if 'weather-sky-clip' in dark_source else add_background(dark_source, animated_sky(light=False))
     OUTPUT.write_text(svg, encoding='utf-8')
     write_slices(svg, OUTPUT)
-    light_output = OUTPUT.with_name('weather-azumino-light.svg')
-    light_svg = add_background(light_card(render_card(payload)), animated_sky(light=True), light=True)
+    light_svg = light_source if 'weather-sky-clip' in light_source else add_background(light_source, animated_sky(light=True), light=True)
     light_output.write_text(light_svg, encoding='utf-8')
     write_slices(light_svg, light_output)
     print(f'Updated both themes for {OUTPUT.name}: current conditions and tomorrow forecast')
