@@ -244,7 +244,7 @@ class SnakeDuetTests(unittest.TestCase):
             self.assertLess(min(xs),26)
             self.assertGreater(max(xs),26)
 
-    def test_svg_keeps_velocity_has_four_tints_and_no_gauge(self):
+    def test_svg_keeps_velocity_and_has_dual_phase_gauge(self):
         root=ET.fromstring(build_duet(fixture(),seed=42))
         self.assertEqual(float(root.get('data-original-red-ms')),1000)
         self.assertEqual(float(root.get('data-step-ms')),250)
@@ -260,6 +260,13 @@ class SnakeDuetTests(unittest.TestCase):
                 self.assertIsNotNone(match)
                 tints.append(match.group(1))
         self.assertEqual(len(set(tints)),4)
+        gauge=root.find(TAG + "g[@class='snake-progress']")
+        self.assertIsNotNone(gauge)
+        self.assertEqual({el.get('class') for el in gauge},
+                         {'snake-progress-track','snake-progress-red','snake-progress-blue'})
+        self.assertIn('@keyframes gauge-red{',css)
+        self.assertIn('@keyframes gauge-blue{',css)
+        self.assertIn('scaleX(1.000000)',css)
         self.assertNotIn('animation-direction:reverse',css)
         self.assertIn('100%{fill:var(--c1)}',css)
         self.assertIn('100%{fill:var(--c2)}',css)
