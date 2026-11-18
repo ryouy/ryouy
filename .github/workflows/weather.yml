@@ -29,6 +29,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install weather graphics dependency
+        run: python -m pip install 'Pillow>=10,<13'
       - name: Commit weather card when updated
         run: |
           git config user.name 'github-actions[bot]'
