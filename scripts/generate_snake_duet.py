@@ -758,50 +758,51 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     # The original snk progress bars were removed above; this is an independent gauge.
     total = len(colored)
     if total:
-        # Two permanently visible labeled tracks, with enough spacing to remain legible at README width.
-        # Animated fills remain tied to actual collection and restoration events.
-        track_x = xs[0] + 78
-        track_width = xs[-1] - xs[0] + 12 - 78
+        # Visible vertical gauges sit to the right of (not on top of) the grid.
+        # The bars fill from the bottom as snakes collect and restore cells.
+        track_y = ys[0]
+        track_height = ys[-1] - ys[0] + 12
         gauge = ET.SubElement(root, TAG + 'g', {
-            'class': 'snake-progress', 'aria-label': 'Contribution collection and restoration progress',
+            'class': 'snake-progress',
+            'aria-label': 'Vertical snake progress: red collecting and blue restoring',
         })
-        for color, label, offset in (('red', 'COLLECT', 0), ('blue', 'RESTORE', 18)):
-            track_y = ys[-1] + 18 + offset
+        for color, label, offset in (('red', 'C', 0), ('blue', 'R', 20)):
+            track_x = xs[-1] + 25 + offset
+            ET.SubElement(gauge, TAG + 'rect', {
+                'class': 'snake-progress-track',
+                'x': f'{track_x:g}', 'y': f'{track_y:g}',
+                'width': '12', 'height': f'{track_height:g}', 'rx': '5',
+            })
+            ET.SubElement(gauge, TAG + 'rect', {
+                'class': f'snake-progress-{color}',
+                'x': f'{track_x:g}', 'y': f'{track_y:g}',
+                'width': '12', 'height': f'{track_height:g}', 'rx': '5',
+            })
             ET.SubElement(gauge, TAG + 'text', {
                 'class': f'snake-progress-label-{color}',
-                'x': f'{xs[0]:g}', 'y': f'{track_y + 7:g}',
+                'x': f'{track_x + 6:g}', 'y': f'{track_y + track_height + 14:g}',
                 'font-family': 'Arial,Helvetica,sans-serif',
-                'font-size': '11', 'font-weight': '600',
+                'font-size': '11', 'font-weight': '700', 'text-anchor': 'middle',
             }).text = label
-            ET.SubElement(gauge, TAG + 'rect', {
-                'class': 'snake-progress-track', 'x': f'{track_x:g}',
-                'y': f'{track_y:g}', 'width': f'{track_width:g}',
-                'height': '9', 'rx': '4.5',
-            })
-            ET.SubElement(gauge, TAG + 'rect', {
-                'class': f'snake-progress-{color}', 'x': f'{track_x:g}',
-                'y': f'{track_y:g}', 'width': f'{track_width:g}',
-                'height': '9', 'rx': '4.5',
-            })
         rules += [
-            '.snake-progress-track{fill:var(--cb);stroke:var(--c1);stroke-width:.8;stroke-opacity:.7}',
+            '.snake-progress-track{fill:var(--ce);stroke:var(--c1);stroke-width:1.2}',
             '.snake-progress-label-red{fill:#ef5350}',
             '.snake-progress-label-blue{fill:#4593f8}',
-            '.snake-progress-red{fill:#ef5350;transform-box:fill-box;transform-origin:left center;'
+            '.snake-progress-red{fill:#ef5350;transform-box:fill-box;transform-origin:center bottom;'
             + f'animation:gauge-red {cycle_ms:.3f}ms linear infinite' + '}',
-            '.snake-progress-blue{fill:#4593f8;transform-box:fill-box;transform-origin:left center;'
+            '.snake-progress-blue{fill:#4593f8;transform-box:fill-box;transform-origin:center bottom;'
             + f'animation:gauge-blue {cycle_ms:.3f}ms linear infinite' + '}',
         ]
         def gauge_frames(events, show, hide):
             # Pre-event holds avoid starting with an arbitrary fraction filled.
             events = sorted(events)
-            entries = [(0, 'scaleX(0)'), (max(0, show - 1), 'scaleX(0)')]
+            entries = [(0, 'scaleY(0)'), (max(0, show - 1), 'scaleY(0)')]
             for index, time in enumerate(events, 1):
                 fraction = index / total
-                entries.extend([(max(show, time - .5), f'scaleX({(index-1)/total:.6f})'),
-                                (time, f'scaleX({fraction:.6f})')])
-            entries.extend([(max(show, hide - 1), 'scaleX(1)'),
-                            (hide, 'scaleX(0)'), (cycle_ms, 'scaleX(0)')])
+                entries.extend([(max(show, time - .5), f'scaleY({(index-1)/total:.6f})'),
+                                (time, f'scaleY({fraction:.6f})')])
+            entries.extend([(max(show, hide - 1), 'scaleY(1)'),
+                            (hide, 'scaleY(0)'), (cycle_ms, 'scaleY(0)')])
             return ''.join(f'{pct(t)}' + '{transform:' + value + '}' for t, value in entries)
         red_events = [intro_ms + p['visits'][coord] * step_ms
                       for p in plans['red'] for coord in p['visits']]
@@ -811,7 +812,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                      gauge_frames(red_events, intro_ms, blue_start) + '}')
         rules.append('@keyframes gauge-blue{' +
                      gauge_frames(blue_events, blue_start, cycle_ms - 20) + '}')
-    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}.snake-progress-red,.snake-progress-blue{animation:none;transform:scaleX(0)}}')
+    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}.snake-progress-red,.snake-progress-blue{animation:none;transform:scaleY(0)}}')
     style.text = '\n'.join(rules)
     root.set('role', 'img')
     root.set('aria-label', 'Two red snakes eat contributions; two blue snakes restore them along independent randomized routes')
@@ -825,9 +826,9 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     root.set('data-target-policy', 'exclusive-reservations')
     box = root.get('viewBox').split()
     box[0] = f'{xs[0]-.5:g}'
-    box[2] = f'{xs[-1]-xs[0]+13:g}'
+    box[2] = f'{xs[-1]-xs[0]+82:g}'
     root.set('width', box[2])
-    box[3] = str(float(ys[-1]) + 58 - float(box[1]))
+    box[3] = str(float(ys[-1]) + 38 - float(box[1]))
     root.set('viewBox', ' '.join(box));root.set('height', box[3])
     title = root.find(TAG + 'title')
     if title is None:
@@ -838,7 +839,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         desc.text = ('Independent experiment based on https://github.com/Platane/snk. '
                      'Two red snakes eat in parallel; two blue snakes restore original '
                      'colors behind their tails. Shared grid, independent '
-                     'randomized body-safe paths, original movement speed, phase progress gauge.')
+                     'randomized body-safe paths, original movement speed, right-side vertical progress gauges.')
     return ET.tostring(root, encoding='unicode') + '\n'
 
 
@@ -867,7 +868,7 @@ def build_separate_gauge(duet_svg: str, dark: bool) -> str:
         '.gauge-fill{transform-box:fill-box;transform-origin:left center}',
         f'.gauge-red{{fill:#ef5350;animation:gauge-red {duration:.3f}ms linear infinite}}',
         f'.gauge-blue{{fill:#4593f8;animation:gauge-blue {duration:.3f}ms linear infinite}}',
-        '@media(prefers-reduced-motion:reduce){.gauge-fill{animation:none;transform:scaleX(0)}}',
+        '@media(prefers-reduced-motion:reduce){.gauge-fill{animation:none;transform:scaleY(0)}}',
         *keyframe_rules,
     ])
     for label, color, y in (('COLLECT', 'red', 14), ('RESTORE', 'blue', 46)):
