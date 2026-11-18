@@ -5,7 +5,7 @@ Read-only inputs are Platane/snk's existing output-branch SVGs. Each color has
 two snakes sharing the entire grid. Routes choose nearby targets
 randomly and use body-aware A*. Blue restores cells after its tail clears them.
 All four snakes use the original animation's time per grid step. Only stdlib is
-required. Outputs never include the original collection/progress bars.
+required. Includes an original dual-phase progress gauge beneath the grid.
 """
 from __future__ import annotations
 
@@ -754,7 +754,54 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                      f'{pct(message_end)},100%{{opacity:0}}}}')
         root.set('data-message-start-ms', f'{message_start:.3f}')
         root.set('data-message-end-ms', f'{message_end:.3f}')
-    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}}')
+    # Timeline-accurate progress: track unique cells collected/restored by either snake.
+    # The original snk progress bars were removed above; this is an independent gauge.
+    total = len(colored)
+    if total:
+        track_x = xs[0]
+        track_y = ys[-1] + 20
+        track_width = xs[-1] - xs[0] + 12
+        gauge = ET.SubElement(root, TAG + 'g', {
+            'class': 'snake-progress', 'aria-label': 'Contribution collection and restoration progress',
+        })
+        ET.SubElement(gauge, TAG + 'rect', {
+            'class': 'snake-progress-track', 'x': f'{track_x:g}',
+            'y': f'{track_y:g}', 'width': f'{track_width:g}',
+            'height': '5', 'rx': '2.5',
+        })
+        for color in ('red', 'blue'):
+            ET.SubElement(gauge, TAG + 'rect', {
+                'class': f'snake-progress-{color}', 'x': f'{track_x:g}',
+                'y': f'{track_y:g}', 'width': f'{track_width:g}',
+                'height': '5', 'rx': '2.5',
+            })
+        rules += [
+            '.snake-progress-track{fill:var(--cb);opacity:.65}',
+            '.snake-progress-red{fill:#ef5350;transform-box:fill-box;transform-origin:left center;'
+            + f'animation:gauge-red {cycle_ms:.3f}ms linear infinite' + '}',
+            '.snake-progress-blue{fill:#4593f8;transform-box:fill-box;transform-origin:left center;'
+            + f'animation:gauge-blue {cycle_ms:.3f}ms linear infinite' + '}',
+        ]
+        def gauge_frames(events, show, hide):
+            # Pre-event holds avoid starting with an arbitrary fraction filled.
+            events = sorted(events)
+            entries = [(0, 'scaleX(0)'), (max(0, show - 1), 'scaleX(0)')]
+            for index, time in enumerate(events, 1):
+                fraction = index / total
+                entries.extend([(max(show, time - .5), f'scaleX({(index-1)/total:.6f})'),
+                                (time, f'scaleX({fraction:.6f})')])
+            entries.extend([(max(show, hide - 1), 'scaleX(1)'),
+                            (hide, 'scaleX(0)'), (cycle_ms, 'scaleX(0)')])
+            return ''.join(f'{pct(t)}' + '{transform:' + value + '}' for t, value in entries)
+        red_events = [intro_ms + p['visits'][coord] * step_ms
+                      for p in plans['red'] for coord in p['visits']]
+        blue_events = [blue_start + p['restore'][coord] * step_ms
+                       for p in plans['blue'] for coord in p['restore']]
+        rules.append('@keyframes gauge-red{' +
+                     gauge_frames(red_events, intro_ms, blue_start) + '}')
+        rules.append('@keyframes gauge-blue{' +
+                     gauge_frames(blue_events, blue_start, cycle_ms - 20) + '}')
+    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}.snake-progress-red,.snake-progress-blue{animation:none;transform:scaleX(0)}}')
     style.text = '\n'.join(rules)
     root.set('role', 'img')
     root.set('aria-label', 'Two red snakes eat contributions; two blue snakes restore them along independent randomized routes')
@@ -781,7 +828,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         desc.text = ('Independent experiment based on https://github.com/Platane/snk. '
                      'Two red snakes eat in parallel; two blue snakes restore original '
                      'colors behind their tails. Shared grid, independent '
-                     'randomized body-safe paths, original movement speed, no gauge.')
+                     'randomized body-safe paths, original movement speed, phase progress gauge.')
     return ET.tostring(root, encoding='unicode') + '\n'
 
 def load_source(local: Path | None, repository: str, dark: bool) -> str:
