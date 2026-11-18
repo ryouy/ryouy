@@ -858,7 +858,7 @@ def build_separate_gauge(duet_svg: str, dark: bool) -> str:
     track = '#30363d' if dark else '#d0d7de'
     labels = '#c9d1d9' if dark else '#57606a'
     root = ET.Element(TAG + 'svg', {
-        'xmlns': NS, 'viewBox': '0 0 884 78', 'width': '884', 'height': '78',
+        'viewBox': '0 0 884 78', 'width': '884', 'height': '78',
         'role': 'img', 'aria-label': 'Snake progress: red collecting, blue restoring',
     })
     ET.SubElement(root, TAG + 'title').text = 'Contribution snake progress'
