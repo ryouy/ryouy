@@ -14,8 +14,8 @@
 <!-- Custom contribution snakes, generated from the read-only upstream route data. -->
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet-dark.svg?v=dual-gauges-20261118">
-    <img src="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet.svg?v=dual-gauges-20261118" alt="Red snakes collect contributions; blue blocks flow into ONCE MORE and gradually form blue snakes to restore the grid" width="800">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet-dark.svg?v=vertical-right-20261118">
+    <img src="https://raw.githubusercontent.com/ryouy/ryouy/refs/heads/main/assets/snake-duet.svg?v=vertical-right-20261118" alt="Red snakes collect contributions; blue blocks flow into ONCE MORE and gradually form blue snakes to restore the grid" width="800">
   </picture>
 </div>
 
