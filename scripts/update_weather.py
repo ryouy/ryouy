@@ -163,7 +163,7 @@ def raster_weather_cards(payload: dict, light: bool = False):
     beneath live forecast text on each weather update.
     """
     import io
-    from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFile
+    from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFile, ImageEnhance
     # Tolerate an incomplete GIF trailer in the imported artwork and re-encode
     # every displayed frame as a fresh, valid GIF below.
     ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -210,11 +210,14 @@ def raster_weather_cards(payload: dict, light: bool = False):
     frames = []
     for i in range(source.n_frames):
         source.seek(i)
-        image = ImageOps.fit(source.convert('RGB'), (420, 148),
-                             method=Image.Resampling.LANCZOS,
-                             centering=(.5, .54)).convert('RGBA')
+        base = ImageOps.fit(source.convert('RGB'), (420, 148),
+                            method=Image.Resampling.LANCZOS,
+                            centering=(.5, .54))
+        base = ImageEnhance.Contrast(base).enhance(1.10)
+        base = ImageEnhance.Color(base).enhance(1.12)
+        image = base.convert('RGBA')
         wash = Image.new('RGBA', image.size,
-                         (255, 255, 255, 202) if light else (6, 20, 33, 176))
+                         (255, 255, 255, 150) if light else (6, 20, 33, 110))
         image = Image.alpha_composite(image, wash).convert('RGB')
         draw = ImageDraw.Draw(image)
         draw.rounded_rectangle((1, 1, 418, 146), radius=13,
