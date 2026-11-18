@@ -754,65 +754,50 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                      f'{pct(message_end)},100%{{opacity:0}}}}')
         root.set('data-message-start-ms', f'{message_start:.3f}')
         root.set('data-message-end-ms', f'{message_end:.3f}')
-    # Timeline-accurate progress: track unique cells collected/restored by either snake.
-    # The original snk progress bars were removed above; this is an independent gauge.
+    # Single square-ended gauge to the right of the grid. Progress resets
+    # between the red collection and blue restoration phases.
     total = len(colored)
     if total:
-        # Visible vertical gauges sit to the right of (not on top of) the grid.
-        # The bars fill from the bottom as snakes collect and restore cells.
         track_y = ys[0]
         track_height = ys[-1] - ys[0] + 12
+        track_x = xs[-1] + 28
         gauge = ET.SubElement(root, TAG + 'g', {
             'class': 'snake-progress',
-            'aria-label': 'Vertical snake progress: red collecting and blue restoring',
+            'aria-label': 'Snake progress: collecting then restoring',
         })
-        for color, label, offset in (('red', 'C', 0), ('blue', 'R', 28)):
-            track_x = xs[-1] + 24 + offset
+        for name in ('snake-progress-track', 'snake-progress-fill'):
             ET.SubElement(gauge, TAG + 'rect', {
-                'class': 'snake-progress-track',
-                'x': f'{track_x:g}', 'y': f'{track_y:g}',
-                'width': '18', 'height': f'{track_height:g}', 'rx': '7',
+                'class': name, 'x': f'{track_x:g}', 'y': f'{track_y:g}',
+                'width': '18', 'height': f'{track_height:g}',
             })
-            ET.SubElement(gauge, TAG + 'rect', {
-                'class': f'snake-progress-{color}',
-                'x': f'{track_x:g}', 'y': f'{track_y:g}',
-                'width': '18', 'height': f'{track_height:g}', 'rx': '7',
-            })
-            ET.SubElement(gauge, TAG + 'text', {
-                'class': f'snake-progress-label-{color}',
-                'x': f'{track_x + 9:g}', 'y': f'{track_y + track_height + 14:g}',
-                'font-family': 'Arial,Helvetica,sans-serif',
-                'font-size': '11', 'font-weight': '700', 'text-anchor': 'middle',
-            }).text = label
         rules += [
-            '.snake-progress-track{fill:#708ca6;fill-opacity:.28;stroke:#7694ab;stroke-width:1.5}',
-            '.snake-progress-label-red{fill:#ef5350}',
-            '.snake-progress-label-blue{fill:#4593f8}',
-            '.snake-progress-red{fill:#ef5350;transform-box:fill-box;transform-origin:center bottom;'
-            + f'animation:gauge-red {cycle_ms:.3f}ms linear infinite' + '}',
-            '.snake-progress-blue{fill:#4593f8;transform-box:fill-box;transform-origin:center bottom;'
-            + f'animation:gauge-blue {cycle_ms:.3f}ms linear infinite' + '}',
+            '.snake-progress-track{fill:#708ca6;fill-opacity:.24;stroke:#7694ab;stroke-width:1.2}',
+            '.snake-progress-fill{fill:#ef5350;transform-box:fill-box;transform-origin:center bottom;'
+            + f'animation:gauge-progress {cycle_ms:.3f}ms linear infinite' + '}',
         ]
-        def gauge_frames(events, show, hide):
-            # Pre-event holds avoid starting with an arbitrary fraction filled.
-            events = sorted(events)
-            entries = [(0, 'scaleY(0)'), (max(0, show - 1), 'scaleY(0)')]
-            for index, time in enumerate(events, 1):
-                fraction = index / total
-                entries.extend([(max(show, time - .5), f'scaleY({(index-1)/total:.6f})'),
-                                (time, f'scaleY({fraction:.6f})')])
-            entries.extend([(max(show, hide - 1), 'scaleY(1)'),
-                            (hide, 'scaleY(0)'), (cycle_ms, 'scaleY(0)')])
-            return ''.join(f'{pct(t)}' + '{transform:' + value + '}' for t, value in entries)
-        red_events = [intro_ms + p['visits'][coord] * step_ms
-                      for p in plans['red'] for coord in p['visits']]
-        blue_events = [blue_start + p['restore'][coord] * step_ms
-                       for p in plans['blue'] for coord in p['restore']]
-        rules.append('@keyframes gauge-red{' +
-                     gauge_frames(red_events, intro_ms, blue_start) + '}')
-        rules.append('@keyframes gauge-blue{' +
-                     gauge_frames(blue_events, blue_start, cycle_ms - 20) + '}')
-    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}.snake-progress-red,.snake-progress-blue{animation:none;transform:scaleY(0)}}')
+        def gauge_frames():
+            frames = [(0, 0, '#ef5350'), (max(0, intro_ms - 1), 0, '#ef5350')]
+            phases = (
+                (sorted(intro_ms + p['visits'][coord] * step_ms
+                        for p in plans['red'] for coord in p['visits']),
+                 intro_ms, red_ms, '#ef5350'),
+                (sorted(blue_start + p['restore'][coord] * step_ms
+                        for p in plans['blue'] for coord in p['restore']),
+                 blue_start, cycle_ms - 20, '#4593f8'),
+            )
+            for index, (events, start, stop, color) in enumerate(phases):
+                frames.append((start, 0, color))
+                for count, time in enumerate(events, 1):
+                    frames.append((max(start, time - .5), (count - 1) / total, color))
+                    frames.append((time, count / total, color))
+                frames.append((stop, 1, color))
+                if index == 0:
+                    frames.append((blue_start - 1, 1, color))
+            frames.append((cycle_ms, 0, '#ef5350'))
+            return ''.join(f'{pct(t)}' + '{transform:scaleY(' + f'{fraction:.6f}' +
+                           ');fill:' + color + '}' for t, fraction, color in frames)
+        rules.append('@keyframes gauge-progress{' + gauge_frames() + '}')
+    rules.append('@media(prefers-reduced-motion:reduce){.c,.s{animation-duration:0s;animation-iteration-count:0}.duet-red,.duet-blue,.restart-message{animation:none;opacity:0}.forming-snakes{animation:none;opacity:0}.snake-progress-fill{animation:none;transform:scaleY(0)}}')
     style.text = '\n'.join(rules)
     root.set('role', 'img')
     root.set('aria-label', 'Two red snakes eat contributions; two blue snakes restore them along independent randomized routes')
@@ -839,7 +824,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
         desc.text = ('Independent experiment based on https://github.com/Platane/snk. '
                      'Two red snakes eat in parallel; two blue snakes restore original '
                      'colors behind their tails. Shared grid, independent '
-                     'randomized body-safe paths, original movement speed, right-side vertical progress gauges.')
+                     'randomized body-safe paths, original movement speed, single right-side progress gauge.')
     return ET.tostring(root, encoding='unicode') + '\n'
 
 
