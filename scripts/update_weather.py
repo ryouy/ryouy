@@ -13,6 +13,7 @@ from xml.sax.saxutils import escape
 
 LATITUDE, LONGITUDE = 36.3044, 137.9061
 OUTPUT = Path(__file__).resolve().parents[1] / 'assets/weather-azumino.svg'
+PANORAMA = OUTPUT.parent / 'azumino_alps_weather_background.gif'
 WEATHER_NAMES = {0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 56: 'Freezing drizzle', 57: 'Freezing drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Freezing rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Light showers', 81: 'Rain showers', 82: 'Heavy showers', 85: 'Snow showers', 86: 'Snow showers', 95: 'Thunderstorm', 96: 'Thunder + hail', 99: 'Thunder + hail'}
 
 
@@ -114,6 +115,17 @@ def animated_sky(light=False):
     return 'data:image/gif;base64,' + base64.b64encode(buffer.getvalue()).decode('ascii')
 
 
+def weather_background(light=False):
+    """Prefer the user's custom Azumino panorama GIF when installed."""
+    import base64
+    if PANORAMA.is_file():
+        raw = PANORAMA.read_bytes()
+        if not raw.startswith((b'GIF87a', b'GIF89a')):
+            raise ValueError(f'Invalid GIF: {PANORAMA}')
+        return 'data:image/gif;base64,' + base64.b64encode(raw).decode('ascii')
+    return animated_sky(light=light)
+
+
 def add_background(svg, gif_uri, light=False):
     """Place the moving scenery behind weather content, inside rounded edges."""
     import xml.etree.ElementTree as ET
@@ -137,7 +149,7 @@ def add_background(svg, gif_uri, light=False):
     # Preserve enough contrast over the sky in both themes.
     fade = ET.Element(ns + 'rect', {'x':'1','y':'1','width':'418','height':'146',
         'rx':'13', 'fill':'#ffffff' if light else '#071421',
-        'opacity':'.28' if light else '.32', 'aria-hidden':'true'})
+        'opacity':'.68' if light else '.58', 'aria-hidden':'true'})
     root.insert(list(root).index(background) + 1, fade)
     return ET.tostring(root, encoding='unicode') + '\n'
 
@@ -174,13 +186,13 @@ def main() -> None:
         print('Using last successfully generated weather data')
     else:
         raise RuntimeError('Weather service unavailable and no cached cards exist')
-    svg = dark_source if 'weather-sky-clip' in dark_source else add_background(dark_source, animated_sky(light=False))
+    svg = dark_source if 'weather-sky-clip' in dark_source else add_background(dark_source, weather_background(light=False))
     OUTPUT.write_text(svg, encoding='utf-8')
     write_slices(svg, OUTPUT)
-    light_svg = light_source if 'weather-sky-clip' in light_source else add_background(light_source, animated_sky(light=True), light=True)
+    light_svg = light_source if 'weather-sky-clip' in light_source else add_background(light_source, weather_background(light=True), light=True)
     light_output.write_text(light_svg, encoding='utf-8')
     write_slices(light_svg, light_output)
-    print(f'Updated both themes for {OUTPUT.name}: current conditions and tomorrow forecast')
+    print(f'Updated both themes for {OUTPUT.name}: current conditions and tomorrow forecast; panorama={PANORAMA.exists()}')
 
 
 if __name__ == '__main__':
