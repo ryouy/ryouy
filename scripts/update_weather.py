@@ -246,7 +246,54 @@ def raster_weather_cards(payload: dict, light: bool = False):
             encode([im.crop((0, 74, 420, 148)) for im in frames]))
 
 
+
+def repair_panorama_if_needed() -> None:
+    """Normalize a damaged GIF source once, preserving its moving frames."""
+    import io
+    from PIL import Image, ImageFile
+
+    if not PANORAMA.exists():
+        raise FileNotFoundError(f'Missing panorama: {PANORAMA}')
+    previous = ImageFile.LOAD_TRUNCATED_IMAGES
+    try:
+        ImageFile.LOAD_TRUNCATED_IMAGES = False
+        try:
+            with Image.open(PANORAMA) as original:
+                if original.n_frames < 2:
+                    raise ValueError('Panorama must be animated')
+                for index in range(original.n_frames):
+                    original.seek(index)
+                    original.convert('RGB').load()
+            return
+        except OSError:
+            # Previously imported binary was missing a few bytes. Re-encode
+            # the readable frames into a well-formed standalone GIF.
+            ImageFile.LOAD_TRUNCATED_IMAGES = True
+            with Image.open(PANORAMA) as damaged:
+                frames = []
+                for index in range(damaged.n_frames):
+                    damaged.seek(index)
+                    frames.append(damaged.convert('RGB').copy())
+            if len(frames) < 2:
+                raise ValueError('Not enough panorama frames to restore')
+            buffer = io.BytesIO()
+            frames[0].save(buffer, format='GIF', save_all=True,
+                           append_images=frames[1:], duration=1400,
+                           loop=0, optimize=True, disposal=2)
+            replacement = buffer.getvalue()
+            ImageFile.LOAD_TRUNCATED_IMAGES = False
+            with Image.open(io.BytesIO(replacement)) as check:
+                for index in range(check.n_frames):
+                    check.seek(index)
+                    check.convert('RGB').load()
+            PANORAMA.write_bytes(replacement)
+            print(f'Repaired panorama GIF: {len(frames)} frames, {len(replacement)} bytes')
+    finally:
+        ImageFile.LOAD_TRUNCATED_IMAGES = previous
+
+
 def main() -> None:
+    repair_panorama_if_needed()
     query = (
         'https://api.open-meteo.com/v1/forecast'
         f'?latitude={LATITUDE}&longitude={LONGITUDE}'
