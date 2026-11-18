@@ -67,9 +67,20 @@ def add_calendar_labels(svg,calendar,dark=False):
     ET.SubElement(clip,TAG+'rect',{'x':str(xs[0]-.5),'y':str(ys[0]-.5),
         'width':str(xs[-1]-xs[0]+13),'height':str(ys[-1]-ys[0]+13)})
     drawing=ET.Element(TAG+'g',{'clip-path':'url(#calendar-grid-clip)'})
+    # Only the snake/calendar drawing should be clipped to the contribution grid.
+    # The progress gauges deliberately live to the RIGHT of this grid, and were
+    # previously hidden because every <g> was moved under the same clip-path.
+    outside_grid = []
     for child in list(root):
-        if child.tag in {TAG+'g',TAG+'rect'}:root.remove(child);drawing.append(child)
+        if child.tag in {TAG+'g', TAG+'rect'}:
+            root.remove(child)
+            if 'snake-progress' in child.get('class', '').split():
+                outside_grid.append(child)
+            else:
+                drawing.append(child)
     root.append(drawing)
+    for element in outside_grid:
+        root.append(element)
     labels=ET.SubElement(root,TAG+'g',{'class':'calendar-labels','font-family':'-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif',
         'fill':'#9198a1' if dark else '#59636e','font-size':'13'})
     heading=ET.SubElement(labels,TAG+'text',{'x':str(left+2),'y':str(ys[0]-34),'font-size':'17',
