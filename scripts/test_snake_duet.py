@@ -266,7 +266,10 @@ class SnakeDuetTests(unittest.TestCase):
                          {'snake-progress-track','snake-progress-red','snake-progress-blue',
                           'snake-progress-label-red','snake-progress-label-blue'})
         self.assertEqual(len(gauge.findall(TAG+'rect')),4)
-        self.assertGreater(float(root.get('height')),150)
+        viewbox = list(map(float, root.get('viewBox').split()))
+        tracks = gauge.findall(TAG+'rect')
+        self.assertGreaterEqual(viewbox[1] + viewbox[3],
+                                max(float(track.get('y')) + float(track.get('height')) for track in tracks) + 5)
         self.assertEqual(len(gauge.findall(TAG+'text')),2)
         self.assertIn('@keyframes gauge-red{',css)
         self.assertIn('@keyframes gauge-blue{',css)
