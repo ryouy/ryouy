@@ -139,7 +139,7 @@ def add_background(svg, gif_uri, light=False):
         'rx':'13', 'fill':'#ffffff' if light else '#071421',
         'opacity':'.28' if light else '.32', 'aria-hidden':'true'})
     root.insert(list(root).index(background) + 1, fade)
-    return ET.tostring(root, encoding='unicode') + '\\n'
+    return ET.tostring(root, encoding='unicode') + '\n'
 
 
 def main() -> None:
