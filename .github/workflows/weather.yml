@@ -42,7 +42,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python scripts/update_weather.py
-            git add assets/weather-azumino*.svg
+            git add assets/weather-azumino*.svg assets/weather-azumino*.gif
             if git diff --cached --quiet; then
               echo "Weather card is already up to date"
               exit 0
