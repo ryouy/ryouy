@@ -766,26 +766,26 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
             'class': 'snake-progress',
             'aria-label': 'Vertical snake progress: red collecting and blue restoring',
         })
-        for color, label, offset in (('red', 'C', 0), ('blue', 'R', 20)):
-            track_x = xs[-1] + 25 + offset
+        for color, label, offset in (('red', 'C', 0), ('blue', 'R', 28)):
+            track_x = xs[-1] + 24 + offset
             ET.SubElement(gauge, TAG + 'rect', {
                 'class': 'snake-progress-track',
                 'x': f'{track_x:g}', 'y': f'{track_y:g}',
-                'width': '12', 'height': f'{track_height:g}', 'rx': '5',
+                'width': '18', 'height': f'{track_height:g}', 'rx': '7',
             })
             ET.SubElement(gauge, TAG + 'rect', {
                 'class': f'snake-progress-{color}',
                 'x': f'{track_x:g}', 'y': f'{track_y:g}',
-                'width': '12', 'height': f'{track_height:g}', 'rx': '5',
+                'width': '18', 'height': f'{track_height:g}', 'rx': '7',
             })
             ET.SubElement(gauge, TAG + 'text', {
                 'class': f'snake-progress-label-{color}',
-                'x': f'{track_x + 6:g}', 'y': f'{track_y + track_height + 14:g}',
+                'x': f'{track_x + 9:g}', 'y': f'{track_y + track_height + 14:g}',
                 'font-family': 'Arial,Helvetica,sans-serif',
                 'font-size': '11', 'font-weight': '700', 'text-anchor': 'middle',
             }).text = label
         rules += [
-            '.snake-progress-track{fill:var(--ce);stroke:var(--c1);stroke-width:1.2}',
+            '.snake-progress-track{fill:#708ca6;fill-opacity:.28;stroke:#7694ab;stroke-width:1.5}',
             '.snake-progress-label-red{fill:#ef5350}',
             '.snake-progress-label-blue{fill:#4593f8}',
             '.snake-progress-red{fill:#ef5350;transform-box:fill-box;transform-origin:center bottom;'
