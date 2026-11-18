@@ -244,7 +244,7 @@ class SnakeDuetTests(unittest.TestCase):
             self.assertLess(min(xs),26)
             self.assertGreater(max(xs),26)
 
-    def test_svg_keeps_velocity_and_has_dual_phase_gauge(self):
+    def test_svg_keeps_velocity_and_has_single_square_gauge(self):
         root=ET.fromstring(build_duet(fixture(),seed=42))
         self.assertEqual(float(root.get('data-original-red-ms')),1000)
         self.assertEqual(float(root.get('data-step-ms')),250)
@@ -263,23 +263,24 @@ class SnakeDuetTests(unittest.TestCase):
         gauge=root.find(TAG + "g[@class='snake-progress']")
         self.assertIsNotNone(gauge)
         self.assertEqual({el.get('class') for el in gauge},
-                         {'snake-progress-track','snake-progress-red','snake-progress-blue',
-                          'snake-progress-label-red','snake-progress-label-blue'})
-        self.assertEqual(len(gauge.findall(TAG+'rect')),4)
-        self.assertTrue(all(float(track.get('width')) >= 18 for track in gauge.findall(TAG+'rect')))
-        viewbox = list(map(float, root.get('viewBox').split()))
+                         {'snake-progress-track', 'snake-progress-fill'})
+        self.assertEqual(len(gauge.findall(TAG+'rect')), 2)
+        self.assertEqual(len(gauge.findall(TAG+'text')), 0)
         tracks = gauge.findall(TAG+'rect')
+        self.assertTrue(all(float(rect.get('width')) == 18 for rect in tracks))
+        self.assertTrue(all(rect.get('rx') is None for rect in tracks))
+        viewbox = list(map(float, root.get('viewBox').split()))
         self.assertGreaterEqual(viewbox[1] + viewbox[3],
-                                max(float(track.get('y')) + float(track.get('height')) for track in tracks) + 5)
-        self.assertEqual(len(gauge.findall(TAG+'text')),2)
-        self.assertIn('@keyframes gauge-red{',css)
-        self.assertIn('@keyframes gauge-blue{',css)
-        self.assertIn('scaleY(1.000000)',css)
-        self.assertIn('transform-origin:center bottom',css)
-        track_rects = gauge.findall(TAG+'rect')
-        self.assertTrue(all(float(r.get('height')) > float(r.get('width')) * 1.5 for r in track_rects))
-        self.assertGreater(min(float(r.get('x')) for r in track_rects), 18)
-        self.assertGreaterEqual(viewbox[0] + viewbox[2], max(float(r.get('x')) + float(r.get('width')) for r in track_rects) + 4)
+                                max(float(r.get('y')) + float(r.get('height')) for r in tracks) + 5)
+        self.assertGreaterEqual(viewbox[0] + viewbox[2],
+                                max(float(r.get('x')) + float(r.get('width')) for r in tracks) + 4)
+        self.assertIn('@keyframes gauge-progress{', css)
+        self.assertNotIn('@keyframes gauge-red{', css)
+        self.assertNotIn('@keyframes gauge-blue{', css)
+        self.assertIn('scaleY(1.000000)', css)
+        self.assertIn('transform-origin:center bottom', css)
+        self.assertIn('fill:#ef5350', css)
+        self.assertIn('fill:#4593f8', css)
         self.assertNotIn('animation-direction:reverse',css)
         self.assertIn('100%{fill:var(--c1)}',css)
         self.assertIn('100%{fill:var(--c2)}',css)
