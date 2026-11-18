@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
     paths:
+      - assets/azumino_alps_weather_background.gif
       - scripts/update_weather.py
       - scripts/profile_slices.py
       - .github/workflows/weather.yml
