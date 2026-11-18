@@ -131,12 +131,14 @@ def add_background(svg, gif_uri, light=False):
         'preserveAspectRatio':'xMidYMid slice',
         'clip-path':'url(#weather-sky-clip)', 'href':gif_uri,
         'aria-hidden':'true'})
-    root.insert(2, background)
+    surface = next(el for el in root if el.tag == ns + 'rect' and
+                   el.get('fill') == 'url(#profile-card-surface)')
+    root.insert(list(root).index(surface) + 1, background)
     # Preserve enough contrast over the sky in both themes.
     fade = ET.Element(ns + 'rect', {'x':'1','y':'1','width':'418','height':'146',
         'rx':'13', 'fill':'#ffffff' if light else '#071421',
         'opacity':'.28' if light else '.32', 'aria-hidden':'true'})
-    root.insert(3, fade)
+    root.insert(list(root).index(background) + 1, fade)
     return ET.tostring(root, encoding='unicode') + '\\n'
 
 
