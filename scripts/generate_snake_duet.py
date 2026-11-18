@@ -841,6 +841,52 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
                      'randomized body-safe paths, original movement speed, phase progress gauge.')
     return ET.tostring(root, encoding='unicode') + '\n'
 
+
+def build_separate_gauge(duet_svg: str, dark: bool) -> str:
+    """An independent image underneath the README snake, sharing its exact keyframes."""
+    source = ET.fromstring(duet_svg)
+    original_css = source.find(TAG + 'style').text or ''
+    duration = float(source.get('data-cycle-ms'))
+    keyframe_rules = []
+    for color in ('red', 'blue'):
+        match = re.search(r'@keyframes gauge-' + color +
+                          r'\{(?:[^{}]*\{[^{}]*\})+\}', original_css)
+        if match is None:
+            raise ValueError('Missing animated gauge keyframes: ' + color)
+        keyframe_rules.append(match.group(0))
+    background = '#0d1117' if dark else '#ffffff'
+    track = '#30363d' if dark else '#d0d7de'
+    labels = '#c9d1d9' if dark else '#57606a'
+    root = ET.Element(TAG + 'svg', {
+        'xmlns': NS, 'viewBox': '0 0 884 78', 'width': '884', 'height': '78',
+        'role': 'img', 'aria-label': 'Snake progress: red collecting, blue restoring',
+    })
+    ET.SubElement(root, TAG + 'title').text = 'Contribution snake progress'
+    style = ET.SubElement(root, TAG + 'style')
+    style.text = '\n'.join([
+        '.gauge-fill{transform-box:fill-box;transform-origin:left center}',
+        f'.gauge-red{{fill:#ef5350;animation:gauge-red {duration:.3f}ms linear infinite}}',
+        f'.gauge-blue{{fill:#4593f8;animation:gauge-blue {duration:.3f}ms linear infinite}}',
+        '@media(prefers-reduced-motion:reduce){.gauge-fill{animation:none;transform:scaleX(0)}}',
+        *keyframe_rules,
+    ])
+    for label, color, y in (('COLLECT', 'red', 14), ('RESTORE', 'blue', 46)):
+        ET.SubElement(root, TAG + 'text', {
+            'x': '34', 'y': str(y + 12), 'font-family': 'Arial,Helvetica,sans-serif',
+            'font-size': '14', 'font-weight': '700',
+            'fill': '#ef5350' if color == 'red' else '#4593f8'
+        }).text = label
+        ET.SubElement(root, TAG + 'rect', {
+            'x': '122', 'y': str(y), 'width': '718', 'height': '14', 'rx': '7',
+            'fill': track, 'stroke': labels, 'stroke-opacity': '.25',
+        })
+        ET.SubElement(root, TAG + 'rect', {
+            'class': f'gauge-fill gauge-{color}',
+            'x': '122', 'y': str(y), 'width': '718', 'height': '14', 'rx': '7',
+        })
+    return ET.tostring(root, encoding='unicode') + '\n'
+
+
 def load_source(local: Path | None, repository: str, dark: bool) -> str:
     if local:
         return local.read_text(encoding='utf-8')
@@ -875,7 +921,9 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for output, svg in outputs:
         output.write_text(svg, encoding='utf-8')
-        print(f'Generated {output.name}: original speed, randomized restoration, no gauge')
+        gauge = output.with_name(output.stem + '-gauge.svg')
+        gauge.write_text(build_separate_gauge(svg, output.stem.endswith('-dark')), encoding='utf-8')
+        print(f'Generated {output.name} and {gauge.name}: synchronized progress')
 
 
 if __name__ == '__main__':
