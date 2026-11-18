@@ -263,7 +263,11 @@ class SnakeDuetTests(unittest.TestCase):
         gauge=root.find(TAG + "g[@class='snake-progress']")
         self.assertIsNotNone(gauge)
         self.assertEqual({el.get('class') for el in gauge},
-                         {'snake-progress-track','snake-progress-red','snake-progress-blue'})
+                         {'snake-progress-track','snake-progress-red','snake-progress-blue',
+                          'snake-progress-label-red','snake-progress-label-blue'})
+        self.assertEqual(len(gauge.findall(TAG+'rect')),4)
+        self.assertGreater(float(root.get('height')),150)
+        self.assertEqual(len(gauge.findall(TAG+'text')),2)
         self.assertIn('@keyframes gauge-red{',css)
         self.assertIn('@keyframes gauge-blue{',css)
         self.assertIn('scaleX(1.000000)',css)
