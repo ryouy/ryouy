@@ -1,7 +1,9 @@
 import copy
+import io
+from PIL import Image
 import unittest
 import xml.etree.ElementTree as ET
-from update_weather import render_card, format_temperature
+from update_weather import render_card, format_temperature, raster_weather_cards
 from profile_slices import light_card
 
 PAYLOAD = {
@@ -31,3 +33,13 @@ class WeatherTests(unittest.TestCase):
         self.assertIn('High 3° / Low -4°', light)
         self.assertNotIn('stop-color="#132235"', light)
         ET.fromstring(light)
+
+    def test_animated_weather_is_real_gif_in_both_themes(self):
+        for light in (False, True):
+            upper, lower = raster_weather_cards(PAYLOAD, light)
+            for part in (upper, lower):
+                self.assertIn(part[:6], (b'GIF89a', b'GIF87a'))
+                gif = Image.open(io.BytesIO(part))
+                self.assertEqual(gif.size, (420, 74))
+                self.assertGreater(gif.n_frames, 1)
+            self.assertNotEqual(upper, lower)
