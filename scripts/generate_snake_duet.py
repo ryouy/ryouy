@@ -758,7 +758,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     # The original snk progress bars were removed above; this is an independent gauge.
     total = len(colored)
     if total:
-        # Two permanently visible tracks, with sufficiently large labels and spacing.
+        # Two permanently visible labeled tracks, with enough spacing to remain legible at README width.
         # Animated fills remain tied to actual collection and restoration events.
         track_x = xs[0] + 78
         track_width = xs[-1] - xs[0] + 12 - 78
