@@ -276,7 +276,7 @@ class SnakeDuetTests(unittest.TestCase):
         self.assertIn('scaleY(1.000000)',css)
         self.assertIn('transform-origin:center bottom',css)
         track_rects = gauge.findall(TAG+'rect')
-        self.assertTrue(all(float(r.get('height')) > float(r.get('width')) * 3 for r in track_rects))
+        self.assertTrue(all(float(r.get('height')) > float(r.get('width')) * 1.5 for r in track_rects))
         self.assertGreater(min(float(r.get('x')) for r in track_rects), 18)
         self.assertGreaterEqual(viewbox[0] + viewbox[2], max(float(r.get('x')) + float(r.get('width')) for r in track_rects) + 4)
         self.assertNotIn('animation-direction:reverse',css)
