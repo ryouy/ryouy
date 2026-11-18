@@ -758,25 +758,35 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     # The original snk progress bars were removed above; this is an independent gauge.
     total = len(colored)
     if total:
-        track_x = xs[0]
-        track_y = ys[-1] + 20
-        track_width = xs[-1] - xs[0] + 12
+        # Two permanently visible tracks, with sufficiently large labels and spacing.
+        # Animated fills remain tied to actual collection and restoration events.
+        track_x = xs[0] + 78
+        track_width = xs[-1] - xs[0] + 12 - 78
         gauge = ET.SubElement(root, TAG + 'g', {
             'class': 'snake-progress', 'aria-label': 'Contribution collection and restoration progress',
         })
-        ET.SubElement(gauge, TAG + 'rect', {
-            'class': 'snake-progress-track', 'x': f'{track_x:g}',
-            'y': f'{track_y:g}', 'width': f'{track_width:g}',
-            'height': '5', 'rx': '2.5',
-        })
-        for color in ('red', 'blue'):
+        for color, label, offset in (('red', 'COLLECT', 0), ('blue', 'RESTORE', 18)):
+            track_y = ys[-1] + 18 + offset
+            ET.SubElement(gauge, TAG + 'text', {
+                'class': f'snake-progress-label-{color}',
+                'x': f'{xs[0]:g}', 'y': f'{track_y + 7:g}',
+                'font-family': 'Arial,Helvetica,sans-serif',
+                'font-size': '11', 'font-weight': '600',
+            }).text = label
+            ET.SubElement(gauge, TAG + 'rect', {
+                'class': 'snake-progress-track', 'x': f'{track_x:g}',
+                'y': f'{track_y:g}', 'width': f'{track_width:g}',
+                'height': '9', 'rx': '4.5',
+            })
             ET.SubElement(gauge, TAG + 'rect', {
                 'class': f'snake-progress-{color}', 'x': f'{track_x:g}',
                 'y': f'{track_y:g}', 'width': f'{track_width:g}',
-                'height': '5', 'rx': '2.5',
+                'height': '9', 'rx': '4.5',
             })
         rules += [
-            '.snake-progress-track{fill:var(--cb);opacity:.65}',
+            '.snake-progress-track{fill:var(--cb);stroke:var(--c1);stroke-width:.8;stroke-opacity:.7}',
+            '.snake-progress-label-red{fill:#ef5350}',
+            '.snake-progress-label-blue{fill:#4593f8}',
             '.snake-progress-red{fill:#ef5350;transform-box:fill-box;transform-origin:left center;'
             + f'animation:gauge-red {cycle_ms:.3f}ms linear infinite' + '}',
             '.snake-progress-blue{fill:#4593f8;transform-box:fill-box;transform-origin:left center;'
@@ -817,7 +827,7 @@ def build_duet(source: str, step_ms: float | None = None, seed: int | None = Non
     box[0] = f'{xs[0]-.5:g}'
     box[2] = f'{xs[-1]-xs[0]+13:g}'
     root.set('width', box[2])
-    box[3] = str(float(ys[-1]) + 28 - float(box[1]))
+    box[3] = str(float(ys[-1]) + 58 - float(box[1]))
     root.set('viewBox', ' '.join(box));root.set('height', box[3])
     title = root.find(TAG + 'title')
     if title is None:
