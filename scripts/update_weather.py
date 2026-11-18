@@ -154,6 +154,95 @@ def add_background(svg, gif_uri, light=False):
     return ET.tostring(root, encoding='unicode') + '\n'
 
 
+
+def raster_weather_cards(payload: dict, light: bool = False):
+    """Return top and bottom animated GIF bytes for GitHub's image proxy.
+
+    GitHub renders ordinary animated GIFs reliably, unlike GIFs nested inside
+    SVG <image> tags. The original panorama is stored in assets/ and composited
+    beneath live forecast text on each weather update.
+    """
+    import io
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+    if not PANORAMA.is_file():
+        raise FileNotFoundError(f'Weather background is missing: {PANORAMA}')
+    source = Image.open(PANORAMA)
+    if getattr(source, 'n_frames', 1) < 2:
+        raise ValueError('Expected an animated panorama with at least 2 frames')
+
+    current, daily = payload['current'], payload.get('daily') or {}
+    observed = datetime.fromisoformat(current['time'])
+    next_day = observed.date() + timedelta(days=1)
+    dates = daily.get('time') or []
+    def forecast(field, day):
+        items = daily.get(field) or []
+        if day.isoformat() not in dates:
+            return None
+        i = dates.index(day.isoformat())
+        return items[i] if i < len(items) else None
+
+    now = format_temperature(current.get('temperature_2m')).removesuffix('°')
+    weather = WEATHER_NAMES.get(current.get('weather_code'), 'Unavailable')
+    today_hi = format_temperature(forecast('temperature_2m_max', observed.date()))
+    today_lo = format_temperature(forecast('temperature_2m_min', observed.date()))
+    tomorrow = WEATHER_NAMES.get(forecast('weather_code', next_day), 'Unavailable')
+    next_hi = format_temperature(forecast('temperature_2m_max', next_day))
+    next_lo = format_temperature(forecast('temperature_2m_min', next_day))
+    palette = {
+        'main': '#24292f' if light else '#f7fbff',
+        'muted': '#57606a' if light else '#b2c6d5',
+        'accent': '#0969da' if light else '#98d4fa',
+        'sub': '#424a53' if light else '#d2e1ed',
+        'surface': '#ffffff' if light else '#0c1a2b',
+        'border': '#d0d7de' if light else '#344b62',
+    }
+    def font(size, bold=False):
+        name = 'DejaVuSans-Bold.ttf' if bold else 'DejaVuSans.ttf'
+        try:
+            return ImageFont.truetype(name, size)
+        except OSError:
+            return ImageFont.load_default()
+
+    frames = []
+    for i in range(source.n_frames):
+        source.seek(i)
+        image = ImageOps.fit(source.convert('RGB'), (420, 148),
+                             method=Image.Resampling.LANCZOS,
+                             centering=(.5, .54)).convert('RGBA')
+        wash = Image.new('RGBA', image.size,
+                         (255, 255, 255, 202) if light else (6, 20, 33, 176))
+        image = Image.alpha_composite(image, wash).convert('RGB')
+        draw = ImageDraw.Draw(image)
+        draw.rounded_rectangle((1, 1, 418, 146), radius=13,
+                               outline=palette['border'], width=1)
+        draw.text((20, 12), 'AZUMINO', font=font(15, True), fill=palette['accent'])
+        draw.text((400, 17), observed.strftime('%m/%d %H:%M'),
+                  font=font(11), fill=palette['muted'], anchor='ra')
+        draw.text((83, 88), now, font=font(51, True),
+                  fill=palette['main'], anchor='mm')
+        draw.text((129, 89), '°C', font=font(23),
+                  fill=palette['main'], anchor='mm')
+        draw.line((163, 45, 163, 131), fill=palette['border'], width=1)
+        draw.text((180, 44), weather, font=font(16), fill=palette['main'])
+        draw.text((180, 70), f'High {today_hi} / Low {today_lo}',
+                  font=font(13), fill=palette['sub'])
+        draw.text((180, 97), 'Tomorrow', font=font(12), fill=palette['muted'])
+        draw.text((248, 96), tomorrow, font=font(12), fill=palette['sub'])
+        draw.text((180, 119), f'High {next_hi} / Low {next_lo}',
+                  font=font(13), fill=palette['sub'])
+        frames.append(image)
+
+    def encode(cropped):
+        output = io.BytesIO()
+        cropped[0].save(output, format='GIF', save_all=True,
+                        append_images=cropped[1:],
+                        duration=1400, loop=0, optimize=True, disposal=2)
+        return output.getvalue()
+    return (encode([im.crop((0, 0, 420, 74)) for im in frames]),
+            encode([im.crop((0, 74, 420, 148)) for im in frames]))
+
+
 def main() -> None:
     query = (
         'https://api.open-meteo.com/v1/forecast'
@@ -186,13 +275,19 @@ def main() -> None:
         print('Using last successfully generated weather data')
     else:
         raise RuntimeError('Weather service unavailable and no cached cards exist')
-    svg = dark_source if 'weather-sky-clip' in dark_source else add_background(dark_source, weather_background(light=False))
+    svg = add_background(render_card(payload), weather_background(light=False)) if payload is not None else dark_source
     OUTPUT.write_text(svg, encoding='utf-8')
     write_slices(svg, OUTPUT)
-    light_svg = light_source if 'weather-sky-clip' in light_source else add_background(light_source, weather_background(light=True), light=True)
+    light_svg = add_background(light_card(render_card(payload)), weather_background(light=True), light=True) if payload is not None else light_source
     light_output.write_text(light_svg, encoding='utf-8')
     write_slices(light_svg, light_output)
-    print(f'Updated both themes for {OUTPUT.name}: current conditions and tomorrow forecast; panorama={PANORAMA.exists()}')
+    if payload is not None:
+        for light in (False, True):
+            top, bottom = raster_weather_cards(payload, light=light)
+            prefix = 'weather-azumino-light' if light else 'weather-azumino'
+            (OUTPUT.parent / (prefix + '-top.gif')).write_bytes(top)
+            (OUTPUT.parent / (prefix + '-bottom.gif')).write_bytes(bottom)
+    print(f'Updated weather in both themes; panorama={PANORAMA.exists()}')
 
 
 if __name__ == '__main__':
