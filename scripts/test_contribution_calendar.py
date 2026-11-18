@@ -30,6 +30,20 @@ class CalendarTests(unittest.TestCase):
             self.assertEqual(root.get('data-contribution-total'),'1234')
             self.assertEqual(len([x for x in root.iter(TAG+'rect') if x.get('class')=='c']),21)
             self.assertIsNotNone(root.find(TAG+"g[@clip-path='url(#calendar-grid-clip)']"))
+    def test_progress_gauges_remain_outside_grid_clip(self):
+        root = ET.fromstring(source())
+        gauge = ET.SubElement(root, TAG+'g', {'class': 'snake-progress'})
+        ET.SubElement(gauge, TAG+'rect', {
+            'class':'snake-progress-track', 'x':'55', 'y':'2',
+            'width':'12', 'height':'108',
+        })
+        rendered = ET.fromstring(add_calendar_labels(
+            ET.tostring(root, encoding='unicode'), parse_calendar(HTML)))
+        clipped = rendered.find(TAG+"g[@clip-path='url(#calendar-grid-clip)']")
+        self.assertIsNotNone(clipped)
+        self.assertIsNone(clipped.find(".//*[@class='snake-progress']"))
+        self.assertIsNotNone(rendered.find(TAG+"g[@class='snake-progress']"))
+
     def test_malformed_or_misaligned_data_does_not_publish(self):
         with self.assertRaises(ValueError):parse_calendar('<html>Rate limited</html>')
         c=parse_calendar(HTML);c['columns']=4
