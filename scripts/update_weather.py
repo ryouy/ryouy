@@ -163,7 +163,10 @@ def raster_weather_cards(payload: dict, light: bool = False):
     beneath live forecast text on each weather update.
     """
     import io
-    from PIL import Image, ImageDraw, ImageFont, ImageOps
+    from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFile
+    # Tolerate an incomplete GIF trailer in the imported artwork and re-encode
+    # every displayed frame as a fresh, valid GIF below.
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
 
     if not PANORAMA.is_file():
         raise FileNotFoundError(f'Weather background is missing: {PANORAMA}')
