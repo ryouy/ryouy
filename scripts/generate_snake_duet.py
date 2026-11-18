@@ -5,7 +5,7 @@ Read-only inputs are Platane/snk's existing output-branch SVGs. Each color has
 two snakes sharing the entire grid. Routes choose nearby targets
 randomly and use body-aware A*. Blue restores cells after its tail clears them.
 All four snakes use the original animation's time per grid step. Only stdlib is
-required. Includes an original dual-phase progress gauge beneath the grid.
+required. Includes a clearly labeled dual-phase progress gauge beneath the grid.
 """
 from __future__ import annotations
 
